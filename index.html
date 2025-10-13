@@ -1,10 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="refresh" content="0; url=login.html" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Redirecting...</title>
-  </head>
-  <body></body>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MySemester</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/png" href="mysemesterlogo.png" />
+
+  <meta name="title" content="MySemester" />
+  <meta name="description" content="Smartly track your university grades, plan courses, and stay on top of your semester. MySemester helps you visualize progress, organize assessments, and keep everything academic in one simple dashboard." />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://mysemester.org/" />
+  <meta property="og:title" content="MySemester" />
+  <meta property="og:description" content="Smartly track your university grades, plan courses, and stay on top of your semester. MySemester helps you visualize progress, organize assessments, and keep everything academic in one simple dashboard." />
+  <meta property="og:image" content="https://mysemester.org/mysemesterlogo.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="MySemester" />
+  <meta name="twitter:description" content="Smartly track your university grades, plan courses, and stay on top of your semester. MySemester helps you visualize progress, organize assessments, and keep everything academic in one simple dashboard." />
+  <meta name="twitter:image" content="https://mysemester.org/mysemesterlogo.png" />
+
+  <style>
+    :root {
+      --blue: #2563eb;
+      --light-blue: #60a5fa;
+      --bg: #f9fafb;
+      --text: #0f172a;
+      --muted: #64748b;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Outfit', sans-serif;
+      text-align: center;
+      padding: 0 24px;
+      animation: fadeIn 0.6s var(--ease);
+    }
+
+    img {
+      width: 90px;
+      height: 90px;
+      margin-bottom: 22px;
+      animation: scaleIn 0.9s var(--ease);
+    }
+
+    h1 {
+      font-size: 42px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--blue), var(--light-blue));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+      margin-bottom: 14px;
+      animation: fadeUp 1s var(--ease);
+    }
+
+    p.description {
+      font-size: 17px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 420px;
+      margin: 0 auto 24px;
+      animation: fadeUp 1.3s var(--ease);
+    }
+
+    .loading {
+      margin-top: 14px;
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      animation: fadeUp 1.6s var(--ease);
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: var(--blue);
+      border-radius: 50%;
+      animation: pulse 1.2s infinite ease-in-out;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes scaleIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse {
+      0%, 100% { transform: scale(0.8); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+  </style>
+</head>
+
+<body>
+  <img src="mysemesterlogo.png" alt="MySemester Logo">
+  <h1>MySemester</h1>
+  <p class="description">
+    Smartly track your university grades, plan courses, and stay on top of your semester.
+    MySemester helps you visualize progress, organize assessments, and keep everything academic in one simple dashboard.
+  </p>
+
+  <div class="loading">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+
+  <script>
+    // Redirect after short delay
+    setTimeout(() => {
+      window.location.href = "login.html";
+    }, 2000);
+  </script>
+</body>
 </html>
