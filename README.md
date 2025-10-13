@@ -8,31 +8,43 @@
   A clean, minimal, and intelligent grade tracking platform for university students.
 </p>
 
+<p align="center">
+  <a href="https://mysemester.org">mysemester.org</a>  
+</p>
+
 ---
 
 ## Overview
-**MySemester** is a lightweight web application that helps students organize and monitor their academic progress.  
-It provides a clear and intuitive interface to track courses, calculate grades, and manage assessments in one unified space.  
+**MySemester** is a lightweight web application designed to help students organize, analyze, and monitor their academic progress.  
+It provides a focused and modern interface for managing courses, calculating grades, and staying on top of semester goals.
 
-Key features include:
-- Adding and managing university courses  
-- Tracking assessment weights and performance  
-- Calculating and visualizing GPA in real time  
-- Persistent data across pages with local storage  
-- A responsive interface with both light and dark themes  
+The platform combines clarity with functionality, aiming to make academic tracking simple and visually consistent.  
+
+### Key Features
+- Add, edit, and remove university courses  
+- Track assessments, weights, and overall performance  
+- Calculate GPA dynamically and visualize performance trends  
+- Auto-save and sync data between pages  
+- Seamless integration with Supabase for authentication and storage  
+- Light and dark themes for comfortable use at any time of day  
 
 ---
 
 ## Purpose
-University courses often use different grading systems and timelines, making it difficult to maintain an accurate overview of academic standing.  
-MySemester was created to simplify that process by offering a single, visually consistent platform that allows students to focus on performance rather than paperwork.
+University grading systems can vary widely between faculties and courses, often leading to confusion about academic standing.  
+MySemester was created to provide a unified experience for tracking progress across subjects, simplifying how students manage performance and plan their studies.
+
+The goal is not only to automate calculations but to reduce stress by offering a clean and reliable digital workspace for academic organization.
 
 ---
 
 ## Technology Stack
-- **Frontend:** HTML, CSS, JavaScript  
-- **Backend and Authentication:** Supabase  
-- **Hosting:** GitHub Pages (custom domain: [mysemester.org](https://mysemester.org))  
+| Layer | Technology |
+|-------|-------------|
+| **Frontend** | HTML, CSS, JavaScript |
+| **Backend & Authentication** | Supabase |
+| **Deployment** | GitHub Pages (custom domain: [mysemester.org](https://mysemester.org)) |
+| **Version Control** | Git and GitHub |
 
 ---
 
