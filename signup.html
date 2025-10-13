@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign Up</title>
+
+  <!-- Outfit font -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Ionicons -->
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    :root {
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #6b7280;
+      --blue: #2563eb;
+      --line: #e5e7eb;
+      --green: #22c55e;
+      --red: #dc2626;
+      --radius: 18px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --input-bg: #fff;
+      --input-border: var(--line);
+    }
+
+    body {
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: var(--bg);
+      font-family: 'Outfit', sans-serif;
+      color: var(--text);
+      transition: background 0.3s var(--ease), color 0.3s var(--ease);
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: 52px;
+      background: linear-gradient(90deg, #2563eb, #60a5fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.5px;
+      text-shadow: 0 3px 12px rgba(37,99,235,0.15);
+      margin-bottom: 40px;
+      animation: fadeUp 0.5s var(--ease) forwards;
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      width: min(400px, 90%);
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      padding: 40px 34px;
+      text-align: center;
+      animation: fadeIn 0.4s var(--ease);
+      position: relative;
+      transition: background 0.3s var(--ease), color 0.3s var(--ease);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 28px;
+      margin-bottom: 26px;
+      letter-spacing: -0.02em;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    input {
+      padding: 12px 14px;
+      font-size: 15px;
+      border-radius: 12px;
+      border: 2px solid var(--input-border);
+      background: var(--input-bg);
+      font-family: 'Outfit';
+      transition: border-color 0.25s var(--ease), background 0.3s var(--ease), color 0.3s var(--ease);
+      color: var(--text);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+
+    .error {
+      color: var(--red);
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+    }
+
+    .success {
+      color: var(--green);
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+    }
+
+    button {
+      margin-top: 8px;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 14px;
+      background: var(--blue);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.25s var(--ease), transform 0.2s var(--ease);
+    }
+
+    button:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+    }
+
+    p {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 20px;
+    }
+
+    a {
+      color: var(--blue);
+      font-weight: 600;
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+
+    /* Dark mode overrides */
+    body.dark {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f9fafb;
+      --muted: #94a3b8;
+      --line: #475569;
+      --input-bg: #334155;
+      --input-border: #64748b;
+    }
+
+    /* Dark mode applied */
+    body.dark {
+      background: var(--bg);
+      color: var(--text);
+      transition: background 0.3s var(--ease), color 0.3s var(--ease);
+    }
+    body.dark .card {
+      background: var(--card);
+      color: var(--text);
+      transition: background 0.3s var(--ease), color 0.3s var(--ease);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    }
+    body.dark input {
+      background: var(--input-bg);
+      border-color: var(--input-border);
+      color: var(--text);
+    }
+    body.dark input:focus {
+      border-color: var(--blue);
+    }
+    body.dark p {
+      color: var(--muted);
+    }
+    body.dark a {
+      color: var(--blue);
+    }
+
+    /* Toggle button */
+    .theme-toggle {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      color: var(--muted);
+      transition: color 0.3s var(--ease);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 8px;
+    }
+    .theme-toggle:hover {
+      color: var(--blue);
+      background: rgba(37, 99, 235, 0.1);
+    }
+    body.dark .theme-toggle {
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="title">MySemester</div>
+  <div class="card">
+    <button class="theme-toggle" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
+      <ion-icon name="moon-outline"></ion-icon>
+    </button>
+    <h1>Create Account</h1>
+    <form id="signupForm">
+      <input type="text" id="username" placeholder="Username" required />
+      <div class="error" id="usernameError"></div>
+      <input type="email" id="email" placeholder="Email address" required />
+      <div class="error" id="emailError"></div>
+      <input type="password" id="password" placeholder="Password" required />
+      <div class="error" id="passwordError"></div>
+      <div class="success" id="successText">Account created! Redirecting...</div>
+      <button type="submit">Sign up</button>
+      <p>Already have an account? <a href="login.html">Log in</a></p>
+    </form>
+  </div>
+
+<script>
+  // ===== Supabase init (keeps your UI intact) =====
+  const SUPABASE_URL = 'https://dqstskgvdiwdkonbapke.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc3Rza2d2ZGl3ZGtvbmJhcGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzMDI0NzYsImV4cCI6MjA3NTg3ODQ3Nn0.2iFEYtVQZjQOY8_sF4x0SvWIKk8L-jg4yzpXzLLFe60';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Theme toggle logic
+  const body = document.body;
+  const toggleBtn = document.querySelector('.theme-toggle');
+  const icon = toggleBtn.querySelector('ion-icon');
+
+  function setTheme(theme) {
+    if (theme === 'dark') {
+      body.classList.add('dark');
+      icon.setAttribute('name', 'sunny-outline');
+    } else {
+      body.classList.remove('dark');
+      icon.setAttribute('name', 'moon-outline');
+    }
+    localStorage.setItem('theme', theme);
+  }
+
+  // Load theme preference
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme === 'dark') {
+    setTheme('dark');
+  } else {
+    setTheme('light');
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    if (body.classList.contains('dark')) {
+      setTheme('light');
+    } else {
+      setTheme('dark');
+    }
+  });
+
+  // Signup form logic (Supabase + keep UI)
+  document.getElementById("signupForm").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    const usernameError = document.getElementById("usernameError");
+    const emailError = document.getElementById("emailError");
+    const passwordError = document.getElementById("passwordError");
+    const successText = document.getElementById("successText");
+
+    // Reset messages
+    usernameError.style.display = emailError.style.display = passwordError.style.display = "none";
+    successText.style.display = "none";
+
+    // Client-side validation (unchanged)
+    let hasError = false;
+
+    if (!username) {
+      usernameError.textContent = "Please enter a username.";
+      usernameError.style.display = "block";
+      hasError = true;
+    }
+    if (!email) {
+      emailError.textContent = "Please enter your email.";
+      emailError.style.display = "block";
+      hasError = true;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      emailError.textContent = "Invalid email address.";
+      emailError.style.display = "block";
+      hasError = true;
+    }
+    if (!password) {
+      passwordError.textContent = "Please enter your password.";
+      passwordError.style.display = "block";
+      hasError = true;
+    } else if (password.length < 6) {
+      passwordError.textContent = "Password must be at least 6 characters.";
+      passwordError.style.display = "block";
+      hasError = true;
+    }
+    if (hasError) return;
+
+    try {
+      // Check if username already exists in user metadata by listing auth users via RPC is not available on client.
+      // Instead, attempt to sign up; Supabase enforces unique emails. We'll store the username in user_metadata.
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { username }
+        }
+      });
+
+      if (error) {
+        // Common cases: email already registered, password rules, etc.
+        emailError.textContent = error.message || "Sign up failed.";
+        emailError.style.display = "block";
+        return;
+      }
+
+      // If email confirmations are disabled, we might already have a session; otherwise not.
+      // To keep the current UX, we locally set an auth hint for main.html to greet correctly.
+      localStorage.setItem("uoft_auth_v1", JSON.stringify({
+        loggedIn: true,
+        username,
+        email
+      }));
+
+      // Also clear any per-user local data to start fresh
+      // (main.html will namespace data by username anyway)
+      // No destructive global clears here.
+
+      successText.textContent = "Account created! Redirecting...";
+      successText.style.display = "block";
+
+      setTimeout(() => {
+        window.location.href = "main.html";
+      }, 900);
+    } catch (err) {
+      emailError.textContent = err.message || "Unexpected error. Please try again.";
+      emailError.style.display = "block";
+    }
+  });
+</script>
+</body>
+</html>

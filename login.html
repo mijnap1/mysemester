@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+  <style>
+    :root {
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #6b7280;
+      --blue: #2563eb;
+      --error: #b91c1c;
+      --radius: 18px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      margin: 0;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      transition: background .3s var(--ease), color .3s var(--ease);
+      transform: translateY(-40px);
+    }
+
+    .title {
+      font-weight: 800;
+      font-size: 52px;
+      letter-spacing: -0.5px;
+      margin-bottom: 40px;
+      font-family: 'Outfit', sans-serif;
+      text-align: center;
+      user-select: none;
+      background: linear-gradient(90deg, #2563eb 0%, #60a5fa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+      text-shadow: 0 3px 12px rgba(37,99,235,0.15);
+      animation: fadeInUp .5s var(--ease);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.08);
+      padding: 40px 42px;
+      width: 360px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+      animation: fadeIn .35s var(--ease);
+      position: relative;
+      transition: background .3s var(--ease), color .3s var(--ease);
+    }
+
+    h1 {
+      font-weight: 700;
+      font-size: 30px;
+      margin: 0 0 10px;
+      letter-spacing: -0.02em;
+    }
+
+    input {
+      border: 2px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--text);
+      transition: border-color .25s var(--ease), background .3s var(--ease), color .3s var(--ease);
+      width: 90%;
+      margin: 0 auto;
+      display: block;
+      background: transparent;
+    }
+    input:focus { border-color: var(--blue); outline: none; }
+
+    button {
+      border: none;
+      border-radius: 14px;
+      background: var(--blue);
+      color: #fff;
+      font-weight: 600;
+      font-size: 16px;
+      padding: 12px 0;
+      cursor: pointer;
+      transition: background .25s var(--ease), transform .25s var(--ease);
+      width: 90%;
+      margin: 0 auto;
+    }
+    button:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+    .small {
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .small a {
+      color: var(--blue);
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .small a:hover { text-decoration: underline; }
+
+    /* Removed .toggle styles as per instruction */
+
+    .theme-icon {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      font-size: 22px;
+      color: var(--muted);
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.3s var(--ease);
+    }
+    body.dark .theme-icon {
+      color: var(--blue);
+    }
+
+    .error {
+      color: var(--error);
+      font-size: 14px;
+      display: none;
+      animation: fadeIn .3s var(--ease);
+    }
+
+    body.dark {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --text: #f8fafc;
+      --muted: #cbd5e1;
+      background: var(--bg);
+      color: var(--text);
+    }
+    body.dark input {
+      background: #334155;
+      color: var(--text);
+      border-color: #475569;
+    }
+    body.dark input:focus {
+      border-color: var(--blue);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="title">MySemester</div>
+  <div class="card">
+    <ion-icon id="themeToggle" class="theme-icon" name="sunny-outline" role="button" aria-label="Toggle Theme" tabindex="0"></ion-icon>
+
+    <h1>Welcome Back</h1>
+    <input type="text" id="username" placeholder="Username" />
+    <input type="password" id="password" placeholder="Password" />
+    <div class="error" id="loginError">⚠ Please enter both username and password.</div>
+    <button id="loginBtn">Login</button>
+    <div class="small">No account? <a href="signup.html">Sign up</a></div>
+  </div>
+
+  <script type="module">
+    // --- Theme toggle ---
+    const themeToggle = document.getElementById('themeToggle');
+    const currentTheme = localStorage.getItem('theme') || 'light';
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        document.body.classList.add('dark');
+        themeToggle.name = 'moon-outline';
+        themeToggle.setAttribute('aria-label', 'Switch to light theme');
+      } else {
+        document.body.classList.remove('dark');
+        themeToggle.name = 'sunny-outline';
+        themeToggle.setAttribute('aria-label', 'Switch to dark theme');
+      }
+      localStorage.setItem('theme', theme);
+    }
+
+    applyTheme(currentTheme);
+
+    function toggleTheme() {
+      const isDark = document.body.classList.contains('dark');
+      applyTheme(isDark ? 'light' : 'dark');
+    }
+
+    themeToggle.addEventListener('click', toggleTheme);
+    themeToggle.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        toggleTheme();
+      }
+    });
+
+    // --- Login logic (linked with signup.html) ---
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
+
+    loginBtn.addEventListener('click', () => {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!username || !password) {
+        loginError.textContent = 'Please enter both username and password.';
+        loginError.style.display = 'block';
+        return;
+      }
+
+      // ✅ Match with signup.html
+      const users = JSON.parse(localStorage.getItem('mysemester_all_users') || '{}');
+
+      if (!users[username]) {
+        loginError.textContent = 'User not found. Please sign up first.';
+        loginError.style.display = 'block';
+        return;
+      }
+
+      if (users[username].password !== password) {
+        loginError.textContent = 'Incorrect password. Try again.';
+        loginError.style.display = 'block';
+        return;
+      }
+
+      // ✅ Save login session
+      localStorage.setItem('uoft_auth_v1', JSON.stringify({
+        loggedIn: true,
+        username,
+        email: users[username].email
+      }));
+
+      loginError.style.display = 'none';
+      window.location.href = 'main.html';
+    });
+
+    // --- Supabase Integration ---
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const SUPABASE_URL = "https://dqstskgvdiwdkonbapke.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc3Rza2d2ZGl3ZGtvbmJhcGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzMDI0NzYsImV4cCI6MjA3NTg3ODQ3Nn0.2iFEYtVQZjQOY8_sF4x0SvWIKk8L-jg4yzpXzLLFe60";
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Replace localStorage login with Supabase auth
+    loginBtn.addEventListener('click', async () => {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value.trim();
+
+      if (!username || !password) {
+        loginError.textContent = 'Please enter both username and password.';
+        loginError.style.display = 'block';
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: username,
+        password: password
+      });
+
+      if (error) {
+        loginError.textContent = error.message;
+        loginError.style.display = 'block';
+        return;
+      }
+
+      loginError.style.display = 'none';
+      localStorage.setItem('uoft_auth_v1', JSON.stringify({ loggedIn: true, username }));
+      window.location.href = 'main.html';
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Grade Tracker</title>
+
+  <!-- Font + Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+  <style>
+    :root {
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #6b7280;
+      --blue: #2563eb;
+      --green: #22c55e;
+      --red: #dc2626;
+      --radius: 18px;
+      --shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px 120px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      width: min(850px, 95%);
+    }
+    header ion-icon {
+      font-size: 24px;
+      color: var(--blue);
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.25s var(--ease);
+    }
+    header ion-icon:hover { transform: translateX(-2px); }
+    header h1 {
+      font-weight: 700;
+      font-size: 30px;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+    header p {
+      margin: 2px 0 0;
+      font-size: 17px;
+      color: var(--muted);
+    }
+
+    table {
+      border-collapse: collapse;
+      width: min(850px, 96%);
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      font-size: 16px;
+    }
+    th, td {
+      text-align: center;
+      padding: 18px;
+    }
+    th {
+      background: #f3f4f6;
+      font-weight: 600;
+      color: var(--blue);
+      font-size: 16px;
+    }
+    tr:not(:last-child) td {
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    input[type="number"] {
+      width: 120px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 2px solid #e5e7eb;
+      font-family: 'Outfit';
+      font-size: 16px;
+      text-align: center;
+      transition: border-color 0.25s var(--ease);
+    }
+    input[type="number"]:focus {
+      outline: none;
+      border-color: var(--blue);
+    }
+    /* remove number arrows */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    input[type=number] { -moz-appearance: textfield; }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 26px;
+    }
+    .actions button {
+      font-family: 'Outfit';
+      font-weight: 600;
+      font-size: 15px;
+      padding: 12px 20px;
+      border-radius: 14px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.25s var(--ease);
+    }
+    .save {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+    .save:hover { background: #1d4ed8; }
+    .estimate {
+      background: #fff;
+      color: var(--blue);
+      border: 2px solid var(--blue);
+    }
+    .estimate:hover { background: #eff6ff; }
+    .add {
+      background: transparent;
+      border: 2px dashed var(--muted);
+      color: var(--muted);
+    }
+    .add:hover {
+      border-color: var(--blue);
+      color: var(--blue);
+      background: #eff6ff;
+    }
+    .remove-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      color: #9ca3af;
+      font-size: 18px;
+      transition: color 0.25s var(--ease);
+    }
+    .remove-btn:hover { color: var(--red); }
+
+    .summary {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 18px;
+      font-weight: 500;
+    }
+    .summary span {
+      font-weight: 700;
+      transition: color 0.25s var(--ease);
+    }
+</style>
+<style>
+  :root[data-theme='dark'] {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --blue: #60a5fa;
+    --green: #22c55e;
+    --red: #f87171;
+    --shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+  :root[data-theme='dark'] table {
+    background: var(--card);
+  }
+  :root[data-theme='dark'] th {
+    background: #334155;
+    color: var(--blue);
+  }
+  :root[data-theme='dark'] td, :root[data-theme='dark'] input {
+    background: #1e293b;
+    color: var(--text);
+    border-color: #475569;
+  }
+  :root[data-theme='dark'] .save {
+    background: var(--blue);
+    color: #fff;
+  }
+  :root[data-theme='dark'] .estimate {
+    background: transparent;
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+  :root[data-theme='dark'] .add {
+    border-color: #475569;
+    color: #94a3b8;
+  }
+  :root[data-theme='dark'] .add:hover {
+    color: var(--blue);
+    border-color: var(--blue);
+    background: rgba(96,165,250,0.1);
+  }
+</style>
+</head>
+
+<body>
+  <header>
+    <ion-icon name="arrow-back-outline" onclick="window.location.href='main.html'"></ion-icon>
+    <div style="margin-left:10px;">
+      <h1 id="courseTitle">CSC108</h1>
+      <p id="courseDesc">Intro to Computer Science</p>
+    </div>
+    <ion-icon id="themeToggle" name="moon-outline" style="margin-left:auto; cursor:pointer;"></ion-icon>
+  </header>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Assessment</th>
+        <th>Weight (%)</th>
+        <th>Your Grade</th>
+        <th>Estimate <span style="color: var(--muted); font-size: 13px;">(optional)</span></th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody id="gradeBody"></tbody>
+  </table>
+
+  <div class="actions">
+    <button class="save" onclick="saveGrades()">Save Grades</button>
+    <button class="estimate" onclick="estimateTarget()">Estimate for 4.0 GPA</button>
+    <button class="add" onclick="addAssessment()">+ Add Assessment</button>
+  </div>
+
+  <div class="summary">
+    GPA: <span id="gpaDisplay">0.00</span> (<span id="letterDisplay">—</span>) |
+    Average: <span id="avgDisplay">0%</span>
+  </div>
+
+  <script>
+// Read ?course=CSC108 from the URL; fall back to CSC108 if missing
+const params = new URLSearchParams(location.search);
+const courseId = (params.get('course') || 'CSC108').toUpperCase();
+
+// Try to read the correct course info from localStorage (main.html)
+let courseMeta = { title: 'Unknown Course', icon: 'book-outline' };
+try {
+  const mainState = JSON.parse(localStorage.getItem('uoft-grade-lite-v5'));
+  if (mainState && Array.isArray(mainState.courses)) {
+    const found = mainState.courses.find(c => (c.code || '').toUpperCase() === courseId);
+    if (found) courseMeta = found;
+  }
+} catch (e) { /* ignore */ }
+
+// Update the header to show the course’s actual title and icon
+const courseTitleEl = document.getElementById('courseTitle');
+const courseDescEl = document.getElementById('courseDesc');
+
+if (courseMeta && courseMeta.code) {
+  courseTitleEl.textContent = courseMeta.code;
+  courseDescEl.textContent = courseMeta.title || courseMeta.name || '';
+} else {
+  courseTitleEl.textContent = courseId;
+  courseDescEl.textContent = '';
+}
+    // Use user-specific storage key for grades (per-user, per-course, v3)
+    const currentUser = localStorage.getItem('uoft_current_user') || 'guest';
+    const userGradeKey = `grades_${currentUser}_${courseId}_v3`;
+
+    let weights = [];
+    try {
+      const raw = localStorage.getItem(userGradeKey);
+      const isNewUser = !localStorage.getItem(`uoft_user_${currentUser}_created`);
+      if (isNewUser) {
+        // New user account → always start clean
+        weights = [];
+        localStorage.setItem(`uoft_user_${currentUser}_created`, 'true');
+        localStorage.setItem(userGradeKey, JSON.stringify([]));
+      } else if (raw) {
+        // Existing user: restore their saved grades if any
+        try {
+          const parsed = JSON.parse(raw);
+          weights = Array.isArray(parsed) ? parsed : [];
+        } catch {
+          weights = [];
+        }
+      } else {
+        // New course for existing user → start fresh
+        weights = [];
+        localStorage.setItem(userGradeKey, JSON.stringify([]));
+      }
+    } catch {
+      weights = [];
+    }
+
+    function saveGrades() {
+      localStorage.setItem(userGradeKey, JSON.stringify(weights));
+    }
+
+    function gpaFromPct(p) {
+      if (p >= 90) return 4.0;
+      if (p >= 85) return 4.0;
+      if (p >= 80) return 3.7;
+      if (p >= 77) return 3.3;
+      if (p >= 73) return 3.0;
+      if (p >= 70) return 2.7;
+      if (p >= 67) return 2.3;
+      if (p >= 63) return 2.0;
+      if (p >= 60) return 1.7;
+      if (p >= 57) return 1.3;
+      if (p >= 53) return 1.0;
+      if (p >= 50) return 0.7;
+      return 0.0;
+    }
+
+    function letterFromPct(p) {
+      if (p >= 90) return 'A+';
+      if (p >= 85) return 'A';
+      if (p >= 80) return 'A-';
+      if (p >= 77) return 'B+';
+      if (p >= 73) return 'B';
+      if (p >= 70) return 'B-';
+      if (p >= 67) return 'C+';
+      if (p >= 63) return 'C';
+      if (p >= 60) return 'C-';
+      if (p >= 57) return 'D+';
+      if (p >= 53) return 'D';
+      if (p >= 50) return 'D-';
+      return 'F';
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('gradeBody');
+      tbody.innerHTML = '';
+      weights.forEach((w, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td ondblclick="editName(${i}, this)">${w.name}</td>
+          <td ondblclick="editWeight(${i}, this)">${w.weight}</td>
+          <td><input type="number" min="0" max="100" value="${w.grade ?? ''}" data-i="${i}" data-type="grade"></td>
+          <td><input type="number" min="0" max="100" value="${w.estimate ?? ''}" data-i="${i}" data-type="estimate"></td>
+          <td><button class="remove-btn" onclick="removeAssessment(${i})"><ion-icon name="trash-outline"></ion-icon></button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.querySelectorAll('input').forEach(inp => {
+        inp.addEventListener('input', e => {
+          const i = e.target.dataset.i;
+          const type = e.target.dataset.type;
+          const val = e.target.value === '' ? null : parseFloat(e.target.value);
+          weights[i][type] = val;
+          saveGrades();
+          calcAvg();
+        });
+      });
+      renderEstimates();
+      calcAvg();
+    }
+
+    function addAssessment() {
+      const newRow = {
+        name: `Assessment ${weights.length + 1}`,
+        weight: 10,
+        grade: null,
+        estimate: null
+      };
+      weights.push(newRow);
+      saveGrades();
+      renderTable();
+      calcAvg();
+    }
+
+    function removeAssessment(i) {
+      weights.splice(i, 1);
+      saveGrades();
+      renderTable();
+      calcAvg();
+    }
+
+    function editWeight(i, cell) {
+      const oldWeight = weights[i].weight;
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.value = oldWeight;
+      input.min = 0;
+      input.max = 100;
+      styleInlineEdit(input);
+      cell.innerHTML = '';
+      cell.appendChild(input);
+      input.focus();
+
+      input.addEventListener('blur', () => {
+        const newWeight = parseFloat(input.value);
+        if (!isNaN(newWeight) && newWeight >= 0 && newWeight <= 100) {
+          weights[i].weight = newWeight;
+          saveGrades();
+          renderTable();
+          calcAvg();
+        } else cell.textContent = oldWeight;
+      });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
+    }
+
+    function editName(i, cell) {
+      const oldName = weights[i].name;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = oldName;
+      styleInlineEdit(input);
+      input.style.textAlign = 'left';
+      cell.innerHTML = '';
+      cell.appendChild(input);
+      input.focus();
+
+      input.addEventListener('blur', () => {
+        const newName = input.value.trim();
+        if (newName) {
+          weights[i].name = newName;
+          saveGrades();
+          renderTable();
+        } else cell.textContent = oldName;
+      });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
+    }
+
+    function styleInlineEdit(input) {
+      input.style.border = '2px solid var(--blue)';
+      input.style.borderRadius = '6px';
+      input.style.fontFamily = 'Outfit';
+      input.style.fontSize = '15px';
+      input.style.padding = '6px 8px';
+    }
+
+    function estimateTarget() {
+      const goal = 85; // Target average %
+      if (weights.length === 0) return;
+
+      let weightedTotal = 0;
+      let completedWeight = 0;
+      let remainingWeight = 0;
+
+      // Sum up current progress accurately by weight
+      weights.forEach(w => {
+        const weight = parseFloat(w.weight) || 0;
+        const grade = parseFloat(w.grade);
+        if (!isNaN(grade)) {
+          weightedTotal += grade * weight;
+          completedWeight += weight;
+        } else {
+          remainingWeight += weight;
+        }
+      });
+
+      if (remainingWeight <= 0) return; // no remaining assessments to estimate
+
+      // Calculate the required weighted average for remaining assessments
+      const neededAverage = (goal * (completedWeight + remainingWeight) - weightedTotal) / remainingWeight;
+
+      // Apply the needed average as estimate for remaining items
+      weights.forEach(w => {
+        if (w.grade == null || w.grade === '') {
+          w.estimate = Math.max(0, Math.min(100, parseFloat(neededAverage.toFixed(2))));
+        }
+      });
+
+      saveGrades();
+      renderEstimates();
+      calcAvg();
+    }
+
+    function renderEstimates() {
+      const rows = document.querySelectorAll('#gradeBody tr');
+      weights.forEach((w, i) => {
+        const estimateInput = rows[i].querySelector('input[data-type="estimate"]');
+        estimateInput.value = w.estimate ?? '';
+      });
+      calcAvg();
+    }
+
+    function calcAvg() {
+      let total = 0, totalWeight = 0;
+      weights.forEach(w => {
+        if (w.grade != null && w.grade !== '') {
+          total += (w.grade * w.weight);
+          totalWeight += w.weight;
+        }
+      });
+      const avg = totalWeight ? total / totalWeight : 0;
+      document.getElementById('avgDisplay').textContent = avg.toFixed(1) + '%';
+      const gpa = gpaFromPct(avg);
+      const letter = letterFromPct(avg);
+      document.getElementById('gpaDisplay').textContent = gpa.toFixed(2);
+      document.getElementById('letterDisplay').textContent = letter;
+      const gpaEl = document.getElementById('gpaDisplay');
+      gpaEl.style.color =
+        (letter === 'C+' || letter === 'C' || letter === 'C-' || letter.startsWith('D') || letter === 'F')
+          ? '#dc2626'
+          : '#22c55e';
+
+      // Sync the computed average back to localStorage for main.html
+      try {
+        const mainStateRaw = localStorage.getItem('uoft-grade-lite-v5');
+        if (mainStateRaw) {
+          const mainState = JSON.parse(mainStateRaw);
+          if (mainState && Array.isArray(mainState.courses)) {
+            const idx = mainState.courses.findIndex(c => (c.code || '').toUpperCase() === courseId);
+            if (idx !== -1) {
+              mainState.courses[idx].grade = avg;
+              localStorage.setItem('uoft-grade-lite-v5', JSON.stringify(mainState));
+            }
+          }
+        }
+      } catch (e) {
+        // Ignore sync errors silently
+      }
+    }
+
+    renderTable();
+
+    // ========================= THEME TOGGLE (SYNCED GLOBALLY) =========================
+    const THEME_KEY = 'uoft_theme'; // same key as main.html
+    const themeToggle = document.getElementById('themeToggle');
+
+    function applyTheme(mode) {
+      document.documentElement.setAttribute('data-theme', mode);
+      localStorage.setItem(THEME_KEY, mode);
+      themeToggle.setAttribute('name', mode === 'dark' ? 'sunny-outline' : 'moon-outline');
+    }
+
+    // Toggle on click
+    themeToggle.addEventListener('click', () => {
+      const current = localStorage.getItem(THEME_KEY) || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      applyTheme(next);
+    });
+
+    // Initialize theme (read from main.html)
+    const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
+    applyTheme(savedTheme);
+
+    // Listen for changes (so switching in main.html updates here too)
+    window.addEventListener('storage', (e) => {
+      if (e.key === THEME_KEY && e.newValue) {
+        applyTheme(e.newValue);
+      }
+    });
+  </script>
+</body>
+</html>

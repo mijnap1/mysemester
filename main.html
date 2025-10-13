@@ -1,0 +1,2332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MySemester</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+
+  <style>
+    :root {
+      --bg: #f9fafb;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #6b7280;
+      --line: #e5e7eb;
+
+      --blue: #2563eb;
+      --green: #22c55e;
+      --purple: #7c3aed;
+      --gray: #9ca3af;
+      --danger: #dc2626;
+
+      --radius: 20px;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+      --transition: all .35s var(--ease);
+      --shadow-hover: 0 10px 24px rgba(2, 6, 23, 0.10);
+      --shadow-default: 0 4px 12px rgba(2, 6, 23, 0.06);
+      --header-h: 64px;
+
+      --chip-bg: #f1f5f9;
+      --chip-text: #334155;
+    }
+
+    /* Dark theme overrides */
+    :root[data-theme="dark"] {
+      --bg: #0b1220;
+      --card: #0f172a;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --line: #1f2937;
+      --shadow-default: 0 4px 12px rgba(0,0,0,0.45);
+      --shadow-hover: 0 10px 30px rgba(0,0,0,0.55);
+      --chip-bg: #111827;
+      --chip-text: #cbd5e1;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    /* ===================================
+       HEADER
+    ====================================== */
+    header {
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: var(--header-h);
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 18px;
+      z-index: 1000;
+    }
+    .brand {
+      display:flex; align-items:center; gap:10px;
+    }
+    .brand h1 {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0;
+      letter-spacing: -0.02em;
+    }
+
+    .h-controls {
+      display:flex; align-items:center; gap:10px;
+    }
+    .iconbtn {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:40px; height:40px;
+      border-radius: 12px;
+      border: 2px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .iconbtn:hover { transform: translateY(-1px); box-shadow: var(--shadow-default); border-color:#dbe3f0; }
+    .iconbtn ion-icon { font-size: 20px; }
+    .iconbtn.avatar-btn {
+      position: relative;
+      overflow: hidden;
+    }
+    /* Profile picture in navigation bar */
+    #accountAvatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px; /* same as the nav icon box corner rounding */
+      object-fit: cover; /* ensures the image fills neatly inside without stretching */
+      border: 2px solid rgba(0, 0, 0, 0.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    }
+
+    .menu-icon { width:44px; height:44px; }
+
+    .account-wrap { position: relative; }
+    .account-dd {
+      position: absolute;
+      top: 50px;
+      right: 0;
+      width: 280px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 16px 40px rgba(0,0,0,.15);
+      padding: 10px;
+      display: none;
+      z-index: 1200;
+      animation: ddIn .18s var(--ease);
+    }
+    .account-dd.show { display: block; }
+    @keyframes ddIn { from { transform: translateY(6px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+    .acc-row {
+      display:flex; align-items:center; gap:12px;
+      padding: 10px;
+      border-radius: 10px;
+    }
+    .acc-row:hover { background: rgba(148,163,184,.12); }
+    .dd-avatar {
+      width: 48px;
+      height: 48px;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--card);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.02);
+    }
+
+    .dd-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 12px;
+      display: none;
+    }
+    .acc-meta { display:flex; flex-direction:column; }
+    .acc-name { font-weight:700; }
+    .acc-user { font-size:13px; color: var(--muted); }
+
+    .acc-actions { margin-top:8px; display:flex; flex-direction:column; gap:8px; }
+    .acc-actions button, .acc-actions a {
+      display:flex; align-items:center; gap:10px;
+      width:100%;
+      background: transparent; border: 2px solid var(--line);
+      color: var(--text);
+      padding: 10px 12px; border-radius: 12px;
+      text-decoration:none; font-weight:600; cursor:pointer;
+      transition: var(--transition);
+    }
+    .acc-actions button:hover, .acc-actions a:hover { transform: translateY(-1px); }
+
+    .chip {
+      display:inline-flex; align-items:center; gap:8px;
+      background: var(--chip-bg); color: var(--chip-text);
+      padding: 6px 10px; border-radius: 999px; font-size: 12px; font-weight:600;
+      border: 1px solid var(--line);
+    }
+
+    /* ===================================
+       SIDEBAR (from top-right burger)
+    ====================================== */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2,6,23,0.35);
+      opacity: 0;
+      visibility: hidden;
+      transition: var(--transition);
+      z-index: 998;
+    }
+    .overlay.show { opacity: 1; visibility: visible; }
+
+    .sidebar {
+      position: fixed;
+      top: var(--header-h);
+      right: -320px;
+      height: calc(100% - var(--header-h));
+      width: 320px;
+      background: var(--card);
+      border-left: 1px solid var(--line);
+      padding: 18px 22px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      transition: var(--transition);
+      z-index: 999;
+      overflow:auto;
+    }
+    .sidebar.show { right: 0; }
+
+    .navbtn {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      font-size: 17px;
+      border-radius: 16px;
+      padding: 14px 16px;
+      background: var(--card);
+      border: 2px solid var(--line);
+      color: var(--text);
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.25s var(--ease);
+    }
+    .navbtn ion-icon { font-size: 22px; }
+    .navbtn.green { border-color: var(--green); color: var(--green); }
+    .navbtn.green:hover { background: var(--green); color: #fff; }
+    .navbtn.blue { border-color: var(--blue); color: var(--blue); }
+    .navbtn.blue:hover { background: var(--blue); color: #fff; }
+    .navbtn.gray { border-color: #94a3b8; color: #475569; }
+    .navbtn.gray:hover { background: #94a3b8; color: #fff; }
+
+    /* ===================================
+       MAIN LAYOUT
+    ====================================== */
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: calc(var(--header-h) + 24px) 20px 100px;
+      text-align: center;
+    }
+
+    .hero { margin: 18px 0 0; }
+    .hero h2 {
+      font-size: 54px;
+      font-weight: 700;
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 18px;
+      font-weight: 400;
+    }
+
+    .grid {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-top: 34px;
+      min-height: 260px;
+      position: relative;
+    }
+    /* Redesigned Empty State Card */
+    .empty-state-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #fff 60%, #f9fafb 100%);
+      border-radius: 22px;
+      box-shadow: 0 4px 24px rgba(2, 6, 23, 0.07), 0 1.5px 0.5px 0 rgba(37,99,235,0.03) inset;
+      border: 1.5px solid #e7eaf3;
+      width: 290px;
+      min-height: 180px;
+      margin: 32px auto;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 2;
+      text-align: center;
+      transition: box-shadow 0.22s var(--ease), border-color 0.18s var(--ease), transform 0.18s var(--ease);
+      padding: 28px 18px 20px;
+      gap: 12px;
+      animation: emptyFadeIn 0.6s var(--ease);
+      box-sizing: border-box;
+    }
+    @keyframes emptyFadeIn {
+      from { opacity: 0; transform: translate(-50%, -56%) scale(0.97);}
+      to   { opacity: 1; transform: translate(-50%, -50%) scale(1);}
+    }
+    .empty-state-card:hover {
+      box-shadow: 0 10px 32px 0 rgba(37, 99, 235, 0.10), 0 2px 8px rgba(2,6,23,0.08);
+      border-color: #c7dbff;
+      transform: translate(-50%, -52%) scale(1.018);
+    }
+    .empty-state-card .empty-plus-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 54px;
+      height: 54px;
+      background: linear-gradient(135deg, #e0eaff 80%, #f1f5fd 100%);
+      border-radius: 50%;
+      box-shadow: 0 2px 8px 0 rgba(37,99,235,0.10);
+      margin-bottom: 8px;
+      margin-top: 2px;
+    }
+    .empty-state-card .empty-plus-badge ion-icon {
+      font-size: 32px;
+      color: #fff;
+      background: none;
+      --ionicon-stroke-width: 42px;
+      filter: drop-shadow(0 1px 2px rgba(37,99,235,0.06));
+    }
+    .empty-state-card .empty-title {
+      font-size: 19.5px;
+      font-weight: 700;
+      margin-bottom: 1px;
+      color: var(--text);
+      letter-spacing: -0.01em;
+    }
+    .empty-state-card .empty-desc {
+      color: var(--muted);
+      font-size: 14.5px;
+      margin-bottom: 12px;
+      margin-top: 0;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+    .empty-state-card .btn-empty-pill {
+      font-size: 15.5px;
+      font-weight: 600;
+      padding: 7px 24px;
+      border-radius: 999px;
+      border: 1.8px solid #b6d2fd;
+      background: rgba(37,99,235,0.07);
+      color: #2563eb;
+      outline: none;
+      box-shadow: 0 1px 6px rgba(37,99,235,0.06);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      cursor: pointer;
+      transition: background 0.16s var(--ease), box-shadow 0.18s var(--ease), border-color 0.17s var(--ease), color 0.16s var(--ease), transform 0.18s var(--ease);
+      margin-top: 2px;
+      user-select: none;
+    }
+    .empty-state-card .btn-empty-pill ion-icon {
+      font-size: 18px;
+      margin-right: 1px;
+      color: #2563eb;
+    }
+    .empty-state-card .btn-empty-pill:hover, .empty-state-card .btn-empty-pill:focus {
+      background: #e0e7ff;
+      color: #1e40af;
+      border-color: #93c5fd;
+      box-shadow: 0 4px 16px 0 rgba(37,99,235,0.13);
+      transform: translateY(-2px) scale(1.04);
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-default);
+      width: 380px;
+      padding: 26px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      text-align: left;
+      transition: var(--transition);
+      cursor: pointer;
+      border: 2px solid transparent;
+      position: relative;
+    }
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-hover);
+      border-color: #e0e7ff;
+    }
+    ion-icon.course-icon {
+      font-size: 38px;
+      color: var(--blue);
+      flex-shrink: 0;
+      transition: transform .35s var(--ease), color .35s var(--ease);
+    }
+    .card:hover ion-icon.course-icon { color: var(--purple); transform: scale(1.08); }
+    .info { flex: 1; }
+    .info .code { font-size: 20px; font-weight: 700; }
+    .info .muted-sm { color: var(--muted); font-size: 14px; }
+    .mark { font-size: 22px; font-weight: 700; color: var(--blue); margin-left: auto; min-width: 64px; text-align: right; position: relative; }
+    .mark .swap { display: inline-block; transition: opacity .5s var(--ease); }
+
+    /* ===================================
+       CONTEXT MENU
+    ====================================== */
+    .ctx {
+      position: fixed;
+      top: 0; left: 0;
+      min-width: 180px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.12);
+      padding: 6px;
+      display: none;
+      z-index: 2000;
+    }
+    .ctx.show { display: block; animation: ctxIn .18s var(--ease); }
+    @keyframes ctxIn { from{ transform: translateY(4px); opacity: 0 } to{ transform: translateY(0); opacity: 1 } }
+    .ctx button {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: transparent;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--text);
+      transition: background .2s var(--ease), transform .2s var(--ease);
+    }
+    .ctx button:hover { background: rgba(148,163,184,.15); transform: translateX(2px); }
+    .ctx .danger { color: var(--danger); }
+    .ctx ion-icon { font-size: 18px; }
+
+    /* ===================================
+       OVERVIEW CARDS
+    ====================================== */
+    .overview {
+      margin: 44px auto 0;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .ov {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 16px 12px;
+      box-shadow: var(--shadow-default);
+      border: 1px solid var(--line);
+    }
+    .ov .label { color: var(--muted); font-size: 13px; }
+    .ov .value { font-weight: 700; font-size: 22px; }
+
+    footer { margin-top: 80px; font-size: 13px; color: var(--muted); }
+
+    /* ===================================
+       MODAL (Add/Edit Course)
+    ====================================== */
+    dialog {
+      border: none;
+      border-radius: 18px;
+      width: min(600px, 92vw);
+      background: var(--card);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.18);
+      padding: 0;
+    }
+    dialog::backdrop { background: rgba(0, 0, 0, 0.35); }
+    .modal-head {
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+    }
+    .modal-body { padding: 22px; display: grid; gap: 18px; }
+    .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+    /* Icon suggestion chips (improved for "Try:") */
+    .icon-try-row-toggle {
+      display: inline-flex;
+      align-items: center;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #2563eb;
+      background: #f3f6fa;
+      border-radius: 999px;
+      border: none;
+      padding: 6px 16px;
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.18s, color 0.18s, box-shadow 0.18s var(--ease), transform 0.18s var(--ease);
+      margin-bottom: 2px;
+      outline: none;
+      box-shadow: 0 1px 5px rgba(37,99,235,0.06);
+    }
+    .icon-try-row-toggle:hover, .icon-try-row-toggle:focus {
+      background: #e0e7ff;
+      color: #1e40af;
+      box-shadow: 0 2px 12px rgba(37,99,235,0.10);
+      transform: translateY(-1px) scale(1.03);
+      text-decoration: none;
+    }
+    .icon-chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 6px;
+      opacity: 1;
+      pointer-events: auto;
+      transition: opacity 0.23s var(--ease);
+      animation: iconchipfadein .33s var(--ease);
+    }
+    .icon-chip-row.hide {
+      opacity: 0;
+      pointer-events: none;
+      height: 0;
+      margin-top: 0;
+      transition: opacity 0.22s var(--ease);
+      animation: none;
+    }
+    @keyframes iconchipfadein {
+      from { opacity: 0; transform: translateY(10px);}
+      to { opacity: 1; transform: none;}
+    }
+    .icon-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--chip-bg);
+      color: var(--chip-text);
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      transition: background 0.2s, color 0.2s;
+      cursor: pointer;
+      user-select: none;
+    }
+    .icon-chip ion-icon {
+      font-size: 17px;
+      margin-right: 2px;
+    }
+    label { font-size: 13px; font-weight: 600; color: var(--muted); }
+
+    /* === Dark mode enhancements for Add Course & Try chips === */
+    :root[data-theme="dark"] {
+      /* Add Course modal */
+      #addCourseModal {
+        background: var(--card);
+        border: 1px solid var(--line);
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+      }
+
+      /* Try toggle and chips */
+      .icon-try-row-toggle {
+        background: var(--chip-bg);
+        color: var(--blue);
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+      }
+
+      .icon-try-row-toggle:hover, .icon-try-row-toggle:focus {
+        background: rgba(37,99,235,0.2);
+        color: #bfdbfe;
+        box-shadow: 0 2px 10px rgba(37,99,235,0.15);
+      }
+
+      .icon-chip-row {
+        background: transparent;
+      }
+
+      .icon-chip {
+        background: var(--chip-bg);
+        color: var(--chip-text);
+        border: 1px solid var(--line);
+      }
+
+      .icon-chip:hover {
+        background: rgba(37,99,235,0.15);
+        color: #bfdbfe;
+      }
+
+      /* Empty State Card (No courses yet) - dark theme */
+      .empty-state-card {
+        background: linear-gradient(135deg, #1e293b 60%, #0f172a 100%);
+        border: 1.5px solid #334155;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      }
+      .empty-state-card .empty-title,
+      .empty-state-card .empty-desc {
+        color: #cbd5e1;
+      }
+      .empty-state-card .btn-empty-pill {
+        background: rgba(37,99,235,0.15);
+        border-color: #3b82f6;
+        color: #93c5fd;
+      }
+      .empty-state-card .btn-empty-pill:hover {
+        background: rgba(37,99,235,0.25);
+        color: #bfdbfe;
+        border-color: #60a5fa;
+      }
+      .empty-state-card .empty-plus-badge {
+        background: linear-gradient(135deg, #2563eb 80%, #1e3a8a 100%);
+        box-shadow: 0 2px 10px rgba(37,99,235,0.4);
+      }
+    }
+
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 2px solid var(--line);
+      background: var(--card);
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      color: var(--text);
+      transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    }
+    input:focus {
+      outline: none;
+      border-color: #93c5fd;
+      box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.25);
+    }
+    input::placeholder { color: #9ca3af; }
+
+    .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    .modal-actions {
+      padding: 18px 22px 24px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    .btn-plain, .btn-primary {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 600;
+      border-radius: 14px;
+      padding: 12px 20px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+    }
+    .btn-plain {
+      border: 2px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+    }
+    .btn-plain:hover { transform: translateY(-1px); }
+    .btn-primary {
+      border: 2px solid var(--blue);
+      background: var(--blue);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+
+    .error { color: #b91c1c; font-size: 13px; display:none; }
+
+    /* ===================================
+       MISC
+    ====================================== */
+    .fade-out { opacity: 0 !important; transform: translateY(6px); transition: .25s var(--ease); }
+
+    /* pointer for cards */
+    .card { cursor: pointer; }
+
+    /* Profile modal sizing */
+    #profileModal {
+      width: min(860px, 96vw);
+    }
+    #profileModal .modal-body {
+      padding: 28px 32px;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- ========================= HEADER ========================= -->
+  <header>
+    <div class="brand">
+      <ion-icon name="school-outline" style="font-size:22px;color:var(--blue)"></ion-icon>
+      <h1>MySemester</h1>
+    </div>
+
+    <div class="h-controls">
+      <!-- Account -->
+      <div class="account-wrap">
+        <button class="iconbtn avatar-btn" id="accountBtn" aria-label="Account">
+          <img id="accountAvatar" alt="Profile" class="avatar-inset">
+          <ion-icon id="accountIcon" name="person-circle-outline"></ion-icon>
+        </button>
+        <div class="account-dd" id="accountDd" role="menu" aria-label="Account menu">
+          <div class="acc-row" id="accSummary">
+            <div class="dd-avatar">
+              <img id="accSummaryAvatar" alt="Profile">
+              <ion-icon id="accSummaryIcon" name="person-circle-outline" style="font-size:24px"></ion-icon>
+            </div>
+            <div class="acc-meta">
+              <span class="acc-name" id="accName">Guest</span>
+              <span class="acc-user" id="accEmail">Not signed in</span>
+            </div>
+          </div>
+          <div class="acc-actions" id="accActionsSignedOut">
+            <a href="login.html"><ion-icon name="log-in-outline"></ion-icon> Sign in</a>
+            <a href="signup.html"><ion-icon name="person-add-outline"></ion-icon> Create account</a>
+          </div>
+          <div class="acc-actions" id="accActionsSignedIn" style="display:none">
+            <button id="goProfile"><ion-icon name="person-outline"></ion-icon> Profile</button>
+            <button id="signOut"><ion-icon name="log-out-outline"></ion-icon> Sign out</button>
+          </div>
+          <div style="margin-top:10px; display:flex; justify-content:space-between; align-items:center; padding: 0 6px;">
+            <span class="chip"><ion-icon name="id-card-outline"></ion-icon> Private</span>
+            <span class="chip" id="chipWelcome">Welcome</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Theme -->
+      <button class="iconbtn" id="themeToggle" aria-label="Toggle theme">
+        <ion-icon id="themeIcon" name="moon-outline"></ion-icon>
+      </button>
+
+      <!-- Menu / Sidebar -->
+      <button class="iconbtn menu-icon" id="menuToggle" aria-label="Open Menu">
+        <ion-icon name="menu-outline"></ion-icon>
+      </button>
+    </div>
+  </header>
+
+  <!-- ========================= OVERLAY + SIDEBAR ========================= -->
+  <div class="overlay" id="overlay"></div>
+
+  <aside class="sidebar" id="sidebar" aria-label="Sidebar Navigation">
+    <button class="navbtn green" id="openAddCourse"><ion-icon name="add-circle-outline"></ion-icon> Add Course</button>
+    <button class="navbtn blue" id="openSettings"><ion-icon name="settings-outline"></ion-icon> Settings</button>
+    <button class="navbtn gray" id="openAbout"><ion-icon name="information-circle-outline"></ion-icon> About</button>
+  </aside>
+  <!-- ========================= SETTINGS MODAL ========================= -->
+  <!-- ========================= ABOUT MODAL ========================= -->
+  <dialog id="aboutModal">
+    <div class="modal-head about-modal-head">
+      <ion-icon name="information-circle-outline"></ion-icon>
+      <span style="font-size:20px;font-weight:700;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;">
+        About MySemester
+      </span>
+    </div>
+    <div class="modal-body about-modal-body" style="padding:0;">
+      <div class="about-content">
+        <h2>About MySemester</h2>
+        <p>MySemester is a tool that helps university students stay on top of their academics. You can organize courses, keep track of grades, and see how your GPA is shaping up. </p>
+
+        <div class="about-divider"></div>
+        <h3>Features</h3>
+        <ul>
+          <li>Smart GPA tracking across multiple grading systems</li>
+          <li>Streamlined course management</li>
+          <li>Personalization options for themes and layout</li>
+          <li>Notifications (coming soon)</li>
+          <li>Local data storage for complete privacy</li>
+        </ul>
+
+        <div class="about-divider"></div>
+        <h3>Built With</h3>
+        <p>MySemester is developed with HTML, CSS, and JavaScript, using Ionicons for interface elements.
+        <div class="about-divider"></div>
+        <h3>Future Plans</h3>
+        <ul>
+          <li>Device synchronization</li>
+          <li>Advanced GPA analytics</li>
+          <li>AI-powered grade prediction</li>
+          <li>Secure cloud backup</li>
+          <li>Full mobile optimization</li>
+        </ul>
+
+        <div class="about-divider"></div>
+        <h3>Contact</h3>
+        <p>For inquiries, feedback, or collaboration, email: <a href="mailto:jamie.mails07@gmail.com">jamie.mails07@gmail.com</a></p>
+      </div>
+    </div>
+    <div class="modal-actions about-modal-actions">
+      <button type="button" class="btn-plain" id="closeAbout">Close</button>
+    </div>
+  </dialog>
+  <style>
+    /* About modal - minimalist, universal, clean (wider layout) */
+    #aboutModal {
+      padding: 24px 30px;
+      border-radius: 20px;
+      border: none;
+      width: min(860px, 96vw); /* wider box so info fits comfortably */
+      background: var(--card);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.18);
+      animation: modalIn 0.22s var(--ease);
+      transition: var(--transition);
+      backdrop-filter: blur(6px);
+    }
+    #aboutModal::backdrop {
+      background: rgba(0,0,0,0.32);
+      transition: background 0.22s var(--ease);
+      backdrop-filter: blur(2.5px);
+    }
+    .about-modal-head {
+      padding: 22px 26px 18px 24px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      background: var(--card);
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+      min-height: 56px;
+    }
+    .about-modal-head ion-icon { font-size:23px; color:var(--blue);}
+    .about-modal-body {
+      background: var(--bg);
+      padding: 0;
+    }
+    .about-content {
+      max-width: 820px;                 /* wider reading width */
+      margin: 0 auto;
+      padding: 28px 28px 0 28px;        /* add inner padding */
+      text-align: left;                 /* left-align for readability */
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 2px;
+    }
+    #aboutModal h2 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 14px 0;
+      color: var(--text);
+      line-height: 1.35;
+      letter-spacing: -0.01em;
+      text-align: left;
+    }
+    #aboutModal h3 {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--blue);
+      margin: 20px 0 10px 0;
+      line-height: 1.45;
+      text-align: left;
+    }
+    #aboutModal p,
+    #aboutModal ul {
+      line-height: 1.65;
+      color: var(--text);
+      margin: 10px 0;
+      font-size: 16px;
+      font-weight: 400;
+      text-align: left;                 /* keep all text left-aligned */
+      max-width: 820px;
+    }
+    #aboutModal ul {
+      padding-left: 22px;
+      margin: 8px 0 4px 0;
+      columns: 2;                       /* show items in two neat columns on wide modal */
+      column-gap: 32px;
+    }
+    #aboutModal ul li {
+      margin: 0 0 6px 0;
+      break-inside: avoid;
+      font-size: 16px;
+    }
+    .about-divider {
+      border-top: 1px solid var(--line);
+      margin: 20px 0;
+      opacity: 0.5;
+      width: 100%;
+    }
+    #aboutModal a {
+      color: var(--blue);
+      text-decoration: underline dotted;
+      transition: color 0.18s;
+      font-weight: 500;
+      opacity: 0.92;
+    }
+    #aboutModal a:hover, #aboutModal a:focus {
+      color: #1d4ed8;
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .about-modal-actions {
+      padding: 18px 24px 24px 24px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: var(--card);
+      border-bottom-left-radius: 18px;
+      border-bottom-right-radius: 18px;
+    }
+  </style>
+  <dialog id="settingsModal">
+    <div class="modal-head">
+      <ion-icon name="settings-outline"></ion-icon>
+      <span style="font-size:20px;font-weight:700;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;">
+        Settings
+      </span>
+    </div>
+    <div class="modal-body" style="gap: 26px;">
+      <!-- Theme -->
+      <section class="settings-card">
+        <div class="settings-card-title"><ion-icon name="color-palette-outline"></ion-icon><span>Theme</span></div>
+        <div class="settings-theme-btnrow">
+          <button type="button" class="settings-theme-btn" data-theme="light"><ion-icon name="sunny-outline"></ion-icon> Light</button>
+          <button type="button" class="settings-theme-btn" data-theme="dark"><ion-icon name="moon-outline"></ion-icon> Dark</button>
+          <button type="button" class="settings-theme-btn" data-theme="system"><ion-icon name="desktop-outline"></ion-icon> System</button>
+        </div>
+      </section>
+      <!-- Layout -->
+      <section class="settings-card">
+        <div class="settings-card-title"><ion-icon name="grid-outline"></ion-icon><span>Dashboard Layout</span></div>
+        <div class="settings-radio-row">
+          <label class="settings-radio">
+            <input type="radio" name="layout" value="compact" class="settings-layout-radio" />
+            <span>Compact</span>
+          </label>
+          <label class="settings-radio">
+            <input type="radio" name="layout" value="spacious" class="settings-layout-radio" />
+            <span>Spacious</span>
+          </label>
+        </div>
+      </section>
+      <!-- GPA Format -->
+      <section class="settings-card">
+        <div class="settings-card-title"><ion-icon name="stats-chart-outline"></ion-icon><span>Default GPA Format</span></div>
+        <div class="settings-toggle-row">
+          <button type="button" class="settings-gpa-btn" data-gpa="4.0">4.0</button>
+          <button type="button" class="settings-gpa-btn" data-gpa="%">%</button>
+        </div>
+      </section>
+      <!-- Notifications -->
+      <section class="settings-card">
+        <div class="settings-card-title"><ion-icon name="notifications-outline"></ion-icon><span>Notifications</span></div>
+        <div class="settings-switch-row">
+          <button type="button" class="settings-switch" id="settingsNotifToggle">
+            <span class="settings-switch-knob"></span>
+          </button>
+          <span id="settingsNotifLabel" style="margin-left:12px;font-size:15px;font-weight:500;">Off</span>
+        </div>
+      </section>
+      <!-- Data Controls -->
+      <section class="settings-card">
+        <div class="settings-card-title"><ion-icon name="cloud-download-outline"></ion-icon><span>Data Controls</span></div>
+        <div class="settings-data-btnrow">
+          <button type="button" class="btn-plain" id="exportCoursesBtn"><ion-icon name="download-outline"></ion-icon> Export Courses</button>
+          <button type="button" class="btn-plain" id="importCoursesBtn"><ion-icon name="cloud-upload-outline"></ion-icon> Import Courses</button>
+          <button type="button" class="btn-plain danger" id="resetDataBtn"><ion-icon name="refresh-outline"></ion-icon> Reset All Data</button>
+        </div>
+      </section>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-plain" id="closeSettings">Close</button>
+    </div>
+  </dialog>
+  <style>
+    /* Settings modal: match Add Course modal style */
+    #settingsModal {
+      border: none;
+      border-radius: 18px;
+      width: min(480px, 92vw);
+      background: var(--card);
+      box-shadow: 0 20px 70px rgba(0, 0, 0, 0.18);
+      padding: 0;
+      animation: modalIn 0.22s var(--ease);
+      transition: var(--transition);
+    }
+    #settingsModal::backdrop {
+      background: rgba(0,0,0,0.35);
+      transition: background 0.22s var(--ease);
+    }
+    #settingsModal .modal-head {
+      padding: 22px 26px 18px 24px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--text);
+      background: var(--card);
+      border-top-left-radius: 18px;
+      border-top-right-radius: 18px;
+      min-height: 56px;
+    }
+    #settingsModal .modal-head ion-icon { font-size:23px; color:var(--blue);}
+    #settingsModal .modal-body {
+      padding: 22px 24px 20px 24px;
+      display: grid;
+      gap: 26px;
+      background: var(--bg);
+    }
+    #settingsModal .modal-actions {
+      padding: 18px 24px 24px 24px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      background: var(--card);
+      border-bottom-left-radius: 18px;
+      border-bottom-right-radius: 18px;
+    }
+    /* Settings card sections */
+    .settings-card {
+      background: var(--card);
+      border-radius: 16px;
+      box-shadow: var(--shadow-default);
+      border: 1.5px solid var(--line);
+      padding: 18px 20px 15px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      margin-bottom: 0;
+      transition: box-shadow .22s var(--ease), border-color .18s var(--ease);
+    }
+    .settings-card:not(:last-child) { margin-bottom: 0; }
+    .settings-card-title {
+      display: flex; align-items: center; gap: 9px;
+      font-weight: 600; font-size: 16px; color: var(--text);
+      margin-bottom: 2px;
+    }
+    .settings-card-title ion-icon { font-size: 19px; color: var(--blue);}
+    .settings-theme-btnrow {
+      display: flex; gap: 10px;
+      margin-top: 2px; margin-bottom: 0;
+    }
+    .settings-theme-btn {
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 11px;
+      border: 2px solid var(--line);
+      background: var(--chip-bg);
+      color: var(--chip-text);
+      padding: 8px 18px;
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: none;
+      outline: none;
+    }
+    .settings-theme-btn.active, .settings-theme-btn:focus {
+      border-color: var(--blue);
+      background: #e0e7ff;
+      color: #1e40af;
+      box-shadow: 0 2px 10px rgba(37,99,235,0.09);
+    }
+    .settings-theme-btn:hover { background: #f1f5fd; }
+    .settings-theme-btn ion-icon { font-size: 18px; }
+    .settings-radio-row {
+      display: flex; gap: 22px; margin-top: 2px;
+    }
+    .settings-radio {
+      display: flex; align-items: center; gap: 7px; font-size: 15px; font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+    }
+    .settings-radio input[type="radio"] {
+      accent-color: var(--blue);
+      width: 17px; height: 17px;
+      margin-right: 4px;
+      border-radius: 50%;
+      border: 1.5px solid var(--line);
+    }
+    .settings-toggle-row {
+      display: flex; gap: 10px; margin-top: 2px;
+    }
+    .settings-gpa-btn {
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 11px;
+      border: 2px solid var(--line);
+      background: var(--chip-bg);
+      color: var(--chip-text);
+      padding: 8px 22px;
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: none;
+      outline: none;
+    }
+    .settings-gpa-btn.active, .settings-gpa-btn:focus {
+      border-color: var(--blue);
+      background: #e0e7ff;
+      color: #1e40af;
+      box-shadow: 0 2px 10px rgba(37,99,235,0.09);
+    }
+    .settings-gpa-btn:hover { background: #f1f5fd; }
+    .settings-switch-row {
+      display: flex; align-items: center; gap: 12px; margin-top: 2px;
+    }
+    .settings-switch {
+      width: 44px; height: 26px; border-radius: 999px;
+      border: 2px solid var(--line);
+      background: var(--chip-bg);
+      position: relative;
+      cursor: pointer;
+      transition: border-color .22s, background .22s;
+      outline: none;
+      box-shadow: none;
+      display: inline-flex; align-items: center; justify-content: flex-start;
+      padding: 0;
+    }
+    .settings-switch.active {
+      background: #e0e7ff;
+      border-color: var(--blue);
+    }
+    .settings-switch-knob {
+      display: block;
+      position: absolute;
+      left: 1px; top: 1px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--blue);
+      transition: left 0.22s var(--ease), background 0.22s;
+    }
+    .settings-switch.active .settings-switch-knob {
+      left: 20px;
+      background: #2563eb;
+    }
+    .settings-data-btnrow {
+      display: flex; gap: 11px; flex-wrap: wrap; margin-top: 2px;
+    }
+    .settings-data-btnrow .btn-plain {
+      font-size: 14.5px; font-weight: 600; border-radius: 10px; padding: 8px 15px;
+      display: flex; align-items: center; gap: 7px;
+      border: 2px solid var(--line);
+      background: var(--chip-bg);
+      color: var(--chip-text);
+      transition: var(--transition);
+      box-shadow: none;
+      outline: none;
+    }
+    .settings-data-btnrow .btn-plain:hover {
+      background: #f1f5fd;
+      border-color: var(--blue);
+      color: #1e40af;
+    }
+    .settings-data-btnrow .btn-plain.danger {
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    .settings-data-btnrow .btn-plain.danger:hover {
+      background: #fef2f2;
+      color: #b91c1c;
+      border-color: #b91c1c;
+    }
+    .settings-data-btnrow .btn-plain ion-icon {
+      font-size: 17px;
+    }
+    /* Animate modal in */
+    @keyframes modalIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.97);}
+      to   { opacity: 1; transform: none;}
+    }
+  </style>
+    <!-- ========================= SETTINGS MODAL LOGIC ========================= -->
+    <script>
+    // --- Settings data model ---
+    const SETTINGS_KEY = 'uoft_settings_v1';
+    // Default settings
+    const defaultSettings = {
+      theme: 'light', // 'light' | 'dark' | 'system'
+      layout: 'compact', // 'compact' | 'spacious'
+      gpaFormat: '4.0', // '4.0' | '%'
+      notifications: false,
+      tutorial: false
+    };
+    function getSettings() {
+      try {
+        const s = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+        return { ...defaultSettings, ...(s||{}) };
+      } catch(e) { return { ...defaultSettings }; }
+    }
+    function saveSettings(settings) {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
+    }
+    // --- UI Elements ---
+    const openSettingsBtn = document.getElementById('openSettings');
+    const settingsModal = document.getElementById('settingsModal');
+    const closeSettingsBtn = document.getElementById('closeSettings');
+    // Theme
+    const themeBtns = Array.from(document.querySelectorAll('.settings-theme-btn'));
+    // Layout
+    const layoutRadios = Array.from(document.querySelectorAll('.settings-layout-radio'));
+    // GPA
+    const gpaBtns = Array.from(document.querySelectorAll('.settings-gpa-btn'));
+    // Notifications
+    const notifSwitch = document.getElementById('settingsNotifToggle');
+    const notifLabel = document.getElementById('settingsNotifLabel');
+    // Data controls
+    const exportCoursesBtn = document.getElementById('exportCoursesBtn');
+    const importCoursesBtn = document.getElementById('importCoursesBtn');
+    const resetDataBtn = document.getElementById('resetDataBtn');
+
+    // --- Modal open/close ---
+    openSettingsBtn?.addEventListener('click', ()=>{
+      settingsModal.showModal();
+      sidebar.classList.remove('show');
+      overlay.classList.remove('show');
+      syncSettingsModalUI();
+    });
+    closeSettingsBtn?.addEventListener('click', ()=>settingsModal.close());
+    settingsModal.addEventListener('close', ()=>{});
+    document.addEventListener('keydown', (e)=>{
+      if (e.key === 'Escape') settingsModal.close?.();
+    });
+
+    // --- Sync UI from settings ---
+    function syncSettingsModalUI() {
+      const s = getSettings();
+      // Theme
+      themeBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.theme === s.theme);
+      });
+      // Layout
+      layoutRadios.forEach(r => {
+        r.checked = r.value === s.layout;
+      });
+      // GPA
+      gpaBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.gpa === s.gpaFormat);
+      });
+      // Notifications
+      notifSwitch.classList.toggle('active', !!s.notifications);
+      notifLabel.textContent = s.notifications ? 'On' : 'Off';
+    }
+
+    // --- Theme switching logic ---
+    themeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const newTheme = btn.dataset.theme;
+        const s = getSettings();
+        s.theme = newTheme;
+        saveSettings(s);
+        // Also update THEME_KEY for main theme logic
+        if (newTheme === 'system') {
+          localStorage.setItem(THEME_KEY, 'system');
+        } else {
+          localStorage.setItem(THEME_KEY, newTheme);
+        }
+        applyTheme();
+        syncSettingsModalUI();
+      });
+    });
+    // Make THEME_KEY support "system"
+    function applyTheme() {
+      let stored = localStorage.getItem(THEME_KEY) || 'light';
+      if (stored === 'system') {
+        stored = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      if (stored === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeIcon.setAttribute('name','sunny-outline');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeIcon.setAttribute('name','moon-outline');
+      }
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>{
+      // Only update if user has "system" selected
+      const s = getSettings();
+      if(s.theme === 'system') applyTheme();
+      syncSettingsModalUI();
+    });
+
+    // --- Layout switching logic ---
+    layoutRadios.forEach(radio => {
+      radio.addEventListener('change', ()=>{
+        if (radio.checked) {
+          const s = getSettings();
+          s.layout = radio.value;
+          saveSettings(s);
+        }
+      });
+    });
+
+    // --- GPA format toggle logic ---
+    gpaBtns.forEach(btn => {
+      btn.addEventListener('click', ()=>{
+        const s = getSettings();
+        s.gpaFormat = btn.dataset.gpa;
+        saveSettings(s);
+        syncSettingsModalUI();
+      });
+    });
+
+    // --- Notifications toggle ---
+    notifSwitch?.addEventListener('click', ()=>{
+      const s = getSettings();
+      s.notifications = !s.notifications;
+      saveSettings(s);
+      syncSettingsModalUI();
+    });
+
+
+    // --- Data controls ---
+    exportCoursesBtn?.addEventListener('click', ()=>{
+      alert('Export Courses: coming soon!');
+    });
+    importCoursesBtn?.addEventListener('click', ()=>{
+      alert('Import Courses: coming soon!');
+    });
+    resetDataBtn?.addEventListener('click', ()=>{
+      if (confirm('Are you sure you want to reset ALL data? This cannot be undone.')) {
+        // Placeholder: future, clear localStorage, etc.
+        alert('Reset All Data: coming soon!');
+      }
+    });
+    </script>
+    <!-- ========================= ABOUT MODAL LOGIC ========================= -->
+    <script>
+    // --- About modal logic ---
+    const openAboutBtn = document.getElementById('openAbout');
+    const aboutModal = document.getElementById('aboutModal');
+    const closeAboutBtn = document.getElementById('closeAbout');
+    openAboutBtn?.addEventListener('click', () => {
+      aboutModal.showModal();
+      sidebar.classList.remove('show');
+      overlay.classList.remove('show');
+    });
+    closeAboutBtn?.addEventListener('click', ()=>aboutModal.close());
+    aboutModal.addEventListener('close', ()=>{});
+    document.addEventListener('keydown', (e)=>{
+      if (e.key === 'Escape') aboutModal.close?.();
+    });
+    </script>
+  <!-- ========================= MAIN ========================= -->
+  <main class="wrap">
+    <section class="hero">
+      <h2 id="welcomeTitle">Welcome, Jamie</h2>
+      <p>Your academic overview</p>
+    </section>
+
+    <section class="grid" id="courseGrid"><!-- cards render here --></section>
+
+    <section class="overview" id="overview">
+      <div class="ov"><div class="label">GPA (4.0)</div><div class="value" id="gpa4">0.00</div></div>
+      <div class="ov"><div class="label">Letter Avg</div><div class="value" id="gpaLetter">—</div></div>
+      <div class="ov"><div class="label">Percent Avg</div><div class="value" id="gpaPct">0%</div></div>
+    </section>
+
+    <footer>© 2025 Jamie Ryu. All Rights Reserved.</footer>
+
+    <!-- ========================= PROFILE MODAL ========================= -->
+    <dialog id="profileModal">
+      <form id="profileForm" style="margin:0; max-width: 860px;">
+        <div class="modal-head">
+          <ion-icon name="person-outline"></ion-icon>
+          <span style="font-size:20px;font-weight:700;letter-spacing:-0.01em;">Profile</span>
+        </div>
+
+        <div class="modal-body" style="background:var(--bg);padding:28px 32px;display:flex;flex-direction:column;gap:24px;">
+          <!-- Profile Image Section -->
+          <div style="display:flex;align-items:center;gap:22px;flex-wrap:wrap;">
+            <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+              <img id="profilePicPreview" src="https://api.dicebear.com/7.x/initials/svg?seed=User"
+                   alt="Profile Picture"
+                   style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--line);background:#f3f4f6;">
+              <label for="profilePicInput"
+                     style="position:absolute;bottom:-8px;right:-8px;background:var(--blue);color:white;padding:6px 10px;border-radius:999px;font-size:12px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.15);">Change</label>
+              <input type="file" id="profilePicInput" accept="image/*" style="display:none;" />
+            </div>
+            <div style="flex:1;min-width:220px;">
+              <p style="font-size:13px;color:var(--muted);margin:4px 0 0;">PNG or JPG, up to ~3MB</p>
+            </div>
+          </div>
+
+          <!-- Profile Info -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+            <div>
+              <label style="font-size:13px;font-weight:600;color:var(--muted);">Full Name</label>
+              <input id="profileNameInput" type="text" placeholder="Full Name" />
+            </div>
+            <div>
+              <label style="font-size:13px;font-weight:600;color:var(--muted);">Nickname</label>
+              <input id="profileNickInput" type="text" placeholder="Preferred Nickname" />
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+            <div>
+              <label style="font-size:13px;font-weight:600;color:var(--muted);">Email</label>
+              <input id="profileEmailInput" type="email" placeholder="you@example.com" />
+            </div>
+            <div>
+              <label style="font-size:13px;font-weight:600;color:var(--muted);">Current Password</label>
+              <div class="pw-field" style="position:relative;">
+                <input id="profileCurrentPw" type="password" placeholder="Current password" style="width:100%;" />
+                <ion-icon name="eye-outline" class="pw-eye" data-target="profileCurrentPw"
+                          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--muted);cursor:pointer;"></ion-icon>
+              </div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+            <div>
+              <label style="font-size:13px;font-weight:600;color:var(--muted);">New Password</label>
+              <div class="pw-field" style="position:relative;">
+                <input id="profileNewPw" type="password" placeholder="New password" style="width:100%;" />
+                <ion-icon name="eye-outline" class="pw-eye" data-target="profileNewPw"
+                          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--muted);cursor:pointer;"></ion-icon>
+              </div>
+            </div>
+            <div>
+              <label style="font-size:13px;font-weight:600;color:var(--muted);">Confirm New Password</label>
+              <div class="pw-field" style="position:relative;">
+                <input id="profilePasswordInput" type="password" placeholder="Confirm new password" style="width:100%;" />
+                <ion-icon name="eye-outline" class="pw-eye" data-target="profilePasswordInput"
+                          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--muted);cursor:pointer;"></ion-icon>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions" style="padding:18px 32px;display:flex;justify-content:flex-end;gap:12px;">
+          <button type="button" class="btn-plain" id="profileCancelBtn">Cancel</button>
+          <button type="submit" class="btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </dialog>
+    <!-- ========================= END PROFILE MODAL ========================= -->
+  </main>
+
+  <!-- ========================= CONTEXT MENU ========================= -->
+  <div class="ctx" id="ctxMenu" role="menu">
+    <button type="button" data-act="edit"><ion-icon name="create-outline"></ion-icon> Edit course</button>
+    <button type="button" data-act="dup"><ion-icon name="copy-outline"></ion-icon> Duplicate</button>
+    <button type="button" class="danger" data-act="del"><ion-icon name="trash-outline"></ion-icon> Remove</button>
+  </div>
+
+  <!-- ========================= ADD/EDIT COURSE MODAL ========================= -->
+  <dialog id="addCourseModal">
+    <form id="addCourseForm">
+      <div class="modal-head"><ion-icon name="add-circle-outline"></ion-icon> <span id="modalTitle">Add Course</span></div>
+      <div class="modal-body">
+        <div class="modal-grid">
+          <div>
+            <label>Course Code</label>
+            <input name="code" id="codeInput" placeholder="CSC108" />
+          </div>
+          <div>
+            <label>Course Name</label>
+            <input name="title" id="titleInput" placeholder="Intro to Computer Science" />
+          </div>
+        </div>
+        <div class="modal-grid">
+          <div>
+            <label>Initial Grade (%) — optional</label>
+            <input name="grade" id="gradeInput" type="number" step="0.1" min="0" max="100" placeholder="e.g., 85" />
+          </div>
+          <div>
+            <label>Icon</label>
+            <input name="icon" id="iconInput" placeholder="e.g., laptop-outline" />
+            <div class="hint">Preview: <ion-icon id="iconPreview" name="book-outline"></ion-icon></div>
+            <div class="hint" style="margin-bottom:2px;">
+              <span class="icon-try-row-toggle" id="iconTryToggle" tabindex="0" role="button" aria-expanded="false">Try:</span>
+            </div>
+            <div class="icon-chip-row hide" id="iconChipRow" aria-hidden="true">
+              <span class="icon-chip" data-icon="calculator-outline"><ion-icon name="calculator-outline"></ion-icon>calculator-outline <span style="color:var(--muted);font-weight:400;">(Math)</span></span>
+              <span class="icon-chip" data-icon="laptop-outline"><ion-icon name="laptop-outline"></ion-icon>laptop-outline <span style="color:var(--muted);font-weight:400;">(CS)</span></span>
+              <span class="icon-chip" data-icon="school-outline"><ion-icon name="school-outline"></ion-icon>school-outline <span style="color:var(--muted);font-weight:400;">(Philosophy)</span></span>
+              <span class="icon-chip" data-icon="planet-outline"><ion-icon name="planet-outline"></ion-icon>planet-outline <span style="color:var(--muted);font-weight:400;">(Astronomy)</span></span>
+              <span class="icon-chip" data-icon="stats-chart-outline"><ion-icon name="stats-chart-outline"></ion-icon>stats-chart-outline <span style="color:var(--muted);font-weight:400;">(Stats)</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="error" id="formError">Please enter at least a course code (e.g., CSC108).</div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-plain" id="cancelCourse">Cancel</button>
+        <button type="submit" class="btn-primary" id="saveCourse">Save Course</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script type="module">
+  import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+  const SUPABASE_URL = "https://dqstskgvdiwdkonbapke.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc3Rza2d2ZGl3ZGtvbmJhcGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzMDI0NzYsImV4cCI6MjA3NTg3ODQ3Nn0.2iFEYtVQZjQOY8_sF4x0SvWIKk8L-jg4yzpXzLLFe60";
+
+  export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+</script>
+
+  <script>
+    // ========================= STATE & AUTH =========================
+    const LS_KEY = 'uoft-grade-lite-v5';
+    // Helper to get a user-specific localStorage key for any baseKey
+    function getUserSpecificKey(baseKey) {
+      const auth = getAuth();
+      if (auth && auth.loggedIn && auth.username) {
+        return `${baseKey}-${auth.username}`;
+      }
+      return baseKey;
+    }
+    const AUTH_KEY = 'uoft_auth_v1';
+    const THEME_KEY = 'uoft_theme';
+
+    /** @type {{courses: Array<{id:string, code:string, title:string, icon:string, grade:number}>}} */
+    let state = { courses: [] };
+
+    const uid = () => Math.random().toString(36).slice(2,9);
+
+    // Helper to get current auth (username)
+    function getCurrentUserKey() {
+      const auth = getAuth();
+      if (auth && auth.loggedIn && auth.username) {
+        return `mysemester_courses_${auth.username}`;
+      }
+      return null;
+    }
+
+    function load(){
+      let raw = null;
+      try {
+        raw = localStorage.getItem(getUserSpecificKey(LS_KEY));
+      } catch(_){}
+      if (raw) {
+        try { state = JSON.parse(raw) || {courses:[]}; } catch(_) { state = {courses:[]}; }
+      } else {
+        // Initialize a clean, empty state for new users (NO demo/seed courses)
+        state = { courses: [] };
+        save();
+      }
+    }
+
+    function save(){
+      localStorage.setItem(getUserSpecificKey(LS_KEY), JSON.stringify(state));
+    }
+
+
+
+    // Simple auth (from login.html / signup.html you built)
+    function getAuth(){
+      try{
+        const a = JSON.parse(localStorage.getItem(AUTH_KEY));
+        return a && a.loggedIn ? a : { loggedIn: false };
+      } catch(e){ return { loggedIn:false }; }
+    }
+    function setAuth(a){ localStorage.setItem(AUTH_KEY, JSON.stringify(a)); }
+
+    // Compute the best display name for the current user:
+    // Prefer profile.nickname → profile.name (full name) → auth.fullName (from signup) → auth.username
+    function getDisplayName() {
+      const auth = getAuth();
+      let prof = null;
+      try {
+        // loadProfile is declared later; guard in case it's not defined yet at this point.
+        if (typeof loadProfile === 'function') prof = loadProfile();
+      } catch(_){}
+
+      const nickname = prof && typeof prof.nickname === 'string' ? prof.nickname.trim() : '';
+      const fullnameFromProfile = prof && typeof prof.name === 'string' ? prof.name.trim() : '';
+      const fullNameFromAuth = auth && typeof auth.fullName === 'string' ? auth.fullName.trim() : '';
+      const username = auth && typeof auth.username === 'string' ? auth.username.trim() : '';
+
+      return nickname || fullnameFromProfile || fullNameFromAuth || username || 'User';
+    }
+
+    // Theme
+    function applyTheme() {
+      const stored = localStorage.getItem(THEME_KEY) || 'light';
+      if (stored === 'dark') {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        themeIcon.setAttribute('name','sunny-outline');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeIcon.setAttribute('name','moon-outline');
+      }
+    }
+
+    // ========================= GPA HELPERS =========================
+    function letterFromPct(p){
+      if(p>=90) return 'A+'; if(p>=85) return 'A'; if(p>=80) return 'A-';
+      if(p>=77) return 'B+'; if(p>=73) return 'B'; if(p>=70) return 'B-';
+      if(p>=67) return 'C+'; if(p>=63) return 'C'; if(p>=60) return 'C-';
+      if(p>=57) return 'D+'; if(p>=53) return 'D'; if(p>=50) return 'D-';
+      return 'F';
+    }
+    function gpaFromPct(p){
+      if(p>=90) return 4.0; if(p>=85) return 4.0; if(p>=80) return 3.7; if(p>=77) return 3.3;
+      if(p>=73) return 3.0; if(p>=70) return 2.7; if(p>=67) return 2.3; if(p>=63) return 2.0;
+      if(p>=60) return 1.7; if(p>=57) return 1.3; if(p>=53) return 1.0; if(p>=50) return 0.7;
+      return 0.0;
+    }
+
+    function recomputeOverview(){
+      if(!state.courses.length){ gpa4.textContent='0.00'; gpaLetter.textContent='—'; gpaPct.textContent='0%'; return; }
+      const av = state.courses.reduce((s,c)=> s + (c.grade||0), 0) / state.courses.length;
+      gpa4.textContent = gpaFromPct(av).toFixed(2);
+      gpaLetter.textContent = letterFromPct(av);
+      gpaPct.textContent = Math.round(av) + '%';
+    }
+
+    // ========================= RENDER COURSES =========================
+    const grid = document.getElementById('courseGrid');
+    const gpa4 = document.getElementById('gpa4');
+    const gpaLetter = document.getElementById('gpaLetter');
+    const gpaPct = document.getElementById('gpaPct');
+
+    function render(){
+      grid.innerHTML='';
+      if (!state.courses.length) {
+        // Show empty state (new design)
+        const empty = document.createElement('div');
+        empty.className = 'empty-state-card';
+        empty.innerHTML = `
+          <div class="empty-plus-badge">
+            <ion-icon name="add-outline"></ion-icon>
+          </div>
+          <div class="empty-title">No courses yet</div>
+          <div class="empty-desc">Start by adding your first course to track your grades!</div>
+          <button type="button" class="btn-empty-pill" id="emptyAddCourseBtn"><ion-icon name="add-outline"></ion-icon> Add Course</button>
+        `;
+        grid.appendChild(empty);
+        document.getElementById('emptyAddCourseBtn').addEventListener('click', ()=>{
+          editingId = null;
+          modalTitle.textContent = 'Add Course';
+          addCourseForm.reset();
+          iconPreview.setAttribute('name','book-outline');
+          addCourseModal.showModal();
+        });
+      } else {
+        for(const c of state.courses){
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.dataset.id = c.id;
+
+          const markId = 'm_'+c.id;
+          card.innerHTML = `
+            <ion-icon class="course-icon" name="${c.icon}"></ion-icon>
+            <div class="info">
+              <div class="code">${c.code}</div>
+              <div class="muted-sm">${c.title||''}</div>
+            </div>
+            <div class="mark"><span class="swap" id="${markId}">${Math.round(c.grade)}%</span></div>
+          `;
+
+          // right-click menu
+          card.addEventListener('contextmenu', (e)=> openCtx(e, c.id));
+
+          // CLICK → go to grade.html?course=CODE (sync title & icon with localStorage)
+          card.addEventListener('click', () => {
+            const courseData = { code: c.code, title: c.title || '', icon: c.icon || 'book-outline' };
+            localStorage.setItem('selectedCourse', JSON.stringify(courseData));
+            window.location.href = `grade.html?course=${encodeURIComponent(c.code)}`;
+          });
+
+          grid.appendChild(card);
+          startSwap(document.getElementById(markId), c.grade);
+        }
+      }
+      recomputeOverview();
+    }
+
+    // Pct ↔ Letter swap every 6s
+    const swapTimers = new Map();
+    function startSwap(el, pct){
+      if(!el) return; if(swapTimers.has(el)) clearInterval(swapTimers.get(el));
+      let showingPct = true;
+      const update = ()=>{
+        el.style.opacity = 0;
+        setTimeout(()=>{
+          el.textContent = showingPct ? letterFromPct(pct) : Math.round(pct)+'%';
+          showingPct = !showingPct;
+          el.style.opacity = 1;
+        }, 300);
+      };
+      const t = setInterval(update, 6000);
+      swapTimers.set(el, t);
+    }
+
+    // ========================= CONTEXT MENU =========================
+    const ctx = document.getElementById('ctxMenu');
+    let ctxCourseId = null;
+    function openCtx(e, id){
+      e.preventDefault(); ctxCourseId = id; positionCtx(e.clientX, e.clientY); ctx.classList.add('show');
+      document.addEventListener('click', onDocClickClose, { once:true });
+    }
+    function positionCtx(x,y){
+      const pad = 8; const w = ctx.offsetWidth || 200; const h = ctx.offsetHeight || 140;
+      const vw = window.innerWidth, vh = window.innerHeight; let left = x, top = y;
+      if(left + w + pad > vw) left = vw - w - pad; if(top + h + pad > vh) top = vh - h - pad;
+      ctx.style.left = left + 'px'; ctx.style.top = top + 'px';
+    }
+    function onDocClickClose(){ ctx.classList.remove('show'); }
+
+    ctx.addEventListener('click', (e)=>{
+      const btn = e.target.closest('button'); if(!btn) return; const act = btn.dataset.act; ctx.classList.remove('show');
+      if(act==='del') removeCourse(ctxCourseId);
+      if(act==='dup') duplicateCourse(ctxCourseId);
+      if(act==='edit') editCourse(ctxCourseId);
+    });
+
+    function removeCourse(id){
+      const card = [...document.querySelectorAll('.card')].find(c=>c.dataset.id===id);
+      if(!confirm('Remove this course?')) return;
+      if(card){ card.classList.add('fade-out'); setTimeout(()=>{
+        state.courses = state.courses.filter(c=>c.id!==id); save(); render();
+      }, 260); }
+      else { state.courses = state.courses.filter(c=>c.id!==id); save(); render(); }
+    }
+    function duplicateCourse(id){
+      const c = state.courses.find(x=>x.id===id); if(!c) return;
+      const copy = { ...c, id: uid(), code: c.code+" (copy)" };
+      state.courses.push(copy); save(); render();
+    }
+    function editCourse(id){
+      const c = state.courses.find(x=>x.id===id); if(!c) return; editingId = id;
+      modalTitle.textContent = 'Edit Course';
+      codeInput.value = c.code; titleInput.value = c.title; gradeInput.value = c.grade ?? '';
+      iconInput.value = c.icon; iconPreview.setAttribute('name', c.icon);
+      addCourseModal.showModal();
+    }
+
+    // ========================= SIDEBAR & MODAL =========================
+    const menuToggle = document.getElementById('menuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('overlay');
+    const openAddCourse = document.getElementById('openAddCourse');
+
+    const addCourseModal = document.getElementById('addCourseModal');
+    const addCourseForm = document.getElementById('addCourseForm');
+    const cancelCourse = document.getElementById('cancelCourse');
+    const iconInput = document.getElementById('iconInput');
+    const iconPreview = document.getElementById('iconPreview');
+    const formError = document.getElementById('formError');
+    const modalTitle = document.getElementById('modalTitle');
+    const gradeInput = document.getElementById('gradeInput');
+    const codeInput = document.getElementById('codeInput');
+    const titleInput = document.getElementById('titleInput');
+    let editingId = null;
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('show');
+      overlay.classList.toggle('show');
+    });
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('show');
+      overlay.classList.remove('show');
+      ctx.classList.remove('show');
+      accountDd.classList.remove('show');
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        sidebar.classList.remove('show');
+        overlay.classList.remove('show');
+        addCourseModal.close?.();
+        ctx.classList.remove('show');
+        accountDd.classList.remove('show');
+      }
+    });
+
+    openAddCourse.addEventListener('click', ()=>{
+      editingId = null; modalTitle.textContent = 'Add Course';
+      addCourseForm.reset(); iconPreview.setAttribute('name','book-outline');
+      addCourseModal.showModal();
+    });
+
+    cancelCourse.addEventListener('click', ()=>{
+      addCourseModal.close(); formError.style.display='none';
+    });
+    iconInput.addEventListener('input', ()=>{
+      iconPreview.setAttribute('name', iconInput.value.trim()||'book-outline');
+    });
+
+    // Icon suggestion chips click-to-fill
+    document.getElementById('iconChipRow')?.addEventListener('click', function(e){
+      const chip = e.target.closest('.icon-chip');
+      if (!chip) return;
+      const icon = chip.getAttribute('data-icon');
+      if (icon) {
+        iconInput.value = icon;
+        iconPreview.setAttribute('name', icon);
+        iconInput.focus();
+      }
+    });
+
+    // "Try:" icon suggestion toggle logic
+    (function() {
+      const tryToggle = document.getElementById('iconTryToggle');
+      const chipRow = document.getElementById('iconChipRow');
+      if (!tryToggle || !chipRow) return;
+      let shown = false;
+      function showChips() {
+        chipRow.classList.remove('hide');
+        chipRow.setAttribute('aria-hidden', 'false');
+        tryToggle.setAttribute('aria-expanded', 'true');
+        shown = true;
+      }
+      function hideChips() {
+        chipRow.classList.add('hide');
+        chipRow.setAttribute('aria-hidden', 'true');
+        tryToggle.setAttribute('aria-expanded', 'false');
+        shown = false;
+      }
+      function toggleChips() {
+        if (shown) {
+          hideChips();
+        } else {
+          showChips();
+        }
+      }
+      tryToggle.addEventListener('click', toggleChips);
+      tryToggle.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+          e.preventDefault();
+          toggleChips();
+        }
+      });
+      // Start hidden
+      hideChips();
+    })();
+
+    // Rotating placeholders for course code and title
+    const codeTitlePlaceholders = [
+      { code: 'MAT101', title: 'Calculus 1' },
+      { code: 'PSY100', title: 'Introduction to Psychology' },
+      { code: 'ECO101', title: 'Microeconomics' },
+      { code: 'PHY101', title: 'Mechanics' },
+      { code: 'BIO100', title: 'Introduction to Biology' },
+    ];
+    let phIndex = 0;
+    function rotatePlaceholders() {
+      phIndex = (phIndex + 1) % codeTitlePlaceholders.length;
+      codeInput.setAttribute('placeholder', codeTitlePlaceholders[phIndex].code);
+      titleInput.setAttribute('placeholder', codeTitlePlaceholders[phIndex].title);
+    }
+    setInterval(rotatePlaceholders, 3200);
+    // Also set initial
+    codeInput.setAttribute('placeholder', codeTitlePlaceholders[0].code);
+    titleInput.setAttribute('placeholder', codeTitlePlaceholders[0].title);
+
+    addCourseForm.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      const code = codeInput.value.trim();
+      const title = titleInput.value.trim();
+      const gradeRaw = gradeInput.value.trim();
+      const icon = (iconInput.value.trim()||'book-outline');
+
+      if(!code){ formError.style.display='block'; return; } else { formError.style.display='none'; }
+      const normCode = code.toUpperCase();
+      const grade = gradeRaw === '' ? 0 : Math.max(0, Math.min(100, parseFloat(gradeRaw)));
+
+      if(editingId){
+        const c = state.courses.find(x=>x.id===editingId);
+        if(c){ c.code = normCode; c.title = title; c.icon = autoIcon(normCode, icon); c.grade = grade; }
+      } else {
+        state.courses.push({ id: uid(), code: normCode, title, icon: autoIcon(normCode, icon), grade });
+      }
+      save(); render(); addCourseModal.close(); sidebar.classList.remove('show'); overlay.classList.remove('show');
+    });
+
+    function autoIcon(code, fallback){
+      // Heuristics by prefix; fallback to provided icon
+      if(/^CSC/i.test(code)) return 'laptop-outline';      // CS
+      if(/^MAT/i.test(code)) return 'calculator-outline';  // Math
+      if(/^STA/i.test(code)) return 'stats-chart-outline'; // Stats
+      if(/^AST/i.test(code)) return 'planet-outline';      // Astronomy
+      if(/^PHL|PHI/i.test(code)) return 'school-outline';  // Philosophy
+      return fallback || 'book-outline';
+    }
+
+    // ========================= ACCOUNT DROPDOWN =========================
+    const accountBtn = document.getElementById('accountBtn');
+    const accountDd = document.getElementById('accountDd');
+    const accName = document.getElementById('accName');
+    const accEmail = document.getElementById('accEmail');
+    const accActionsSignedOut = document.getElementById('accActionsSignedOut');
+    const accActionsSignedIn = document.getElementById('accActionsSignedIn');
+    const signOutBtn = document.getElementById('signOut');
+    const goProfile = document.getElementById('goProfile');
+    // Ensure profile modal opens correctly
+    goProfile?.addEventListener('click', () => {
+      accountDd.classList.remove('show');
+      openProfileModal(); // loads profile data before opening
+    });
+    const chipWelcome = document.getElementById('chipWelcome');
+    const welcomeTitle = document.getElementById('welcomeTitle');
+
+    accountBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      accountDd.classList.toggle('show');
+    });
+    document.addEventListener('click', (e)=>{
+      if(!accountDd.contains(e.target) && e.target !== accountBtn){
+        accountDd.classList.remove('show');
+      }
+    });
+
+    function refreshAuthUI(){
+      const auth = getAuth();
+      if(auth.loggedIn){
+        const name = getDisplayName();
+        accName.textContent = name;
+        accEmail.textContent = auth.email || 'Signed in';
+        accActionsSignedOut.style.display = 'none';
+        accActionsSignedIn.style.display = '';
+        chipWelcome.textContent = `Welcome, ${name}`;
+        welcomeTitle.textContent = `Welcome, ${name}`;
+      } else {
+        accName.textContent = 'Guest';
+        accEmail.textContent = 'Not signed in';
+        accActionsSignedOut.style.display = '';
+        accActionsSignedIn.style.display = 'none';
+        chipWelcome.textContent = 'Welcome';
+        welcomeTitle.textContent = 'Welcome';
+      }
+    }
+
+    signOutBtn?.addEventListener('click', ()=>{
+      setAuth({ loggedIn:false });
+      refreshAuthUI();
+      accountDd.classList.remove('show');
+      window.location.href = 'login.html'; // Redirect to login page after sign-out
+    });
+
+    // PROFILE MODAL LOGIC will be appended below
+
+
+
+
+    // ========================= PROFILE MODAL =========================
+    // Elements
+    const profileModal = document.getElementById('profileModal');
+    const profileForm = document.getElementById('profileForm');
+    const profilePicInput = document.getElementById('profilePicInput');
+    const profilePicPreview = document.getElementById('profilePicPreview');
+    const profileNameInput = document.getElementById('profileNameInput');
+    const profileNickInput = document.getElementById('profileNickInput');
+    const profileEmailInput = document.getElementById('profileEmailInput');
+    const profilePasswordInput = document.getElementById('profilePasswordInput');
+    const profileCancelBtn = document.getElementById('profileCancelBtn');
+
+    // Helper for user key (same as used for courses)
+    function getProfileUserKey() {
+      const auth = getAuth();
+      if (auth && auth.username) {
+        return `mysemester_user_${auth.username}`;
+      }
+      return null;
+    }
+
+    // Load user profile from localStorage
+    function loadProfile() {
+      const auth = getAuth();
+      if (!auth.loggedIn) return null;
+      const userKey = getProfileUserKey();
+      let profile = null;
+      try {
+        profile = JSON.parse(localStorage.getItem(userKey));
+      } catch (e) {}
+      // Fallback to auth data if no profile exists yet
+      if (!profile) {
+        profile = {
+          picture: "",
+          name: auth.username || "",
+          nickname: "",
+          email: auth.email || "",
+          password: ""
+        };
+      }
+      return profile;
+    }
+
+    // Save user profile to localStorage
+    function saveProfile(profile) {
+      const userKey = getProfileUserKey();
+      if (userKey) {
+        localStorage.setItem(userKey, JSON.stringify(profile));
+      }
+    }
+
+    // Open profile modal and populate fields
+    function openProfileModal() {
+      const profile = loadProfile();
+      if (!profile) return;
+      profilePicPreview.src = profile.picture || "https://api.dicebear.com/7.x/initials/svg?seed=" + encodeURIComponent(profile.name || profile.nickname || "U");
+      profileNameInput.value = profile.name || "";
+      profileNickInput.value = profile.nickname || "";
+      profileEmailInput.value = profile.email || "";
+      profilePasswordInput.value = profile.password || "";
+      profilePicInput.value = "";
+      profileModal.showModal();
+    }
+
+    // Update preview when changing picture
+    profilePicInput?.addEventListener('change', function(e) {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          profilePicPreview.src = evt.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Save profile changes (keep previous values if fields are empty)
+    if (profileForm) {
+      profileForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const prevProfile = loadProfile() || {};
+        const newProfile = {
+          picture: profilePicPreview.src || prevProfile.picture || "",
+          // Keep prior full name if not changed; if neither exists, fall back to auth.fullName or auth.username
+          name: (profileNameInput.value.trim()) || prevProfile.name || (getAuth().fullName || "") || (getAuth().username || ""),
+          nickname: (profileNickInput.value.trim()) || prevProfile.nickname || "",
+          email: (profileEmailInput.value.trim()) || prevProfile.email || (getAuth().email || ""),
+          password: profilePasswordInput.value || prevProfile.password || ""
+        };
+
+        saveProfile(newProfile);
+        const dn = getDisplayName();
+        accName.textContent = dn;
+        accEmail.textContent = newProfile.email || '';
+        chipWelcome.textContent = `Welcome, ${dn}`;
+        welcomeTitle.textContent = `Welcome, ${dn}`;
+        profileModal.close();
+      });
+    }
+
+    // Cancel button closes modal without saving
+    profileCancelBtn?.addEventListener('click', function() {
+      // Toggle show/hide for password fields
+document.querySelectorAll('.pw-eye').forEach(icon => {
+  icon.addEventListener('click', () => {
+    const targetId = icon.getAttribute('data-target');
+    const inp = document.getElementById(targetId);
+    if (!inp) return;
+    const isPw = inp.type === 'password';
+    inp.type = isPw ? 'text' : 'password';
+    icon.setAttribute('name', isPw ? 'eye-off-outline' : 'eye-outline');
+  });
+});
+      profileModal.close();
+    });
+
+    // Open modal on "Profile" button click
+    // goProfile?.addEventListener('click', ()=>{
+    //   accountDd.classList.remove('show');
+    //   openProfileModal();
+    // });
+
+    // ========================= PROFILE PICTURE SYNC WITH NAVBAR & DROPDOWN =========================
+    (function syncProfileAvatars() {
+      const auth = getAuth();
+      const avatarEl = document.getElementById('accountAvatar');
+      const iconEl = document.getElementById('accountIcon');
+      const dropdownUserPic = document.getElementById('accSummaryAvatar'); // image next to username
+
+      if (!auth.loggedIn || !auth.username) {
+        if (avatarEl) avatarEl.style.display = 'none';
+        if (iconEl) iconEl.style.display = 'block';
+        if (dropdownUserPic) {
+          dropdownUserPic.src = '';
+          dropdownUserPic.style.display = 'none';
+        }
+        return;
+      }
+
+      const userKey = `mysemester_user_${auth.username}`;
+      let profile = null;
+      try { profile = JSON.parse(localStorage.getItem(userKey)); } catch (e) {}
+
+      const savedPfp = profile?.picture || localStorage.getItem(`uoft_user_${auth.username}_pfp`);
+      if (savedPfp && avatarEl && iconEl) {
+        avatarEl.src = savedPfp;
+        avatarEl.style.display = 'block';
+        iconEl.style.display = 'none';
+      } else if (avatarEl && iconEl) {
+        avatarEl.style.display = 'none';
+        iconEl.style.display = 'block';
+      }
+      // Also update the profile picture next to the username inside the account dropdown
+      if (dropdownUserPic) {
+        if (savedPfp) {
+          dropdownUserPic.src = savedPfp;
+          dropdownUserPic.style.display = 'block';
+          dropdownUserPic.style.objectFit = 'cover';
+          dropdownUserPic.style.borderRadius = '12px';
+          dropdownUserPic.style.width = '48px';
+          dropdownUserPic.style.height = '48px';
+        } else {
+          dropdownUserPic.src = ''; // fallback icon will appear
+          dropdownUserPic.style.display = 'none';
+        }
+      }
+
+      // Always use getDisplayName for name/welcome
+      {
+        const dn = getDisplayName();
+        accName.textContent = dn;
+        chipWelcome.textContent = "Welcome, " + dn;
+        welcomeTitle.textContent = "Welcome, " + dn;
+      }
+      if (profile && profile.email) accEmail.textContent = profile.email;
+    })();
+
+    // ========================= THEME TOGGLE =========================
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    themeToggle.addEventListener('click', ()=>{
+      const current = localStorage.getItem(THEME_KEY) || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      localStorage.setItem(THEME_KEY, next);
+      applyTheme();
+    });
+
+    // ========================= INIT =========================
+    applyTheme();
+    load();
+    refreshAuthUI();
+    render();
+
+    // After init, prefer nickname → profile full name → signup full name → username
+    const displayName = getDisplayName();
+    accName.textContent = displayName;
+    chipWelcome.textContent = `Welcome, ${displayName}`;
+    welcomeTitle.textContent = `Welcome, ${displayName}`;
+
+    // Ensure user-specific grade data isolation
+    window.getUserCourseGradeKey = (courseCode) => {
+      const user = localStorage.getItem('uoft_current_user') || 'guest';
+      return `grades_${user}_${courseCode}`;
+    };
+  </script>
+</dialog>
+<!-- ========================= PROFILE MODAL (NEW) ========================= -->
+<dialog id="profileModal">
+  <form id="profileForm" style="margin:0;">
+    <div class="modal-head">
+      <ion-icon name="person-outline"></ion-icon>
+      <span style="font-size:20px;font-weight:700;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;">
+        Profile
+      </span>
+    </div>
+    <div class="modal-body" style="gap: 18px;">
+      <div style="display:flex;align-items:center;gap:18px;">
+        <img id="profilePicPreview" src="" alt="Profile Picture" style="width:58px;height:58px;border-radius:50%;object-fit:cover;background:#e5e7eb;flex-shrink:0;" />
+        <div style="flex:1;">
+          <label for="profilePicInput" style="font-size:13px;font-weight:600;color:var(--muted);display:block;">Profile Picture</label>
+          <input type="file" id="profilePicInput" accept="image/*" style="margin-top:6px;font-size:14px;">
+        </div>
+      </div>
+      <div class="modal-grid">
+        <div>
+          <label for="profileNameInput">Name</label>
+          <input id="profileNameInput" name="name" autocomplete="name" placeholder="Full Name" />
+        </div>
+        <div>
+          <label for="profileNickInput">Nickname</label>
+          <input id="profileNickInput" name="nickname" autocomplete="nickname" placeholder="Preferred Name/Nickname" />
+        </div>
+      </div>
+      <div class="modal-grid">
+        <div>
+          <label for="profileEmailInput">Email</label>
+          <input id="profileEmailInput" name="email" type="email" autocomplete="email" placeholder="Email" />
+        </div>
+        <div>
+          <label for="profilePasswordInput">Password</label>
+          <input id="profilePasswordInput" name="password" type="password" autocomplete="new-password" placeholder="Password" />
+        </div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-plain" id="profileCancelBtn">Cancel</button>
+      <button type="submit" class="btn-primary">Save Changes</button>
+    </div>
+  </form>
+</dialog>
+<style>
+  #profileModal {
+    border: none;
+    border-radius: 18px;
+    width: min(420px, 95vw);
+    background: var(--card);
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.18);
+    padding: 0;
+    animation: modalIn 0.22s var(--ease);
+    transition: var(--transition);
+  }
+  #profileModal::backdrop {
+    background: rgba(0,0,0,0.32);
+    transition: background 0.22s var(--ease);
+    backdrop-filter: blur(2.5px);
+  }
+  #profileModal .modal-head {
+    padding: 22px 26px 18px 24px;
+    border-bottom: 1px solid var(--line);
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    font-weight: 700;
+    font-size: 18px;
+    color: var(--text);
+    background: var(--card);
+    border-top-left-radius: 18px;
+    border-top-right-radius: 18px;
+    min-height: 56px;
+  }
+  #profileModal .modal-head ion-icon { font-size:23px; color:var(--blue);}
+  #profileModal .modal-body {
+    padding: 22px 24px 20px 24px;
+    display: grid;
+    gap: 18px;
+    background: var(--bg);
+  }
+  #profileModal .modal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  #profileModal label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 5px;
+    display: block;
+  }
+  #profileModal input[type="text"],
+  #profileModal input[type="email"],
+  #profileModal input[type="password"] {
+    width: 100%;
+    padding: 11px 13px;
+    border-radius: 12px;
+    border: 2px solid var(--line);
+    background: var(--card);
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    transition: border-color 0.25s ease, box-shadow 0.25s ease;
+    margin-top: 2px;
+  }
+  #profileModal input[type="text"]:focus,
+  #profileModal input[type="email"]:focus,
+  #profileModal input[type="password"]:focus {
+    outline: none;
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.18);
+  }
+  #profileModal input[type="file"] {
+    border: none;
+    background: none;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--muted);
+    margin-top: 2px;
+    padding: 0;
+  }
+  #profileModal .modal-actions {
+    padding: 18px 24px 22px 24px;
+    border-top: 1px solid var(--line);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    background: var(--card);
+    border-bottom-left-radius: 18px;
+    border-bottom-right-radius: 18px;
+  }
+</style>
+<!-- ========================= PROFILE MODAL (HTML) ========================= -->
+<dialog id="profileModal">
+  <form id="profileForm" method="dialog" style="padding: 24px; border: none; background: var(--card); border-radius: 18px; width: min(500px, 90vw); box-shadow: 0 20px 60px rgba(0,0,0,.2);">
+    <h2 style="margin-top: 0; text-align: center; font-weight: 700;">Edit Profile</h2>
+
+    <div style="display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; margin-bottom: 20px;">
+      <img id="profilePicPreview" src="https://api.dicebear.com/7.x/initials/svg?seed=User" alt="Profile Picture" 
+           style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--line);" />
+      <label for="profilePicInput" style="font-size: 14px; color: var(--blue); font-weight: 600; cursor: pointer;">Choose Photo</label>
+      <input type="file" id="profilePicInput" accept="image/*" style="display: none;" />
+    </div>
+
+    <div style="display: grid; gap: 16px;">
+      <div>
+        <label style="font-weight: 600; font-size: 14px;">Full Name</label>
+        <input id="profileNameInput" type="text" placeholder="Enter your name" />
+      </div>
+      <div>
+        <label style="font-weight: 600; font-size: 14px;">Nickname</label>
+        <input id="profileNickInput" type="text" placeholder="Optional nickname" />
+      </div>
+      <div>
+        <label style="font-weight: 600; font-size: 14px;">Email</label>
+        <input id="profileEmailInput" type="email" placeholder="you@example.com" />
+      </div>
+      <div>
+        <label style="font-weight: 600; font-size: 14px;">Change Password</label>
+        <input id="profilePasswordInput" type="password" placeholder="Enter new password" />
+      </div>
+    </div>
+
+    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
+      <button type="button" class="btn-plain" id="profileCancelBtn">Cancel</button>
+      <button type="submit" class="btn-primary">Save Changes</button>
+    </div>
+  </form>
+</dialog>
+
+</dialog>
+<!-- ========================= PROFILE MODAL ENHANCED JS ========================= -->
+<script>
+document.querySelectorAll('.pw-eye').forEach(icon=>{
+  icon.addEventListener('click', ()=>{
+    const target = document.getElementById(icon.dataset.target);
+    const showing = target.getAttribute('type') === 'text';
+    target.setAttribute('type', showing ? 'password' : 'text');
+    icon.setAttribute('name', showing ? 'eye-outline' : 'eye-off-outline');
+  });
+});
+
+document.getElementById('profileCancelBtn')?.addEventListener('click', ()=>{
+  document.getElementById('profileModal').close();
+});
+</script>
