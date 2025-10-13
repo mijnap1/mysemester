@@ -8,6 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <link rel="icon" type="image/png" href="mysemesterlogo.png">
 
   <style>
     :root {
@@ -143,21 +144,71 @@
       animation: fadeIn .3s var(--ease);
     }
 
+    /* Dark mode overrides */
     body.dark {
       --bg: #0f172a;
       --card: #1e293b;
-      --text: #f8fafc;
-      --muted: #cbd5e1;
+      --text: #f9fafb;
+      --muted: #94a3b8;
+      --line: #475569;
+      --input-bg: #334155;
+      --input-border: #64748b;
+    }
+
+    /* Dark mode applied */
+    body.dark {
       background: var(--bg);
       color: var(--text);
+      transition: background 0.3s var(--ease), color 0.3s var(--ease);
+    }
+    body.dark .card {
+      background: var(--card);
+      color: var(--text);
+      transition: background 0.3s var(--ease), color 0.3s var(--ease);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     }
     body.dark input {
-      background: #334155;
+      background: var(--input-bg);
+      border-color: var(--input-border);
       color: var(--text);
-      border-color: #475569;
     }
     body.dark input:focus {
       border-color: var(--blue);
+    }
+    body.dark p {
+      color: var(--muted);
+    }
+    body.dark a {
+      color: var(--blue);
+    }
+
+    /* Toggle button (matches signup page) */
+    .theme-toggle {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 20px;
+      color: var(--muted);
+      transition: color 0.3s var(--ease);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 8px;
+      width: auto;
+      height: auto;
+    }
+
+    .theme-toggle:hover {
+      color: var(--blue);
+      background: rgba(37, 99, 235, 0.1);
+    }
+
+    body.dark .theme-toggle {
+      color: var(--muted);
     }
 
     @keyframes fadeIn {
@@ -170,7 +221,9 @@
 <body>
   <div class="title">MySemester</div>
   <div class="card">
-    <ion-icon id="themeToggle" class="theme-icon" name="sunny-outline" role="button" aria-label="Toggle Theme" tabindex="0"></ion-icon>
+    <button class="theme-toggle" aria-label="Toggle dark/light mode" title="Toggle dark/light mode">
+      <ion-icon name="moon-outline"></ion-icon>
+    </button>
 
     <h1>Welcome Back</h1>
     <input type="text" id="username" placeholder="Username" />
@@ -181,76 +234,35 @@
   </div>
 
   <script type="module">
-    // --- Theme toggle ---
-    const themeToggle = document.getElementById('themeToggle');
-    const currentTheme = localStorage.getItem('theme') || 'light';
+    // ===== Theme toggle (matches signup page) =====
+    const body = document.body;
+    const toggleBtn = document.querySelector('.theme-toggle');
+    const icon = toggleBtn.querySelector('ion-icon');
 
-    function applyTheme(theme) {
+    function setTheme(theme) {
       if (theme === 'dark') {
-        document.body.classList.add('dark');
-        themeToggle.name = 'moon-outline';
-        themeToggle.setAttribute('aria-label', 'Switch to light theme');
+        body.classList.add('dark');
+        icon.setAttribute('name', 'sunny-outline');
       } else {
-        document.body.classList.remove('dark');
-        themeToggle.name = 'sunny-outline';
-        themeToggle.setAttribute('aria-label', 'Switch to dark theme');
+        body.classList.remove('dark');
+        icon.setAttribute('name', 'moon-outline');
       }
       localStorage.setItem('theme', theme);
     }
 
-    applyTheme(currentTheme);
-
-    function toggleTheme() {
-      const isDark = document.body.classList.contains('dark');
-      applyTheme(isDark ? 'light' : 'dark');
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setTheme('dark');
+    } else {
+      setTheme('light');
     }
 
-    themeToggle.addEventListener('click', toggleTheme);
-    themeToggle.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        toggleTheme();
+    toggleBtn.addEventListener('click', () => {
+      if (body.classList.contains('dark')) {
+        setTheme('light');
+      } else {
+        setTheme('dark');
       }
-    });
-
-    // --- Login logic (linked with signup.html) ---
-    const loginBtn = document.getElementById('loginBtn');
-    const loginError = document.getElementById('loginError');
-
-    loginBtn.addEventListener('click', () => {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
-
-      if (!username || !password) {
-        loginError.textContent = 'Please enter both username and password.';
-        loginError.style.display = 'block';
-        return;
-      }
-
-      // ✅ Match with signup.html
-      const users = JSON.parse(localStorage.getItem('mysemester_all_users') || '{}');
-
-      if (!users[username]) {
-        loginError.textContent = 'User not found. Please sign up first.';
-        loginError.style.display = 'block';
-        return;
-      }
-
-      if (users[username].password !== password) {
-        loginError.textContent = 'Incorrect password. Try again.';
-        loginError.style.display = 'block';
-        return;
-      }
-
-      // ✅ Save login session
-      localStorage.setItem('uoft_auth_v1', JSON.stringify({
-        loggedIn: true,
-        username,
-        email: users[username].email
-      }));
-
-      loginError.style.display = 'none';
-      window.location.href = 'main.html';
     });
 
     // --- Supabase Integration ---
@@ -260,32 +272,103 @@
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc3Rza2d2ZGl3ZGtvbmJhcGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzMDI0NzYsImV4cCI6MjA3NTg3ODQ3Nn0.2iFEYtVQZjQOY8_sF4x0SvWIKk8L-jg4yzpXzLLFe60";
     const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Replace localStorage login with Supabase auth
-    loginBtn.addEventListener('click', async () => {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value.trim();
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
 
-      if (!username || !password) {
-        loginError.textContent = 'Please enter both username and password.';
-        loginError.style.display = 'block';
-        return;
-      }
+const usernameInputEl = document.getElementById('username');
+const passwordInputEl = document.getElementById('password');
 
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: username,
-        password: password
-      });
+loginBtn.addEventListener('click', async () => {
+  const usernameOrEmail = usernameInputEl.value.trim();
+  const password = passwordInputEl.value.trim();
 
-      if (error) {
-        loginError.textContent = error.message;
-        loginError.style.display = 'block';
-        return;
-      }
+  loginError.style.display = 'none';
 
-      loginError.style.display = 'none';
-      localStorage.setItem('uoft_auth_v1', JSON.stringify({ loggedIn: true, username }));
-      window.location.href = 'main.html';
+  if (!usernameOrEmail || !password) {
+    loginError.textContent = 'Please enter both username and password.';
+    loginError.style.display = 'block';
+    return;
+  }
+
+  const originalText = loginBtn.textContent;
+  loginBtn.textContent = 'Signing in…';
+  loginBtn.disabled = true;
+
+  try {
+    let emailToUse = null;
+
+    // 1️⃣ Try to treat input as username first
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles')
+      .select('email, username')
+      .eq('username', usernameOrEmail)
+      .maybeSingle();
+
+    if (profileData && profileData.email) {
+      emailToUse = profileData.email;
+    }
+
+    // 2️⃣ If username lookup failed, use input directly as email
+    if (!emailToUse) {
+      emailToUse = usernameOrEmail;
+    }
+
+    // 3️⃣ Attempt sign-in with resolved email
+    let { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: emailToUse,
+      password,
     });
+
+    // 4️⃣ If that fails, retry with the opposite assumption once
+    if (signInError || !signInData?.user) {
+      if (emailToUse !== usernameOrEmail) {
+        const retry = await supabase.auth.signInWithPassword({
+          email: usernameOrEmail,
+          password,
+        });
+        signInData = retry.data;
+        signInError = retry.error;
+      }
+    }
+
+    // 5️⃣ Final failure handling
+    if (signInError || !signInData?.user) {
+      loginError.textContent = 'Invalid username, email, or password.';
+      loginError.style.display = 'block';
+      return;
+    }
+
+    const email = signInData.user.email;
+
+    // 6️⃣ Fetch profile (now authenticated, RLS allows this)
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('username, id')
+      .eq('email', email)
+      .maybeSingle();
+
+    const resolvedUsername = userProfile?.username || email.split('@')[0];
+    const profileId = userProfile?.id || null;
+
+    // 7️⃣ Save session info
+    localStorage.setItem('uoft_auth_v1', JSON.stringify({
+      loggedIn: true,
+      username: resolvedUsername,
+      email: email,
+      id: profileId,
+    }));
+
+    // 8️⃣ Redirect to main page
+    window.location.href = 'main.html';
+  } catch (err) {
+    console.error('Login error:', err);
+    loginError.textContent = 'Unexpected error. Please try again.';
+    loginError.style.display = 'block';
+  } finally {
+    loginBtn.textContent = originalText;
+    loginBtn.disabled = false;
+  }
+});
   </script>
 </body>
 </html>

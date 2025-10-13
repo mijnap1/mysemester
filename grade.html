@@ -9,6 +9,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <link rel="icon" type="image/png" href="mysemesterlogo.png">
 
   <style>
     :root {
@@ -207,6 +208,26 @@
     border-color: var(--blue);
     background: rgba(96,165,250,0.1);
   }
+  .notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #22c55e;
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 15px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
+  z-index: 1000;
+}
+.notification.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(10px);
+}
 </style>
 </head>
 
@@ -219,6 +240,8 @@
     </div>
     <ion-icon id="themeToggle" name="moon-outline" style="margin-left:auto; cursor:pointer;"></ion-icon>
   </header>
+  
+  <div id="saveNotification" class="notification">Grades saved successfully!</div>
 
   <table>
     <thead>
@@ -271,38 +294,45 @@ if (courseMeta && courseMeta.code) {
   courseDescEl.textContent = '';
 }
     // Use user-specific storage key for grades (per-user, per-course, v3)
-    const currentUser = localStorage.getItem('uoft_current_user') || 'guest';
+    const userAuth = JSON.parse(localStorage.getItem("uoft_auth_v1"));
+    const currentUser = userAuth && userAuth.username ? userAuth.username : "guest";
     const userGradeKey = `grades_${currentUser}_${courseId}_v3`;
 
     let weights = [];
     try {
-      const raw = localStorage.getItem(userGradeKey);
       const isNewUser = !localStorage.getItem(`uoft_user_${currentUser}_created`);
       if (isNewUser) {
-        // New user account → always start clean
-        weights = [];
+        // Mark the user as initialized (without wiping existing grades)
         localStorage.setItem(`uoft_user_${currentUser}_created`, 'true');
+      }
+
+      // Only initialize empty grades if this specific course has never been seen
+      const raw = localStorage.getItem(userGradeKey);
+      if (!raw) {
+        weights = [];
         localStorage.setItem(userGradeKey, JSON.stringify([]));
-      } else if (raw) {
-        // Existing user: restore their saved grades if any
+      } else {
         try {
           const parsed = JSON.parse(raw);
           weights = Array.isArray(parsed) ? parsed : [];
         } catch {
           weights = [];
         }
-      } else {
-        // New course for existing user → start fresh
-        weights = [];
-        localStorage.setItem(userGradeKey, JSON.stringify([]));
       }
     } catch {
       weights = [];
     }
-
-    function saveGrades() {
-      localStorage.setItem(userGradeKey, JSON.stringify(weights));
+    // Restore grades from storage if available
+    const savedWeights = localStorage.getItem(userGradeKey);
+    if (savedWeights) {
+      try {
+        const parsed = JSON.parse(savedWeights);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          weights = parsed;
+        }
+      } catch {}
     }
+
 
     function gpaFromPct(p) {
       if (p >= 90) return 4.0;
@@ -352,13 +382,40 @@ if (courseMeta && courseMeta.code) {
       });
 
       document.querySelectorAll('input').forEach(inp => {
-        inp.addEventListener('input', e => {
+        const handleClampAndSave = (e) => {
           const i = e.target.dataset.i;
           const type = e.target.dataset.type;
-          const val = e.target.value === '' ? null : parseFloat(e.target.value);
+
+          let raw = e.target.value.trim();
+          let val = null;
+
+          if (raw !== '') {
+            let num = parseFloat(raw);
+            if (isNaN(num)) {
+              // If not a number, clear
+              e.target.value = '';
+              val = null;
+            } else {
+              if (num > 100) num = 100;
+              if (num < 0) num = 0;
+              // reflect clamped value in the input
+              e.target.value = String(num);
+              val = num;
+            }
+          }
+
           weights[i][type] = val;
-          saveGrades();
+          // Removed inline saveGrades() here to avoid notification spam
+          // saveGrades();
           calcAvg();
+        };
+
+        // Clamp continuously while typing and when leaving the field
+        inp.addEventListener('input', handleClampAndSave);
+        inp.addEventListener('blur', handleClampAndSave);
+        // Also handle paste events (in case pasted text exceeds limits)
+        inp.addEventListener('paste', (e) => {
+          requestAnimationFrame(() => handleClampAndSave(e));
         });
       });
       renderEstimates();
@@ -373,14 +430,12 @@ if (courseMeta && courseMeta.code) {
         estimate: null
       };
       weights.push(newRow);
-      saveGrades();
       renderTable();
       calcAvg();
     }
 
     function removeAssessment(i) {
       weights.splice(i, 1);
-      saveGrades();
       renderTable();
       calcAvg();
     }
@@ -401,7 +456,6 @@ if (courseMeta && courseMeta.code) {
         const newWeight = parseFloat(input.value);
         if (!isNaN(newWeight) && newWeight >= 0 && newWeight <= 100) {
           weights[i].weight = newWeight;
-          saveGrades();
           renderTable();
           calcAvg();
         } else cell.textContent = oldWeight;
@@ -424,7 +478,6 @@ if (courseMeta && courseMeta.code) {
         const newName = input.value.trim();
         if (newName) {
           weights[i].name = newName;
-          saveGrades();
           renderTable();
         } else cell.textContent = oldName;
       });
@@ -471,7 +524,6 @@ if (courseMeta && courseMeta.code) {
         }
       });
 
-      saveGrades();
       renderEstimates();
       calcAvg();
     }
@@ -521,6 +573,54 @@ if (courseMeta && courseMeta.code) {
       } catch (e) {
         // Ignore sync errors silently
       }
+    }
+
+    // ========================= SAVE COURSE DATA (new) =========================
+    function saveCourseData() {
+      // Recompute average
+      let total = 0, totalWeight = 0;
+      weights.forEach(w => {
+        if (w.grade != null && w.grade !== '') {
+          total += (parseFloat(w.grade) * (parseFloat(w.weight) || 0));
+          totalWeight += (parseFloat(w.weight) || 0);
+        }
+      });
+      const avg = totalWeight ? total / totalWeight : 0;
+
+      // Build course payload
+      const payload = {
+        code: courseId,
+        title: courseMeta.title || '',
+        icon: courseMeta.icon || 'book-outline',
+        grade: parseFloat(avg.toFixed(1)),
+        gpa: gpaFromPct(avg),
+        letter: letterFromPct(avg),
+        weights: weights,
+        updatedAt: new Date().toISOString()
+      };
+
+      // Save course data to shared key for syncing with main.html
+      const courseKey = `uoft_course_${currentUser}_${courseId}`;
+      localStorage.setItem(courseKey, JSON.stringify(payload));
+
+      // Save the detailed grade list for this course (for this page reload)
+      localStorage.setItem(userGradeKey, JSON.stringify(weights));
+
+      // Success notification
+      const notif = document.getElementById('saveNotification');
+      if (notif) {
+        notif.textContent = 'Grades saved successfully!';
+        notif.classList.add('show');
+        setTimeout(() => notif.classList.remove('show'), 1600);
+      }
+
+      // Update average displays
+      calcAvg();
+    }
+
+    // Backward-compat so the existing button onclick="saveGrades()" still works
+    function saveGrades() {
+      saveCourseData();
     }
 
     renderTable();

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MySemester</title>
-
+  <link rel="icon" type="image/png" href="mysemesterlogo.png">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
@@ -1636,6 +1636,29 @@
         });
       } else {
         for(const c of state.courses){
+          // Load synced grade data from localStorage (latest weighted average)
+          const auth = getAuth();
+          const username = auth && auth.username ? auth.username : "guest";
+          const gradeKey = `grades_${username}_${c.code}_v3`;
+          const storedGradesRaw = localStorage.getItem(gradeKey);
+          if (storedGradesRaw) {
+            try {
+              const assessments = JSON.parse(storedGradesRaw);
+              if (Array.isArray(assessments) && assessments.length > 0) {
+                let totalWeighted = 0, totalWeight = 0;
+                assessments.forEach(a => {
+                  if (a.grade != null && !isNaN(a.grade)) {
+                    totalWeighted += a.grade * (a.weight || 0);
+                    totalWeight += (a.weight || 0);
+                  }
+                });
+                if (totalWeight > 0) {
+                  c.grade = totalWeighted / totalWeight;
+                }
+              }
+            } catch(e) { console.error("Error parsing grades for", c.code, e); }
+          }
+
           const card = document.createElement('div');
           card.className = 'card';
           card.dataset.id = c.id;
@@ -1863,8 +1886,35 @@
         state.courses.push({ id: uid(), code: normCode, title, icon: autoIcon(normCode, icon), grade });
       }
       save(); render(); addCourseModal.close(); sidebar.classList.remove('show'); overlay.classList.remove('show');
+      // Notify other pages like main.html to refresh
+      window.dispatchEvent(new Event("storage"));
+    });
+    // --- Listen for storage events to sync course list instantly ---
+    window.addEventListener("storage", (e) => {
+      if (!e || !e.key || e.key.includes("courses") || e.key.includes(LS_KEY) || e.key === "uoft_last_update") {
+        const userAuth = JSON.parse(localStorage.getItem("uoft_auth_v1"));
+        if (!userAuth) return;
+        const key = getUserSpecificKey(LS_KEY);
+        const updatedStateRaw = localStorage.getItem(key);
+        let updatedCourses = [];
+        if (updatedStateRaw) {
+          try { updatedCourses = JSON.parse(updatedStateRaw).courses || []; } catch(e) { updatedCourses = []; }
+        }
+        state.courses = updatedCourses;
+        render();
+        console.log("Synced latest grades across tabs/pages");
+      }
     });
 
+    // ========================= LOAD COURSES FROM STORAGE (by username) =========================
+    function loadCoursesFromStorage() {
+      const userAuth = JSON.parse(localStorage.getItem("uoft_auth_v1"));
+      const username = userAuth && userAuth.username ? userAuth.username : "guest";
+      const allKeys = Object.keys(localStorage);
+      const courseKeys = allKeys.filter(k => k.startsWith(`uoft_course_${username}_`));
+      // ... rest of your logic for loading courses ...
+      // (If there are further references to "currentUser" in this function, use "username" instead)
+    }
     function autoIcon(code, fallback){
       // Heuristics by prefix; fallback to provided icon
       if(/^CSC/i.test(code)) return 'laptop-outline';      // CS
@@ -2026,6 +2076,32 @@
         };
 
         saveProfile(newProfile);
+
+        // Instantly update profile picture across UI
+        const avatarEl = document.getElementById('accountAvatar');
+        const dropdownUserPic = document.getElementById('accSummaryAvatar');
+        const newPic = newProfile.picture;
+
+        if (avatarEl) {
+          if (newPic) {
+            avatarEl.src = newPic;
+            avatarEl.style.display = 'block';
+            const iconEl = document.getElementById('accountIcon');
+            if (iconEl) iconEl.style.display = 'none';
+          } else {
+            avatarEl.style.display = 'none';
+          }
+        }
+
+        if (dropdownUserPic) {
+          if (newPic) {
+            dropdownUserPic.src = newPic;
+            dropdownUserPic.style.display = 'block';
+          } else {
+            dropdownUserPic.style.display = 'none';
+          }
+        }
+
         const dn = getDisplayName();
         accName.textContent = dn;
         accEmail.textContent = newProfile.email || '';
@@ -2140,6 +2216,23 @@ document.querySelectorAll('.pw-eye').forEach(icon => {
       const user = localStorage.getItem('uoft_current_user') || 'guest';
       return `grades_${user}_${courseCode}`;
     };
+
+    // --- 🔄 Refresh course data when user returns from grade.html ---
+    window.addEventListener("focus", () => {
+      try {
+        const mainStateRaw = localStorage.getItem(getUserSpecificKey(LS_KEY));
+        if (mainStateRaw) {
+          const mainState = JSON.parse(mainStateRaw);
+          if (mainState && Array.isArray(mainState.courses)) {
+            state.courses = mainState.courses; // update in-memory state
+            render(); // refresh UI instantly
+            console.log("Courses reloaded from localStorage after focus.");
+          }
+        }
+      } catch (err) {
+        console.error("❌ Failed to refresh course list:", err);
+      }
+    });
   </script>
 </dialog>
 <!-- ========================= PROFILE MODAL (NEW) ========================= -->

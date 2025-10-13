@@ -11,6 +11,7 @@
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="icon" type="image/png" href="mysemesterlogo.png">
 
   <style>
     :root {
@@ -95,8 +96,14 @@
       align-items: stretch;
     }
 
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
     input {
-      padding: 12px 14px;
+      padding: 12px 44px 12px 14px;
       font-size: 15px;
       border-radius: 12px;
       border: 2px solid var(--input-border);
@@ -104,6 +111,8 @@
       font-family: 'Outfit';
       transition: border-color 0.25s var(--ease), background 0.3s var(--ease), color 0.3s var(--ease);
       color: var(--text);
+      width: 100%;
+      box-sizing: border-box;
     }
 
     input:focus {
@@ -111,11 +120,49 @@
       border-color: var(--blue);
     }
 
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 35%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      padding: 0;
+      transition: color 0.22s var(--ease), transform 0.2s var(--ease);
+      outline: none;
+      height: 32px;
+      width: 32px;
+    }
+    .toggle-password:hover,
+    .toggle-password:focus {
+      /* Only scale, no color or background change */
+      transform: translateY(-50%) scale(1.1);
+    }
+    .toggle-password[aria-pressed="true"] {
+      color: var(--text);
+    }
+    .toggle-password ion-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      transition: color 0.22s var(--ease), transform 0.2s var(--ease);
+      vertical-align: middle;
+      display: block;
+    }
+
     .error {
       color: var(--red);
       font-size: 14px;
       font-weight: 500;
       display: none;
+      text-align: left;
     }
 
     .success {
@@ -138,10 +185,6 @@
       transition: background 0.25s var(--ease), transform 0.2s var(--ease);
     }
 
-    button:hover {
-      background: #1d4ed8;
-      transform: translateY(-1px);
-    }
 
     p {
       font-size: 14px;
@@ -232,8 +275,20 @@
       <div class="error" id="usernameError"></div>
       <input type="email" id="email" placeholder="Email address" required />
       <div class="error" id="emailError"></div>
-      <input type="password" id="password" placeholder="Password" required />
+      <div class="input-wrapper">
+        <input type="password" id="password" placeholder="Password" required />
+        <button type="button" class="toggle-password" aria-label="Toggle password visibility" tabindex="-1">
+          <ion-icon name="eye-off-outline"></ion-icon>
+        </button>
+      </div>
       <div class="error" id="passwordError"></div>
+      <div class="input-wrapper">
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required />
+        <button type="button" class="toggle-password" aria-label="Toggle confirm password visibility" tabindex="-1">
+          <ion-icon name="eye-off-outline"></ion-icon>
+        </button>
+      </div>
+      <div class="error" id="confirmPasswordError"></div>
       <div class="success" id="successText">Account created! Redirecting...</div>
       <button type="submit">Sign up</button>
       <p>Already have an account? <a href="login.html">Log in</a></p>
@@ -278,6 +333,20 @@
     }
   });
 
+  // Toggle password visibility for each password input
+  document.querySelectorAll('.toggle-password').forEach(button => {
+    button.addEventListener('click', () => {
+      const input = button.previousElementSibling;
+      if (input.type === 'password') {
+        input.type = 'text';
+        button.querySelector('ion-icon').setAttribute('name', 'eye-outline');
+      } else {
+        input.type = 'password';
+        button.querySelector('ion-icon').setAttribute('name', 'eye-off-outline');
+      }
+    });
+  });
+
   // Signup form logic (Supabase + keep UI)
   document.getElementById("signupForm").addEventListener("submit", async function(e) {
     e.preventDefault();
@@ -285,17 +354,19 @@
     const username = document.getElementById("username").value.trim();
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
+    const confirmPassword = document.getElementById("confirmPassword").value.trim();
 
     const usernameError = document.getElementById("usernameError");
     const emailError = document.getElementById("emailError");
     const passwordError = document.getElementById("passwordError");
+    const confirmPasswordError = document.getElementById("confirmPasswordError");
     const successText = document.getElementById("successText");
 
     // Reset messages
-    usernameError.style.display = emailError.style.display = passwordError.style.display = "none";
+    usernameError.style.display = emailError.style.display = passwordError.style.display = confirmPasswordError.style.display = "none";
     successText.style.display = "none";
 
-    // Client-side validation (unchanged)
+    // Client-side validation (updated email validation and confirm password check)
     let hasError = false;
 
     if (!username) {
@@ -307,7 +378,7 @@
       emailError.textContent = "Please enter your email.";
       emailError.style.display = "block";
       hasError = true;
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    } else if (!/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
       emailError.textContent = "Invalid email address.";
       emailError.style.display = "block";
       hasError = true;
@@ -321,48 +392,63 @@
       passwordError.style.display = "block";
       hasError = true;
     }
+    if (!confirmPassword) {
+      confirmPasswordError.textContent = "Please confirm your password.";
+      confirmPasswordError.style.display = "block";
+      hasError = true;
+    } else if (password !== confirmPassword) {
+      confirmPasswordError.textContent = "Passwords do not match.";
+      confirmPasswordError.style.display = "block";
+      hasError = true;
+    }
     if (hasError) return;
 
     try {
-      // Check if username already exists in user metadata by listing auth users via RPC is not available on client.
-      // Instead, attempt to sign up; Supabase enforces unique emails. We'll store the username in user_metadata.
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          data: { username }
-        }
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { username }
+    }
+  });
+
+  if (error) {
+    emailError.textContent = error.message || "Sign up failed.";
+    emailError.style.display = "block";
+    return;
+  }
+
+  // ✅ Insert into 'profiles' after successful signup
+  if (data.user) {
+    const { error: profileError } = await supabase
+      .from('profiles')
+      .insert({
+        id: data.user.id,
+        username: username,
+        email: email
       });
 
-      if (error) {
-        // Common cases: email already registered, password rules, etc.
-        emailError.textContent = error.message || "Sign up failed.";
-        emailError.style.display = "block";
-        return;
-      }
-
-      // If email confirmations are disabled, we might already have a session; otherwise not.
-      // To keep the current UX, we locally set an auth hint for main.html to greet correctly.
-      localStorage.setItem("uoft_auth_v1", JSON.stringify({
-        loggedIn: true,
-        username,
-        email
-      }));
-
-      // Also clear any per-user local data to start fresh
-      // (main.html will namespace data by username anyway)
-      // No destructive global clears here.
-
-      successText.textContent = "Account created! Redirecting...";
-      successText.style.display = "block";
-
-      setTimeout(() => {
-        window.location.href = "main.html";
-      }, 900);
-    } catch (err) {
-      emailError.textContent = err.message || "Unexpected error. Please try again.";
-      emailError.style.display = "block";
+    if (profileError) {
+      console.error("Profile insert error:", profileError.message);
     }
+  }
+
+  localStorage.setItem("uoft_auth_v1", JSON.stringify({
+    loggedIn: true,
+    username,
+    email
+  }));
+
+  successText.textContent = "Account created! Redirecting...";
+  successText.style.display = "block";
+
+  setTimeout(() => {
+    window.location.href = "main.html";
+  }, 900);
+} catch (err) {
+  emailError.textContent = err.message || "Unexpected error. Please try again.";
+  emailError.style.display = "block";
+}
   });
 </script>
 </body>
