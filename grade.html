@@ -62,6 +62,22 @@
       font-size: 17px;
       color: var(--muted);
     }
+    .course-crncr-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 10px;
+      padding: 2px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      background: #e0f2fe;
+      color: var(--blue);
+      border: 1px solid #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      vertical-align: middle;
+    }
 
     table {
       border-collapse: collapse;
@@ -235,7 +251,10 @@
   <header>
     <ion-icon name="arrow-back-outline" onclick="window.location.href='main.html'"></ion-icon>
     <div style="margin-left:10px;">
-      <h1 id="courseTitle">CSC108</h1>
+      <h1 id="courseTitle">
+        <span id="courseCodeText">CSC108</span>
+        <span id="courseCrncrTag" class="course-crncr-tag" style="display:none;">CR/NCR</span>
+      </h1>
       <p id="courseDesc">Intro to Computer Science</p>
     </div>
     <ion-icon id="themeToggle" name="moon-outline" style="margin-left:auto; cursor:pointer;"></ion-icon>
@@ -263,7 +282,9 @@
   </div>
 
   <div class="summary">
-    GPA: <span id="gpaDisplay">0.00</span> (<span id="letterDisplay">—</span>) |
+    <span id="gpaSummaryBlock">
+      GPA: <span id="gpaDisplay">0.00</span> (<span id="letterDisplay">—</span>) |
+    </span>
     Average: <span id="avgDisplay">0%</span>
   </div>
 
@@ -272,26 +293,48 @@
 const params = new URLSearchParams(location.search);
 const courseId = (params.get('course') || 'CSC108').toUpperCase();
 
-// Try to read the correct course info from localStorage (main.html)
-let courseMeta = { title: 'Unknown Course', icon: 'book-outline' };
+// Try to read course info from localStorage (main.html + selectedCourse)
+let courseMeta = { title: 'Unknown Course', icon: 'book-outline', crncr: false };
 try {
   const mainState = JSON.parse(localStorage.getItem('uoft-grade-lite-v5'));
   if (mainState && Array.isArray(mainState.courses)) {
     const found = mainState.courses.find(c => (c.code || '').toUpperCase() === courseId);
-    if (found) courseMeta = found;
+    if (found) courseMeta = { ...courseMeta, ...found };
   }
 } catch (e) { /* ignore */ }
 
-// Update the header to show the course’s actual title and icon
-const courseTitleEl = document.getElementById('courseTitle');
-const courseDescEl = document.getElementById('courseDesc');
+try {
+  const selected = JSON.parse(localStorage.getItem('selectedCourse') || 'null');
+  if (selected && selected.code && selected.code.toUpperCase() === courseId) {
+    courseMeta = { ...courseMeta, ...selected };
+  }
+} catch (e) { /* ignore */ }
 
-if (courseMeta && courseMeta.code) {
-  courseTitleEl.textContent = courseMeta.code;
+// Update the header to show the course’s actual title and icon and CR/NCR
+const courseCodeTextEl = document.getElementById('courseCodeText');
+const courseDescEl = document.getElementById('courseDesc');
+const courseCrncrTagEl = document.getElementById('courseCrncrTag');
+const gpaSummaryBlockEl = document.getElementById('gpaSummaryBlock');
+const estimateBtnEl = document.querySelector('.actions .estimate');
+
+if (courseMeta && (courseMeta.code || courseMeta.title)) {
+  const codeText = courseMeta.code ? courseMeta.code.toUpperCase() : courseId;
+  courseCodeTextEl.textContent = codeText;
   courseDescEl.textContent = courseMeta.title || courseMeta.name || '';
 } else {
-  courseTitleEl.textContent = courseId;
+  courseCodeTextEl.textContent = courseId;
   courseDescEl.textContent = '';
+}
+
+// Adjust UI based on CR/NCR flag
+if (courseMeta && courseMeta.crncr) {
+  if (courseCrncrTagEl) courseCrncrTagEl.style.display = 'inline-flex';
+  if (gpaSummaryBlockEl) gpaSummaryBlockEl.style.display = 'none';
+  if (estimateBtnEl) estimateBtnEl.textContent = 'Estimate for CR (50%)';
+} else {
+  if (courseCrncrTagEl) courseCrncrTagEl.style.display = 'none';
+  if (gpaSummaryBlockEl) gpaSummaryBlockEl.style.display = 'inline';
+  if (estimateBtnEl) estimateBtnEl.textContent = 'Estimate for 4.0 GPA';
 }
     // Use user-specific storage key for grades (per-user, per-course, v3)
     const userAuth = JSON.parse(localStorage.getItem("uoft_auth_v1"));
@@ -493,7 +536,7 @@ if (courseMeta && courseMeta.code) {
     }
 
     function estimateTarget() {
-      const goal = 85; // Target average %
+      const goal = (courseMeta && courseMeta.crncr) ? 50 : 85; // 50% for CR/NCR, 85% otherwise
       if (weights.length === 0) return;
 
       let weightedTotal = 0;
@@ -592,6 +635,7 @@ if (courseMeta && courseMeta.code) {
         code: courseId,
         title: courseMeta.title || '',
         icon: courseMeta.icon || 'book-outline',
+        crncr: !!courseMeta.crncr,
         grade: parseFloat(avg.toFixed(1)),
         gpa: gpaFromPct(avg),
         letter: letterFromPct(avg),

@@ -397,6 +397,21 @@
     .info { flex: 1; }
     .info .code { font-size: 20px; font-weight: 700; }
     .info .muted-sm { color: var(--muted); font-size: 14px; }
+    .tag-crncr {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 8px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+      background: var(--chip-bg);
+      color: var(--blue);
+      border: 1px solid #bfdbfe;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
     .mark { font-size: 22px; font-weight: 700; color: var(--blue); margin-left: auto; min-width: 64px; text-align: right; position: relative; }
     .mark .swap { display: inline-block; transition: opacity .5s var(--ease); }
 
@@ -444,6 +459,38 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 16px;
+    }
+    /* ===================================
+       LAYOUT VARIANTS (COMPACT / SPACIOUS)
+    ====================================== */
+    body[data-layout="compact"] .wrap {
+      max-width: 1100px;
+      padding: calc(var(--header-h) + 24px) 20px 100px;
+    }
+    body[data-layout="compact"] .grid {
+      gap: 26px;
+      margin-top: 32px;
+    }
+    body[data-layout="compact"] .card {
+      width: 360px;
+      padding: 24px;
+    }
+
+    body[data-layout="spacious"] .wrap {
+      max-width: 1240px;
+      padding: calc(var(--header-h) + 32px) 26px 120px;
+    }
+    body[data-layout="spacious"] .grid {
+      gap: 40px;
+      margin-top: 40px;
+    }
+    body[data-layout="spacious"] .card {
+      width: 430px;
+      padding: 30px;
+    }
+    body[data-layout="spacious"] .overview {
+      margin-top: 56px;
+      gap: 22px;
     }
     .ov {
       background: var(--card);
@@ -944,16 +991,6 @@ MySemester is a modern web platform built to help university students manage and
           <button type="button" class="settings-gpa-btn" data-gpa="%">%</button>
         </div>
       </section>
-      <!-- Notifications -->
-      <section class="settings-card">
-        <div class="settings-card-title"><ion-icon name="notifications-outline"></ion-icon><span>Notifications</span></div>
-        <div class="settings-switch-row">
-          <button type="button" class="settings-switch" id="settingsNotifToggle">
-            <span class="settings-switch-knob"></span>
-          </button>
-          <span id="settingsNotifLabel" style="margin-left:12px;font-size:15px;font-weight:500;">Off</span>
-        </div>
-      </section>
       <!-- Data Controls -->
       <section class="settings-card">
         <div class="settings-card-title"><ion-icon name="cloud-download-outline"></ion-icon><span>Data Controls</span></div>
@@ -962,6 +999,10 @@ MySemester is a modern web platform built to help university students manage and
           <button type="button" class="btn-plain" id="importCoursesBtn"><ion-icon name="cloud-upload-outline"></ion-icon> Import Courses</button>
           <button type="button" class="btn-plain danger" id="resetDataBtn"><ion-icon name="refresh-outline"></ion-icon> Reset All Data</button>
         </div>
+        <input type="file"
+               id="importCoursesFile"
+               accept="application/json"
+               style="display:none;">
       </section>
     </div>
     <div class="modal-actions">
@@ -1179,7 +1220,6 @@ MySemester is a modern web platform built to help university students manage and
       theme: 'light', // 'light' | 'dark' | 'system'
       layout: 'compact', // 'compact' | 'spacious'
       gpaFormat: '4.0', // '4.0' | '%'
-      notifications: false,
       tutorial: false
     };
     function getSettings() {
@@ -1201,13 +1241,11 @@ MySemester is a modern web platform built to help university students manage and
     const layoutRadios = Array.from(document.querySelectorAll('.settings-layout-radio'));
     // GPA
     const gpaBtns = Array.from(document.querySelectorAll('.settings-gpa-btn'));
-    // Notifications
-    const notifSwitch = document.getElementById('settingsNotifToggle');
-    const notifLabel = document.getElementById('settingsNotifLabel');
     // Data controls
     const exportCoursesBtn = document.getElementById('exportCoursesBtn');
     const importCoursesBtn = document.getElementById('importCoursesBtn');
     const resetDataBtn = document.getElementById('resetDataBtn');
+    const importCoursesFileInput = document.getElementById('importCoursesFile');
 
     // --- Modal open/close ---
     openSettingsBtn?.addEventListener('click', ()=>{
@@ -1237,10 +1275,21 @@ MySemester is a modern web platform built to help university students manage and
       gpaBtns.forEach(btn => {
         btn.classList.toggle('active', btn.dataset.gpa === s.gpaFormat);
       });
-      // Notifications
-      notifSwitch.classList.toggle('active', !!s.notifications);
-      notifLabel.textContent = s.notifications ? 'On' : 'Off';
     }
+
+    // --- Layout apply helper ---
+    function applyLayout() {
+      try {
+        const s = getSettings();
+        const layout = (s.layout === 'spacious' || s.layout === 'compact') ? s.layout : 'compact';
+        document.body.setAttribute('data-layout', layout);
+      } catch (e) {
+        document.body.setAttribute('data-layout', 'compact');
+      }
+    }
+
+    // Apply layout when DOM is ready
+    document.addEventListener('DOMContentLoaded', applyLayout);
 
     // --- Theme switching logic ---
     themeBtns.forEach(btn => {
@@ -1287,6 +1336,7 @@ MySemester is a modern web platform built to help university students manage and
           const s = getSettings();
           s.layout = radio.value;
           saveSettings(s);
+          applyLayout();
         }
       });
     });
@@ -1301,26 +1351,136 @@ MySemester is a modern web platform built to help university students manage and
       });
     });
 
-    // --- Notifications toggle ---
-    notifSwitch?.addEventListener('click', ()=>{
-      const s = getSettings();
-      s.notifications = !s.notifications;
-      saveSettings(s);
-      syncSettingsModalUI();
-    });
 
 
     // --- Data controls ---
-    exportCoursesBtn?.addEventListener('click', ()=>{
-      alert('Export Courses: coming soon!');
+    // Export current user's courses as JSON
+    exportCoursesBtn?.addEventListener('click', () => {
+      try {
+        // Ensure we are using the latest in-memory state
+        if (!state || !Array.isArray(state.courses)) {
+          alert('No courses to export.');
+          return;
+        }
+        const payload = {
+          version: 1,
+          exportedAt: new Date().toISOString(),
+          courses: state.courses
+        };
+        const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const dateStr = new Date().toISOString().slice(0, 10);
+        a.href = url;
+        a.download = `mysemester-courses-${dateStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.error('Export error:', err);
+        alert('Sorry, something went wrong while exporting your courses.');
+      }
     });
-    importCoursesBtn?.addEventListener('click', ()=>{
-      alert('Import Courses: coming soon!');
+
+    // Open file picker for import
+    importCoursesBtn?.addEventListener('click', () => {
+      if (!importCoursesFileInput) {
+        alert('Import is not available in this environment.');
+        return;
+      }
+      importCoursesFileInput.click();
     });
-    resetDataBtn?.addEventListener('click', ()=>{
-      if (confirm('Are you sure you want to reset ALL data? This cannot be undone.')) {
-        // Placeholder: future, clear localStorage, etc.
-        alert('Reset All Data: coming soon!');
+
+    // Handle import file selection
+    importCoursesFileInput?.addEventListener('change', (e) => {
+      const file = importCoursesFileInput.files && importCoursesFileInput.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const text = evt.target?.result;
+          const parsed = JSON.parse(text);
+          // Accept either { courses: [...] } or direct [...]
+          const rawCourses = Array.isArray(parsed?.courses)
+            ? parsed.courses
+            : (Array.isArray(parsed) ? parsed : null);
+
+          if (!rawCourses) {
+            alert('This file does not look like a valid MySemester export.');
+            return;
+          }
+          if (!rawCourses.length) {
+            alert('No courses were found in this file.');
+            return;
+          }
+
+          // Normalize and validate minimal fields
+          const imported = rawCourses.map((c) => {
+            const codeStr = (c.code || '').toString().trim().toUpperCase();
+            return {
+              id: c.id || uid(),
+              code: codeStr || 'COURSE',
+              title: (c.title || '').toString(),
+              icon: c.icon || autoIcon(codeStr || 'COURSE', 'book-outline'),
+              grade: (() => {
+                const g = typeof c.grade === 'number' ? c.grade : parseFloat(c.grade);
+                if (isNaN(g)) return 0;
+                return Math.max(0, Math.min(100, g));
+              })(),
+              crncr: !!c.crncr
+            };
+          });
+
+          if (!confirm(`Import ${imported.length} courses? This will replace your current list.`)) {
+            return;
+          }
+
+          // Replace current state with imported data
+          state.courses = imported;
+          save();
+          render();
+          alert('Courses imported successfully.');
+        } catch (err) {
+          console.error('Import error:', err);
+          alert('Could not read this file. Please make sure it is a valid MySemester export.');
+        } finally {
+          // Reset input so selecting the same file again still triggers change
+          importCoursesFileInput.value = '';
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    // Reset all data for current user (courses + settings)
+    resetDataBtn?.addEventListener('click', () => {
+      if (!confirm('Are you sure you want to reset ALL data for this account? This cannot be undone.')) {
+        return;
+      }
+      try {
+        // Clear courses for current user
+        const coursesKey = getUserSpecificKey(LS_KEY);
+        localStorage.removeItem(coursesKey);
+        // Optionally clear per-course grade breakdowns for this user
+        const auth = getAuth();
+        if (auth && auth.username) {
+          const prefix = `grades_${auth.username}_`;
+          Object.keys(localStorage).forEach((k) => {
+            if (k.startsWith(prefix)) localStorage.removeItem(k);
+          });
+        }
+        // Clear settings for this user (optional, but makes "reset" feel complete)
+        localStorage.removeItem(SETTINGS_KEY);
+
+        // Reset in-memory state and re-render
+        state = { courses: [] };
+        save();
+        render();
+        alert('All data for this account has been reset.');
+      } catch (err) {
+        console.error('Reset error:', err);
+        alert('Something went wrong while resetting data.');
       }
     });
     </script>
@@ -1442,6 +1602,10 @@ MySemester is a modern web platform built to help university students manage and
   <div class="ctx" id="ctxMenu" role="menu">
     <button type="button" data-act="edit"><ion-icon name="create-outline"></ion-icon> Edit course</button>
     <button type="button" data-act="dup"><ion-icon name="copy-outline"></ion-icon> Duplicate</button>
+    <button type="button" data-act="crncr">
+      <ion-icon name="shield-checkmark-outline"></ion-icon>
+      <span id="ctxCrncrLabel">Set CR/NCR</span>
+    </button>
     <button type="button" class="danger" data-act="del"><ion-icon name="trash-outline"></ion-icon> Remove</button>
   </div>
 
@@ -1602,8 +1766,9 @@ MySemester is a modern web platform built to help university students manage and
     }
 
     function recomputeOverview(){
-      if(!state.courses.length){ gpa4.textContent='0.00'; gpaLetter.textContent='—'; gpaPct.textContent='0%'; return; }
-      const av = state.courses.reduce((s,c)=> s + (c.grade||0), 0) / state.courses.length;
+      const counted = state.courses.filter(c => !c.crncr);
+      if(!counted.length){ gpa4.textContent='0.00'; gpaLetter.textContent='—'; gpaPct.textContent='0%'; return; }
+      const av = counted.reduce((s,c)=> s + (c.grade||0), 0) / counted.length;
       gpa4.textContent = gpaFromPct(av).toFixed(2);
       gpaLetter.textContent = letterFromPct(av);
       gpaPct.textContent = Math.round(av) + '%';
@@ -1671,7 +1836,10 @@ MySemester is a modern web platform built to help university students manage and
             <ion-icon class="course-icon" name="${c.icon}"></ion-icon>
             <div class="info">
               <div class="code">${c.code}</div>
-              <div class="muted-sm">${c.title||''}</div>
+              <div class="muted-sm">
+                ${c.title || ''}
+                ${c.crncr ? '<span class="tag-crncr">CR/NCR</span>' : ''}
+              </div>
             </div>
             <div class="mark"><span class="swap" id="${markId}">${Math.round(c.grade)}%</span></div>
           `;
@@ -1679,9 +1847,14 @@ MySemester is a modern web platform built to help university students manage and
           // right-click menu
           card.addEventListener('contextmenu', (e)=> openCtx(e, c.id));
 
-          // CLICK → go to grade.html?course=CODE (sync title & icon with localStorage)
+          // CLICK → go to grade.html?course=CODE (sync title & icon with localStorage, send CR/NCR status)
           card.addEventListener('click', () => {
-            const courseData = { code: c.code, title: c.title || '', icon: c.icon || 'book-outline' };
+            const courseData = {
+              code: c.code,
+              title: c.title || '',
+              icon: c.icon || 'book-outline',
+              crncr: !!c.crncr   // send CR/NCR status to grade.html
+            };
             localStorage.setItem('selectedCourse', JSON.stringify(courseData));
             window.location.href = `grade.html?course=${encodeURIComponent(c.code)}`;
           });
@@ -1712,9 +1885,22 @@ MySemester is a modern web platform built to help university students manage and
 
     // ========================= CONTEXT MENU =========================
     const ctx = document.getElementById('ctxMenu');
+    const ctxCrncrLabelEl = document.getElementById('ctxCrncrLabel');
     let ctxCourseId = null;
     function openCtx(e, id){
-      e.preventDefault(); ctxCourseId = id; positionCtx(e.clientX, e.clientY); ctx.classList.add('show');
+      e.preventDefault();
+      ctxCourseId = id;
+
+      // Update CR/NCR label based on current course state
+      const course = state.courses.find(c => c.id === id);
+      if (course && course.crncr) {
+        if (ctxCrncrLabelEl) ctxCrncrLabelEl.textContent = 'Remove CR/NCR';
+      } else {
+        if (ctxCrncrLabelEl) ctxCrncrLabelEl.textContent = 'Set CR/NCR';
+      }
+
+      positionCtx(e.clientX, e.clientY);
+      ctx.classList.add('show');
       document.addEventListener('click', onDocClickClose, { once:true });
     }
     function positionCtx(x,y){
@@ -1730,6 +1916,7 @@ MySemester is a modern web platform built to help university students manage and
       if(act==='del') removeCourse(ctxCourseId);
       if(act==='dup') duplicateCourse(ctxCourseId);
       if(act==='edit') editCourse(ctxCourseId);
+      if(act==='crncr') toggleCrncr(ctxCourseId);
     });
 
     function removeCourse(id){
@@ -1751,6 +1938,13 @@ MySemester is a modern web platform built to help university students manage and
       codeInput.value = c.code; titleInput.value = c.title; gradeInput.value = c.grade ?? '';
       iconInput.value = c.icon; iconPreview.setAttribute('name', c.icon);
       addCourseModal.showModal();
+    }
+    function toggleCrncr(id){
+      const c = state.courses.find(x=>x.id===id);
+      if(!c) return;
+      c.crncr = !c.crncr;
+      save();
+      render();
     }
 
     // ========================= SIDEBAR & MODAL =========================
@@ -1886,7 +2080,7 @@ MySemester is a modern web platform built to help university students manage and
         const c = state.courses.find(x=>x.id===editingId);
         if(c){ c.code = normCode; c.title = title; c.icon = autoIcon(normCode, icon); c.grade = grade; }
       } else {
-        state.courses.push({ id: uid(), code: normCode, title, icon: autoIcon(normCode, icon), grade });
+        state.courses.push({ id: uid(), code: normCode, title, icon: autoIcon(normCode, icon), grade, crncr: false });
       }
       save(); render(); addCourseModal.close(); sidebar.classList.remove('show'); overlay.classList.remove('show');
       // Notify other pages like main.html to refresh
