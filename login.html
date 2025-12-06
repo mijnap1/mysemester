@@ -10,6 +10,9 @@
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
   <link rel="icon" type="image/png" href="mysemesterlogo.png">
 
+  <!-- Supabase UMD bundle (avoids ES module import issues) -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
   <style>
     :root {
       --bg: #f9fafb;
@@ -233,7 +236,7 @@
     <div class="small">No account? <a href="signup.html">Sign up</a></div>
   </div>
 
-  <script type="module">
+  <script>
     // ===== Theme toggle (matches signup page) =====
     const body = document.body;
     const toggleBtn = document.querySelector('.theme-toggle');
@@ -265,110 +268,111 @@
       }
     });
 
-    // --- Supabase Integration ---
-    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
+    // --- Supabase Integration (UMD) ---
     const SUPABASE_URL = "https://dqstskgvdiwdkonbapke.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc3Rza2d2ZGl3ZGtvbmJhcGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzMDI0NzYsImV4cCI6MjA3NTg3ODQ3Nn0.2iFEYtVQZjQOY8_sF4x0SvWIKk8L-jg4yzpXzLLFe60";
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // `window.supabase` is provided by the UMD bundle loaded in <head>
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const loginBtn = document.getElementById('loginBtn');
     const loginError = document.getElementById('loginError');
 
-const usernameInputEl = document.getElementById('username');
-const passwordInputEl = document.getElementById('password');
+    const usernameInputEl = document.getElementById('username');
+    const passwordInputEl = document.getElementById('password');
 
-loginBtn.addEventListener('click', async () => {
-  const usernameOrEmail = usernameInputEl.value.trim();
-  const password = passwordInputEl.value.trim();
+    loginBtn.addEventListener('click', async () => {
+      console.log('Login button clicked');
+      const usernameOrEmail = usernameInputEl.value.trim();
+      const password = passwordInputEl.value.trim();
 
-  loginError.style.display = 'none';
+      loginError.style.display = 'none';
 
-  if (!usernameOrEmail || !password) {
-    loginError.textContent = 'Please enter both username and password.';
-    loginError.style.display = 'block';
-    return;
-  }
+      if (!usernameOrEmail || !password) {
+        loginError.textContent = 'Please enter both username and password.';
+        loginError.style.display = 'block';
+        return;
+      }
 
-  const originalText = loginBtn.textContent;
-  loginBtn.textContent = 'Signing in…';
-  loginBtn.disabled = true;
+      const originalText = loginBtn.textContent;
+      loginBtn.textContent = 'Signing in…';
+      loginBtn.disabled = true;
 
-  try {
-    let emailToUse = null;
+      try {
+        let emailToUse = null;
 
-    // 1️⃣ Try to treat input as username first
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('email, username')
-      .eq('username', usernameOrEmail)
-      .maybeSingle();
+        // 1️⃣ Try to treat input as username first
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('email, username')
+          .eq('username', usernameOrEmail)
+          .maybeSingle();
 
-    if (profileData && profileData.email) {
-      emailToUse = profileData.email;
-    }
+        if (profileData && profileData.email) {
+          emailToUse = profileData.email;
+        }
 
-    // 2️⃣ If username lookup failed, use input directly as email
-    if (!emailToUse) {
-      emailToUse = usernameOrEmail;
-    }
+        // 2️⃣ If username lookup failed, use input directly as email
+        if (!emailToUse) {
+          emailToUse = usernameOrEmail;
+        }
 
-    // 3️⃣ Attempt sign-in with resolved email
-    let { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-      email: emailToUse,
-      password,
-    });
-
-    // 4️⃣ If that fails, retry with the opposite assumption once
-    if (signInError || !signInData?.user) {
-      if (emailToUse !== usernameOrEmail) {
-        const retry = await supabase.auth.signInWithPassword({
-          email: usernameOrEmail,
+        // 3️⃣ Attempt sign-in with resolved email
+        let { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: emailToUse,
           password,
         });
-        signInData = retry.data;
-        signInError = retry.error;
+
+        // 4️⃣ If that fails, retry with the opposite assumption once
+        if (signInError || !signInData?.user) {
+          if (emailToUse !== usernameOrEmail) {
+            const retry = await supabase.auth.signInWithPassword({
+              email: usernameOrEmail,
+              password,
+            });
+            signInData = retry.data;
+            signInError = retry.error;
+          }
+        }
+
+        // 5️⃣ Final failure handling
+        if (signInError || !signInData?.user) {
+          loginError.textContent = 'Invalid username, email, or password.';
+          loginError.style.display = 'block';
+          return;
+        }
+
+        const email = signInData.user.email;
+
+        // 6️⃣ Fetch profile (now authenticated, RLS allows this)
+        const { data: userProfile } = await supabase
+          .from('profiles')
+          .select('username, id')
+          .eq('email', email)
+          .maybeSingle();
+
+        const resolvedUsername = userProfile?.username || email.split('@')[0];
+        const profileId = userProfile?.id || null;
+
+        // 7️⃣ Save session info
+        localStorage.setItem('uoft_auth_v1', JSON.stringify({
+          loggedIn: true,
+          username: resolvedUsername,
+          email: email,
+          id: profileId,
+        }));
+
+        // 8️⃣ Redirect to main page
+        window.location.href = 'main.html';
+      } catch (err) {
+        console.error('Login error:', err);
+        loginError.textContent = 'Unexpected error. Please try again.';
+        loginError.style.display = 'block';
+      } finally {
+        loginBtn.textContent = originalText;
+        loginBtn.disabled = false;
       }
-    }
-
-    // 5️⃣ Final failure handling
-    if (signInError || !signInData?.user) {
-      loginError.textContent = 'Invalid username, email, or password.';
-      loginError.style.display = 'block';
-      return;
-    }
-
-    const email = signInData.user.email;
-
-    // 6️⃣ Fetch profile (now authenticated, RLS allows this)
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('username, id')
-      .eq('email', email)
-      .maybeSingle();
-
-    const resolvedUsername = userProfile?.username || email.split('@')[0];
-    const profileId = userProfile?.id || null;
-
-    // 7️⃣ Save session info
-    localStorage.setItem('uoft_auth_v1', JSON.stringify({
-      loggedIn: true,
-      username: resolvedUsername,
-      email: email,
-      id: profileId,
-    }));
-
-    // 8️⃣ Redirect to main page
-    window.location.href = 'main.html';
-  } catch (err) {
-    console.error('Login error:', err);
-    loginError.textContent = 'Unexpected error. Please try again.';
-    loginError.style.display = 'block';
-  } finally {
-    loginBtn.textContent = originalText;
-    loginBtn.disabled = false;
-  }
-});
+    });
   </script>
 </body>
 </html>
