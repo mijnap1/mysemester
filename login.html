@@ -237,43 +237,69 @@
   </div>
 
   <script>
+    (() => {
     // ===== Theme toggle (matches signup page) =====
     const body = document.body;
     const toggleBtn = document.querySelector('.theme-toggle');
-    const icon = toggleBtn.querySelector('ion-icon');
+    const icon = toggleBtn ? toggleBtn.querySelector('ion-icon') : null;
+    let canUseStorage = true;
+
+    try {
+      localStorage.setItem('__mysemester_theme_test__', '1');
+      localStorage.removeItem('__mysemester_theme_test__');
+    } catch (err) {
+      canUseStorage = false;
+    }
 
     function setTheme(theme) {
       if (theme === 'dark') {
         body.classList.add('dark');
-        icon.setAttribute('name', 'sunny-outline');
+        if (icon) icon.setAttribute('name', 'sunny-outline');
       } else {
         body.classList.remove('dark');
-        icon.setAttribute('name', 'moon-outline');
+        if (icon) icon.setAttribute('name', 'moon-outline');
       }
-      localStorage.setItem('theme', theme);
+      if (canUseStorage) {
+        localStorage.setItem('theme', theme);
+      }
     }
 
-    const savedTheme = localStorage.getItem('theme');
+    let savedTheme = null;
+    if (canUseStorage) {
+      try {
+        savedTheme = localStorage.getItem('theme');
+      } catch (err) {
+        savedTheme = null;
+      }
+    }
     if (savedTheme === 'dark') {
       setTheme('dark');
     } else {
       setTheme('light');
     }
 
-    toggleBtn.addEventListener('click', () => {
-      if (body.classList.contains('dark')) {
-        setTheme('light');
-      } else {
-        setTheme('dark');
-      }
-    });
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', () => {
+        if (body.classList.contains('dark')) {
+          setTheme('light');
+        } else {
+          setTheme('dark');
+        }
+      });
+    }
 
     // --- Supabase Integration (UMD) ---
     const SUPABASE_URL = "https://dqstskgvdiwdkonbapke.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc3Rza2d2ZGl3ZGtvbmJhcGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzMDI0NzYsImV4cCI6MjA3NTg3ODQ3Nn0.2iFEYtVQZjQOY8_sF4x0SvWIKk8L-jg4yzpXzLLFe60";
 
-    // `window.supabase` is provided by the UMD bundle loaded in <head>
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    function getSupabaseClient() {
+      if (window.supabase && typeof window.supabase.createClient === 'function') {
+        return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+      return null;
+    }
+
+    let supabaseClient = getSupabaseClient();
 
     const loginBtn = document.getElementById('loginBtn');
     const loginError = document.getElementById('loginError');
@@ -287,6 +313,16 @@
       const password = passwordInputEl.value.trim();
 
       loginError.style.display = 'none';
+
+      if (!supabaseClient) {
+        supabaseClient = getSupabaseClient();
+      }
+
+      if (!supabaseClient) {
+        loginError.textContent = 'Login is unavailable. Please check your connection and refresh.';
+        loginError.style.display = 'block';
+        return;
+      }
 
       if (!usernameOrEmail || !password) {
         loginError.textContent = 'Please enter both username and password.';
@@ -302,7 +338,7 @@
         let emailToUse = null;
 
         // 1️⃣ Try to treat input as username first
-        const { data: profileData, error: profileError } = await supabase
+        const { data: profileData, error: profileError } = await supabaseClient
           .from('profiles')
           .select('email, username')
           .eq('username', usernameOrEmail)
@@ -318,7 +354,7 @@
         }
 
         // 3️⃣ Attempt sign-in with resolved email
-        let { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+        let { data: signInData, error: signInError } = await supabaseClient.auth.signInWithPassword({
           email: emailToUse,
           password,
         });
@@ -326,7 +362,7 @@
         // 4️⃣ If that fails, retry with the opposite assumption once
         if (signInError || !signInData?.user) {
           if (emailToUse !== usernameOrEmail) {
-            const retry = await supabase.auth.signInWithPassword({
+            const retry = await supabaseClient.auth.signInWithPassword({
               email: usernameOrEmail,
               password,
             });
@@ -345,7 +381,7 @@
         const email = signInData.user.email;
 
         // 6️⃣ Fetch profile (now authenticated, RLS allows this)
-        const { data: userProfile } = await supabase
+        const { data: userProfile } = await supabaseClient
           .from('profiles')
           .select('username, id')
           .eq('email', email)
@@ -373,6 +409,7 @@
         loginBtn.disabled = false;
       }
     });
+    })();
   </script>
 </body>
 </html>
