@@ -1721,13 +1721,15 @@ MySemester is a modern web platform built primarily for University of Toronto st
     const AUTH_KEY = 'uoft_auth_v1';
     const THEME_KEY = 'uoft_theme';
     const CLOUD_TABLE = 'mysemester_courses';
-    const supabaseClient = window.mysemesterSupabase || null;
+    let supabaseClient = window.mysemesterSupabase || null;
     let cloudReady = false;
     let cloudSyncPending = false;
     let cloudSyncTimer = null;
     let suppressCloudSync = false;
     const cloudOverlay = document.getElementById('cloudSyncOverlay');
     let cloudOverlayTimeout = null;
+    let cloudInitAttempts = 0;
+    const CLOUD_INIT_MAX = 10;
 
     function setCloudOverlay(isVisible) {
       if (!cloudOverlay) return;
@@ -1744,6 +1746,13 @@ MySemester is a modern web platform built primarily for University of Toronto st
         cloudOverlay.classList.remove('show');
         cloudOverlay.setAttribute('aria-hidden', 'true');
       }, 250);
+    }
+
+    function ensureSupabaseClient() {
+      if (!supabaseClient && window.mysemesterSupabase) {
+        supabaseClient = window.mysemesterSupabase;
+      }
+      return supabaseClient;
     }
 
     /** @type {{courses: Array<{id:string, code:string, title:string, icon:string, grade:number}>}} */
@@ -1782,7 +1791,7 @@ MySemester is a modern web platform built primarily for University of Toronto st
     }
 
     async function getCloudUserId() {
-      if (!supabaseClient) return null;
+      if (!ensureSupabaseClient()) return null;
       try {
         const { data, error } = await supabaseClient.auth.getUser();
         if (error) return null;
@@ -1793,7 +1802,7 @@ MySemester is a modern web platform built primarily for University of Toronto st
     }
 
     function queueCloudSync() {
-      if (!supabaseClient) return;
+      if (!ensureSupabaseClient()) return;
       if (!cloudReady) {
         cloudSyncPending = true;
         return;
@@ -1807,7 +1816,7 @@ MySemester is a modern web platform built primarily for University of Toronto st
     }
 
     async function syncCoursesToCloud() {
-      if (!supabaseClient) return;
+      if (!ensureSupabaseClient()) return;
       const userId = await getCloudUserId();
       if (!userId) return;
 
@@ -1861,7 +1870,7 @@ MySemester is a modern web platform built primarily for University of Toronto st
     }
 
     async function loadFromCloud() {
-      if (!supabaseClient) return false;
+      if (!ensureSupabaseClient()) return false;
       const userId = await getCloudUserId();
       if (!userId) return false;
 
@@ -1954,8 +1963,13 @@ MySemester is a modern web platform built primarily for University of Toronto st
         cloudReady = true;
         return;
       }
-      if (!supabaseClient) {
-        cloudReady = true;
+      if (!ensureSupabaseClient()) {
+        cloudInitAttempts += 1;
+        if (cloudInitAttempts <= CLOUD_INIT_MAX) {
+          setTimeout(initCloudSync, 300);
+        } else {
+          cloudReady = true;
+        }
         return;
       }
       setCloudOverlay(true);
