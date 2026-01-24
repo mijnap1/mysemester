@@ -117,9 +117,21 @@
   </div>
 
   <script>
+    const cachedAuth = (() => {
+      try {
+        return JSON.parse(localStorage.getItem('uoft_auth_v1') || 'null');
+      } catch (err) {
+        return null;
+      }
+    })();
+
+    const nextPage = (cachedAuth && cachedAuth.loggedIn && cachedAuth.username)
+      ? 'main.html'
+      : 'login.html';
+
     // Redirect after short delay
     setTimeout(() => {
-      window.location.href = "login.html";
+      window.location.href = nextPage;
     }, 2000);
   </script>
 </body>

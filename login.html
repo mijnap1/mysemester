@@ -238,6 +238,18 @@
 
   <script>
     (() => {
+      const cachedAuth = (() => {
+        try {
+          return JSON.parse(localStorage.getItem('uoft_auth_v1') || 'null');
+        } catch (err) {
+          return null;
+        }
+      })();
+
+      if (cachedAuth && cachedAuth.loggedIn && cachedAuth.username) {
+        window.location.replace('main.html');
+        return;
+      }
     // ===== Theme toggle (matches signup page) =====
     const body = document.body;
     const toggleBtn = document.querySelector('.theme-toggle');

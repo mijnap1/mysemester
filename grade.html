@@ -417,48 +417,75 @@ if (courseMeta && courseMeta.crncr) {
         tr.innerHTML = `
           <td ondblclick="editName(${i}, this)">${w.name}</td>
           <td ondblclick="editWeight(${i}, this)">${w.weight}</td>
-          <td><input type="number" min="0" max="100" value="${w.grade ?? ''}" data-i="${i}" data-type="grade"></td>
-          <td><input type="number" min="0" max="100" value="${w.estimate ?? ''}" data-i="${i}" data-type="estimate"></td>
+          <td><input type="number" min="0" max="100" step="0.01" value="${w.grade ?? ''}" data-i="${i}" data-type="grade"></td>
+          <td><input type="number" min="0" max="100" step="0.01" value="${w.estimate ?? ''}" data-i="${i}" data-type="estimate"></td>
           <td><button class="remove-btn" onclick="removeAssessment(${i})"><ion-icon name="trash-outline"></ion-icon></button></td>
         `;
         tbody.appendChild(tr);
       });
 
       document.querySelectorAll('input').forEach(inp => {
-        const handleClampAndSave = (e) => {
+        const handleInput = (e) => {
           const i = e.target.dataset.i;
           const type = e.target.dataset.type;
+          const raw = e.target.value.trim();
 
-          let raw = e.target.value.trim();
-          let val = null;
-
-          if (raw !== '') {
-            let num = parseFloat(raw);
-            if (isNaN(num)) {
-              // If not a number, clear
-              e.target.value = '';
-              val = null;
-            } else {
-              if (num > 100) num = 100;
-              if (num < 0) num = 0;
-              // reflect clamped value in the input
-              e.target.value = String(num);
-              val = num;
-            }
+          if (raw === '') {
+            weights[i][type] = null;
+            calcAvg();
+            return;
           }
 
-          weights[i][type] = val;
-          // Removed inline saveGrades() here to avoid notification spam
-          // saveGrades();
+          if (!/^(\d+)?(\.)?(\d{0,2})?$/.test(raw)) {
+            return;
+          }
+
+          if (raw === '.' || raw.endsWith('.')) {
+            return;
+          }
+
+          const num = parseFloat(raw);
+          if (!isNaN(num)) {
+            weights[i][type] = num;
+            calcAvg();
+          }
+        };
+
+        const handleBlur = (e) => {
+          const i = e.target.dataset.i;
+          const type = e.target.dataset.type;
+          let raw = e.target.value.trim();
+
+          if (raw === '' || raw === '.') {
+            e.target.value = '';
+            weights[i][type] = null;
+            calcAvg();
+            return;
+          }
+
+          let num = parseFloat(raw);
+          if (isNaN(num)) {
+            e.target.value = '';
+            weights[i][type] = null;
+            calcAvg();
+            return;
+          }
+
+          if (num > 100) num = 100;
+          if (num < 0) num = 0;
+          num = Math.round(num * 100) / 100;
+
+          const formatted = num.toFixed(2).replace(/\.?0+$/, '');
+          e.target.value = formatted;
+          weights[i][type] = num;
           calcAvg();
         };
 
-        // Clamp continuously while typing and when leaving the field
-        inp.addEventListener('input', handleClampAndSave);
-        inp.addEventListener('blur', handleClampAndSave);
-        // Also handle paste events (in case pasted text exceeds limits)
+        // Allow natural decimal typing; clamp only on blur
+        inp.addEventListener('input', handleInput);
+        inp.addEventListener('blur', handleBlur);
         inp.addEventListener('paste', (e) => {
-          requestAnimationFrame(() => handleClampAndSave(e));
+          requestAnimationFrame(() => handleBlur(e));
         });
       });
       renderEstimates();
