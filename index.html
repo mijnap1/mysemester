@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MySemester</title>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="icon" type="image/png" href="mysemesterlogo.png" />
+  <link rel="icon" type="image/png" href="/mysemesterlogo.png" />
 
   <meta name="title" content="MySemester" />
   <meta name="description" content="Smartly track your university grades, plan courses, and stay on top of your semester. MySemester helps you visualize progress, organize assessments, and keep everything academic in one simple dashboard." />
@@ -103,7 +103,7 @@
 </head>
 
 <body>
-  <img src="mysemesterlogo.png" alt="MySemester Logo">
+  <img src="/mysemesterlogo.png" alt="MySemester Logo">
   <h1>MySemester</h1>
   <p class="description">
     Smartly track your university grades, plan courses, and stay on top of your semester.
@@ -126,8 +126,8 @@
     })();
 
     const nextPage = (cachedAuth && cachedAuth.loggedIn && cachedAuth.username)
-      ? 'main.html'
-      : 'login.html';
+      ? '/main/'
+      : '/login/';
 
     // Redirect after short delay
     setTimeout(() => {

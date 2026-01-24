@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>MySemester</title>
-  <link rel="icon" type="image/png" href="mysemesterlogo.png">
+  <link rel="icon" type="image/png" href="/mysemesterlogo.png">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
@@ -755,8 +755,8 @@
             </div>
           </div>
           <div class="acc-actions" id="accActionsSignedOut">
-            <a href="login.html"><ion-icon name="log-in-outline"></ion-icon> Sign in</a>
-            <a href="signup.html"><ion-icon name="person-add-outline"></ion-icon> Create account</a>
+            <a href="/login/"><ion-icon name="log-in-outline"></ion-icon> Sign in</a>
+            <a href="/signup/"><ion-icon name="person-add-outline"></ion-icon> Create account</a>
           </div>
           <div class="acc-actions" id="accActionsSignedIn" style="display:none">
             <button id="goProfile"><ion-icon name="person-outline"></ion-icon> Profile</button>
@@ -1997,7 +1997,7 @@ MySemester is a modern web platform built primarily for University of Toronto st
               crncr: !!c.crncr   // send CR/NCR status to grade.html
             };
             localStorage.setItem('selectedCourse', JSON.stringify(courseData));
-            window.location.href = `grade.html?course=${encodeURIComponent(c.code)}`;
+            window.location.href = `/grade/?course=${encodeURIComponent(c.code)}`;
           });
 
           grid.appendChild(card);
@@ -2314,7 +2314,7 @@ MySemester is a modern web platform built primarily for University of Toronto st
       setAuth({ loggedIn:false });
       refreshAuthUI();
       accountDd.classList.remove('show');
-      window.location.href = 'login.html'; // Redirect to login page after sign-out
+      window.location.href = '/login/'; // Redirect to login page after sign-out
     });
 
     // PROFILE MODAL LOGIC will be appended below

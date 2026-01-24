@@ -11,7 +11,7 @@
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <link rel="icon" type="image/png" href="mysemesterlogo.png">
+  <link rel="icon" type="image/png" href="/mysemesterlogo.png">
 
   <style>
     :root {
@@ -291,7 +291,7 @@
       <div class="error" id="confirmPasswordError"></div>
       <div class="success" id="successText">Account created! Redirecting...</div>
       <button type="submit">Sign up</button>
-      <p>Already have an account? <a href="login.html">Log in</a></p>
+      <p>Already have an account? <a href="/login/">Log in</a></p>
     </form>
   </div>
 
@@ -483,7 +483,7 @@
         successText.style.display = "block";
 
         setTimeout(() => {
-          window.location.href = "main.html";
+          window.location.href = "/main/";
         }, 900);
       } catch (err) {
         emailError.textContent = err.message || "Unexpected error. Please try again.";

@@ -8,7 +8,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
-  <link rel="icon" type="image/png" href="mysemesterlogo.png">
+  <link rel="icon" type="image/png" href="/mysemesterlogo.png">
 
   <!-- Supabase UMD bundle (avoids ES module import issues) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
@@ -233,7 +233,7 @@
     <input type="password" id="password" placeholder="Password" />
     <div class="error" id="loginError">⚠ Please enter both username and password.</div>
     <button id="loginBtn">Login</button>
-    <div class="small">No account? <a href="signup.html">Sign up</a></div>
+    <div class="small">No account? <a href="/signup/">Sign up</a></div>
   </div>
 
   <script>
@@ -247,7 +247,7 @@
       })();
 
       if (cachedAuth && cachedAuth.loggedIn && cachedAuth.username) {
-        window.location.replace('main.html');
+        window.location.replace('/main/');
         return;
       }
     // ===== Theme toggle (matches signup page) =====
@@ -423,7 +423,7 @@
         }));
 
         // 8️⃣ Redirect to main page
-        window.location.href = 'main.html';
+        window.location.href = '/main/';
       } catch (err) {
         console.error('Login error:', err);
         loginError.textContent = 'Unexpected error. Please try again.';
