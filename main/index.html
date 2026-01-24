@@ -1873,20 +1873,75 @@ MySemester is a modern web platform built primarily for University of Toronto st
       if (error || !data) return false;
 
       if (data.length) {
-        state.courses = data.map((row) => {
+        const localCourses = Array.isArray(state.courses) ? state.courses : [];
+        const localMap = new Map();
+        const localOrder = [];
+
+        localCourses.forEach((course) => {
+          const codeValue = String(course.code || course.id || '').toUpperCase();
+          if (!codeValue) return;
+          localOrder.push(codeValue);
+          localMap.set(codeValue, {
+            id: codeValue,
+            code: codeValue,
+            title: course.title || '',
+            icon: course.icon || 'book-outline',
+            grade: typeof course.grade === 'number' ? course.grade : parseFloat(course.grade) || 0,
+            crncr: !!course.crncr
+          });
+        });
+
+        const cloudMap = new Map();
+        data.forEach((row) => {
           const codeValue = String(row.code || row.course_id || '').toUpperCase();
-          return {
+          if (!codeValue) return;
+          cloudMap.set(codeValue, {
             id: codeValue,
             code: codeValue,
             title: row.title || '',
             icon: row.icon || 'book-outline',
             grade: typeof row.grade === 'number' ? row.grade : parseFloat(row.grade) || 0,
             crncr: !!row.crncr
-          };
+          });
         });
+
+        let needsUpload = false;
+        const mergedOrder = [...localOrder];
+
+        cloudMap.forEach((cloudCourse, codeValue) => {
+          const localCourse = localMap.get(codeValue);
+          if (localCourse) {
+            localMap.set(codeValue, {
+              id: codeValue,
+              code: codeValue,
+              title: localCourse.title || cloudCourse.title || '',
+              icon: localCourse.icon || cloudCourse.icon || 'book-outline',
+              grade: typeof localCourse.grade === 'number' ? localCourse.grade : cloudCourse.grade || 0,
+              crncr: typeof localCourse.crncr === 'boolean' ? localCourse.crncr : !!cloudCourse.crncr
+            });
+          } else {
+            localMap.set(codeValue, cloudCourse);
+            mergedOrder.push(codeValue);
+          }
+        });
+
+        const cloudCodes = new Set(cloudMap.keys());
+        localMap.forEach((_, codeValue) => {
+          if (!cloudCodes.has(codeValue)) {
+            needsUpload = true;
+          }
+        });
+
+        state.courses = mergedOrder.map((codeValue) => localMap.get(codeValue)).filter(Boolean);
+
         suppressCloudSync = true;
         save();
         suppressCloudSync = false;
+
+        if (needsUpload) {
+          queueCloudSync();
+        }
+
         return true;
       }
 
