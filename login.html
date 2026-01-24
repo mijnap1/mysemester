@@ -350,18 +350,15 @@
         let emailToUse = null;
 
         // 1️⃣ Try to treat input as username first
-        const { data: profileData, error: profileError } = await supabaseClient
-          .from('profiles')
-          .select('email, username')
-          .eq('username', usernameOrEmail)
-          .maybeSingle();
+        const { data: emailFromRpc, error: rpcError } = await supabaseClient
+          .rpc('get_email_by_username', { u: usernameOrEmail });
 
-        if (profileData && profileData.email) {
-          emailToUse = profileData.email;
+        if (emailFromRpc) {
+          emailToUse = emailFromRpc;
         }
 
-        if (!emailToUse && profileError) {
-          console.warn('Profile lookup failed:', profileError.message);
+        if (!emailToUse && rpcError) {
+          console.warn('Username lookup failed:', rpcError.message);
         }
 
         if (!emailToUse) {
