@@ -762,6 +762,38 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
+    @media (max-width: 900px) {
+      :root { --header-h: 56px; }
+      header { padding: 0 12px; }
+      .brand h1 { font-size: 18px; }
+      .wrap { padding: calc(var(--header-h) + 18px) 14px 90px; }
+      .hero h2 { font-size: 34px; }
+      .hero p { font-size: 16px; }
+      .grid { gap: 16px; margin-top: 24px; }
+      .card { width: min(100%, 560px); padding: 18px; gap: 14px; }
+      ion-icon.course-icon { font-size: 32px; }
+      .mark { font-size: 18px; min-width: 52px; }
+      .overview { grid-template-columns: 1fr; }
+      .sidebar { width: 100%; right: -100%; }
+      .empty-state-card {
+        position: static;
+        transform: none;
+        margin: 20px auto 0;
+        width: min(320px, 88vw);
+      }
+    }
+
+    @media (max-width: 520px) {
+      .iconbtn { width: 36px; height: 36px; }
+      .menu-icon { width: 40px; height: 40px; }
+      .hero h2 { font-size: 28px; }
+      .card { align-items: flex-start; }
+      .info .code { font-size: 18px; }
+      .info .muted-sm { font-size: 13px; }
+      .mark { font-size: 16px; }
+      footer { font-size: 12px; }
+    }
   </style>
 </head>
 
@@ -1099,6 +1131,15 @@ MySemester is a modern web platform built primarily for University of Toronto st
       border-bottom-left-radius: 18px;
       border-bottom-right-radius: 18px;
     }
+
+    @media (max-width: 600px) {
+      #settingsModal { width: min(420px, 88vw); }
+      #settingsModal .modal-body { padding: 18px 18px 16px; gap: 18px; }
+      #settingsModal .modal-actions { padding: 16px 18px 20px; }
+      .settings-theme-btnrow { flex-wrap: wrap; }
+      .settings-data-btnrow { flex-direction: column; align-items: stretch; }
+      .settings-data-btnrow .btn-plain { width: 100%; justify-content: center; }
+    }
     /* Settings card sections */
     .settings-card {
       background: var(--card);
@@ -1405,10 +1446,33 @@ MySemester is a modern web platform built primarily for University of Toronto st
           alert('No courses to export.');
           return;
         }
+        const auth = getAuth();
+        const username = auth && auth.username ? auth.username : null;
+        const coursesWithDetails = state.courses.map((course) => {
+          const codeValue = String(course.code || '').toUpperCase();
+          let weights = null;
+          if (username && codeValue) {
+            const weightsKey = `grades_${username}_${codeValue}_v3`;
+            try {
+              const raw = localStorage.getItem(weightsKey);
+              if (raw) {
+                const parsed = JSON.parse(raw);
+                if (Array.isArray(parsed) && parsed.length) {
+                  weights = parsed;
+                }
+              }
+            } catch (_) {}
+          }
+          return {
+            ...course,
+            code: codeValue || course.code,
+            weights
+          };
+        });
         const payload = {
-          version: 1,
+          version: 2,
           exportedAt: new Date().toISOString(),
-          courses: state.courses
+          courses: coursesWithDetails
         };
         const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -1472,7 +1536,8 @@ MySemester is a modern web platform built primarily for University of Toronto st
                 if (isNaN(g)) return 0;
                 return Math.max(0, Math.min(100, g));
               })(),
-              crncr: !!c.crncr
+              crncr: !!c.crncr,
+              weights: Array.isArray(c.weights) ? c.weights : null
             };
           });
 
@@ -1481,9 +1546,21 @@ MySemester is a modern web platform built primarily for University of Toronto st
           }
 
           // Replace current state with imported data
-          state.courses = imported;
+          state.courses = imported.map(({ weights, ...course }) => course);
           save();
           render();
+
+          // Restore per-course weights into localStorage for grade details
+          const auth = getAuth();
+          if (auth && auth.username) {
+            imported.forEach((course) => {
+              const codeValue = String(course.code || '').toUpperCase();
+              if (!codeValue || !Array.isArray(course.weights)) return;
+              const weightsKey = `grades_${auth.username}_${codeValue}_v3`;
+              localStorage.setItem(weightsKey, JSON.stringify(course.weights));
+            });
+          }
+
           alert('Courses imported successfully.');
         } catch (err) {
           console.error('Import error:', err);
@@ -1559,7 +1636,7 @@ MySemester is a modern web platform built primarily for University of Toronto st
       <div class="ov"><div class="label">Percent Avg</div><div class="value" id="gpaPct">0%</div></div>
     </section>
 
-    <footer>© 2025 Jamie Ryu. All Rights Reserved.</footer>
+    <footer>© 2026 MySemester. All Rights Reserved.</footer>
 
     <!-- ========================= PROFILE MODAL ========================= -->
     <dialog id="profileModal">

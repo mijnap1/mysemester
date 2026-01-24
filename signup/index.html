@@ -261,6 +261,16 @@
     body.dark .theme-toggle {
       color: var(--muted);
     }
+
+    @media (max-width: 600px) {
+      body { padding: 0 18px; }
+      .title { font-size: 38px; margin-bottom: 26px; }
+      .card { width: min(380px, 90vw); padding: 28px 22px; }
+      h1 { font-size: 24px; margin-bottom: 20px; }
+      form { gap: 14px; }
+      .theme-toggle { top: 12px; right: 12px; }
+      button[type="submit"] { width: 100%; }
+    }
   </style>
 </head>
 <body>
