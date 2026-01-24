@@ -348,6 +348,21 @@
           emailToUse = profileData.email;
         }
 
+        if (!emailToUse && profileError) {
+          console.warn('Profile lookup failed:', profileError.message);
+        }
+
+        if (!emailToUse) {
+          try {
+            const cachedAuth = JSON.parse(localStorage.getItem('uoft_auth_v1') || 'null');
+            if (cachedAuth && cachedAuth.username === usernameOrEmail && cachedAuth.email) {
+              emailToUse = cachedAuth.email;
+            }
+          } catch (err) {
+            // Ignore cache parse errors
+          }
+        }
+
         // 2️⃣ If username lookup failed, use input directly as email
         if (!emailToUse) {
           emailToUse = usernameOrEmail;
