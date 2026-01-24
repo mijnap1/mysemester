@@ -725,10 +725,53 @@
     #profileModal .modal-body {
       padding: 28px 32px;
     }
+
+    .sync-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      backdrop-filter: blur(4px);
+    }
+    .sync-overlay.show {
+      display: flex;
+    }
+    .sync-card {
+      background: var(--card);
+      color: var(--text);
+      border-radius: 18px;
+      padding: 22px 26px;
+      box-shadow: var(--shadow-default);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .sync-spinner {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 3px solid var(--line);
+      border-top-color: var(--blue);
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
   </style>
 </head>
 
 <body>
+  <div id="cloudSyncOverlay" class="sync-overlay" aria-hidden="true">
+    <div class="sync-card" role="status" aria-live="polite">
+      <div class="sync-spinner"></div>
+      Syncing your courses...
+    </div>
+  </div>
   <!-- ========================= HEADER ========================= -->
   <header>
     <div class="brand">
@@ -1683,6 +1726,25 @@ MySemester is a modern web platform built primarily for University of Toronto st
     let cloudSyncPending = false;
     let cloudSyncTimer = null;
     let suppressCloudSync = false;
+    const cloudOverlay = document.getElementById('cloudSyncOverlay');
+    let cloudOverlayTimeout = null;
+
+    function setCloudOverlay(isVisible) {
+      if (!cloudOverlay) return;
+      if (cloudOverlayTimeout) {
+        clearTimeout(cloudOverlayTimeout);
+        cloudOverlayTimeout = null;
+      }
+      if (isVisible) {
+        cloudOverlay.classList.add('show');
+        cloudOverlay.setAttribute('aria-hidden', 'false');
+        return;
+      }
+      cloudOverlayTimeout = setTimeout(() => {
+        cloudOverlay.classList.remove('show');
+        cloudOverlay.setAttribute('aria-hidden', 'true');
+      }, 250);
+    }
 
     /** @type {{courses: Array<{id:string, code:string, title:string, icon:string, grade:number}>}} */
     let state = { courses: [] };
@@ -1832,10 +1894,16 @@ MySemester is a modern web platform built primarily for University of Toronto st
     }
 
     function initCloudSync() {
+      const auth = getAuth();
+      if (!auth || !auth.loggedIn) {
+        cloudReady = true;
+        return;
+      }
       if (!supabaseClient) {
         cloudReady = true;
         return;
       }
+      setCloudOverlay(true);
       loadFromCloud().then((loaded) => {
         cloudReady = true;
         if (loaded) {
@@ -1847,6 +1915,8 @@ MySemester is a modern web platform built primarily for University of Toronto st
           cloudSyncPending = false;
           queueCloudSync();
         }
+      }).finally(() => {
+        setCloudOverlay(false);
       });
     }
 
