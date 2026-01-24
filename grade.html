@@ -10,6 +10,7 @@
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
   <link rel="icon" type="image/png" href="mysemesterlogo.png">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
   <style>
     :root {
@@ -341,6 +342,33 @@ if (courseMeta && courseMeta.crncr) {
     const currentUser = userAuth && userAuth.username ? userAuth.username : "guest";
     const userGradeKey = `grades_${currentUser}_${courseId}_v3`;
 
+    const SUPABASE_URL = "https://dqstskgvdiwdkonbapke.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc3Rza2d2ZGl3ZGtvbmJhcGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzMDI0NzYsImV4cCI6MjA3NTg3ODQ3Nn0.2iFEYtVQZjQOY8_sF4x0SvWIKk8L-jg4yzpXzLLFe60";
+    const CLOUD_TABLE = "mysemester_courses";
+
+    function getSupabaseClient() {
+      if (window.supabase && typeof window.supabase.createClient === "function") {
+        return window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      }
+      return null;
+    }
+
+    let supabaseClient = getSupabaseClient();
+
+    async function getCloudUserId() {
+      if (!supabaseClient) {
+        supabaseClient = getSupabaseClient();
+      }
+      if (!supabaseClient) return null;
+      try {
+        const { data, error } = await supabaseClient.auth.getUser();
+        if (error) return null;
+        return data?.user?.id || null;
+      } catch (err) {
+        return null;
+      }
+    }
+
     let weights = [];
     try {
       const isNewUser = !localStorage.getItem(`uoft_user_${currentUser}_created`);
@@ -374,6 +402,55 @@ if (courseMeta && courseMeta.crncr) {
           weights = parsed;
         }
       } catch {}
+    }
+
+    async function loadCourseFromCloud() {
+      const userId = await getCloudUserId();
+      if (!userId || !supabaseClient) return;
+
+      const { data, error } = await supabaseClient
+        .from(CLOUD_TABLE)
+        .select('code, title, icon, grade, crncr, weights')
+        .eq('user_id', userId)
+        .eq('code', courseId)
+        .maybeSingle();
+
+      if (error || !data) return;
+
+      if (data.title) courseMeta.title = data.title;
+      if (data.icon) courseMeta.icon = data.icon;
+      if (typeof data.crncr === 'boolean') courseMeta.crncr = data.crncr;
+
+      if (Array.isArray(data.weights) && data.weights.length) {
+        weights = data.weights;
+        localStorage.setItem(userGradeKey, JSON.stringify(weights));
+        renderTable();
+      }
+    }
+
+    async function syncCourseToCloud(payload) {
+      const userId = await getCloudUserId();
+      if (!userId || !supabaseClient) return;
+
+      const row = {
+        user_id: userId,
+        course_id: String(payload.code || '').toUpperCase(),
+        code: String(payload.code || '').toUpperCase(),
+        title: payload.title || '',
+        icon: payload.icon || '',
+        grade: typeof payload.grade === 'number' ? payload.grade : null,
+        crncr: !!payload.crncr,
+        weights: Array.isArray(payload.weights) ? payload.weights : [],
+        updated_at: new Date().toISOString()
+      };
+
+      const { error } = await supabaseClient
+        .from(CLOUD_TABLE)
+        .upsert(row, { onConflict: 'user_id,course_id' });
+
+      if (error) {
+        console.warn('Cloud sync failed:', error.message);
+      }
     }
 
 
@@ -677,6 +754,8 @@ if (courseMeta && courseMeta.crncr) {
       // Save the detailed grade list for this course (for this page reload)
       localStorage.setItem(userGradeKey, JSON.stringify(weights));
 
+      syncCourseToCloud(payload);
+
       // Success notification
       const notif = document.getElementById('saveNotification');
       if (notif) {
@@ -695,6 +774,7 @@ if (courseMeta && courseMeta.crncr) {
     }
 
     renderTable();
+    loadCourseFromCloud();
 
     // ========================= THEME TOGGLE (SYNCED GLOBALLY) =========================
     const THEME_KEY = 'uoft_theme'; // same key as main.html

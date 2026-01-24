@@ -1660,7 +1660,8 @@ MySemester is a modern web platform built primarily for University of Toronto st
   const SUPABASE_URL = "https://dqstskgvdiwdkonbapke.supabase.co";
   const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc3Rza2d2ZGl3ZGtvbmJhcGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzMDI0NzYsImV4cCI6MjA3NTg3ODQ3Nn0.2iFEYtVQZjQOY8_sF4x0SvWIKk8L-jg4yzpXzLLFe60";
 
-  export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  window.mysemesterSupabase = supabase;
 </script>
 
   <script>
@@ -1676,6 +1677,12 @@ MySemester is a modern web platform built primarily for University of Toronto st
     }
     const AUTH_KEY = 'uoft_auth_v1';
     const THEME_KEY = 'uoft_theme';
+    const CLOUD_TABLE = 'mysemester_courses';
+    const supabaseClient = window.mysemesterSupabase || null;
+    let cloudReady = false;
+    let cloudSyncPending = false;
+    let cloudSyncTimer = null;
+    let suppressCloudSync = false;
 
     /** @type {{courses: Array<{id:string, code:string, title:string, icon:string, grade:number}>}} */
     let state = { courses: [] };
@@ -1707,6 +1714,140 @@ MySemester is a modern web platform built primarily for University of Toronto st
 
     function save(){
       localStorage.setItem(getUserSpecificKey(LS_KEY), JSON.stringify(state));
+      if (!suppressCloudSync) {
+        queueCloudSync();
+      }
+    }
+
+    async function getCloudUserId() {
+      if (!supabaseClient) return null;
+      try {
+        const { data, error } = await supabaseClient.auth.getUser();
+        if (error) return null;
+        return data?.user?.id || null;
+      } catch (err) {
+        return null;
+      }
+    }
+
+    function queueCloudSync() {
+      if (!supabaseClient) return;
+      if (!cloudReady) {
+        cloudSyncPending = true;
+        return;
+      }
+      if (cloudSyncTimer) {
+        clearTimeout(cloudSyncTimer);
+      }
+      cloudSyncTimer = setTimeout(() => {
+        syncCoursesToCloud();
+      }, 600);
+    }
+
+    async function syncCoursesToCloud() {
+      if (!supabaseClient) return;
+      const userId = await getCloudUserId();
+      if (!userId) return;
+
+      const payload = (state.courses || []).map((course) => ({
+        user_id: userId,
+        course_id: String(course.code || '').toUpperCase(),
+        code: String(course.code || '').toUpperCase(),
+        title: course.title || '',
+        icon: course.icon || '',
+        grade: typeof course.grade === 'number' ? course.grade : null,
+        crncr: !!course.crncr,
+        updated_at: new Date().toISOString()
+      }));
+
+      if (!payload.length) {
+        await supabaseClient
+          .from(CLOUD_TABLE)
+          .delete()
+          .eq('user_id', userId);
+        return;
+      }
+
+      const { error: upsertError } = await supabaseClient
+        .from(CLOUD_TABLE)
+        .upsert(payload, { onConflict: 'user_id,course_id' });
+
+      if (upsertError) {
+        console.warn('Cloud sync failed:', upsertError.message);
+        return;
+      }
+
+      const { data: remoteRows, error: selectError } = await supabaseClient
+        .from(CLOUD_TABLE)
+        .select('course_id')
+        .eq('user_id', userId);
+
+      if (selectError || !remoteRows) return;
+
+      const localIds = new Set(payload.map((row) => row.course_id));
+      const toDelete = remoteRows
+        .map((row) => row.course_id)
+        .filter((id) => id && !localIds.has(id));
+
+      if (toDelete.length) {
+        await supabaseClient
+          .from(CLOUD_TABLE)
+          .delete()
+          .eq('user_id', userId)
+          .in('course_id', toDelete);
+      }
+    }
+
+    async function loadFromCloud() {
+      if (!supabaseClient) return false;
+      const userId = await getCloudUserId();
+      if (!userId) return false;
+
+      const { data, error } = await supabaseClient
+        .from(CLOUD_TABLE)
+        .select('course_id, code, title, icon, grade, crncr')
+        .eq('user_id', userId);
+
+      if (error || !data) return false;
+
+      if (data.length) {
+        state.courses = data.map((row) => {
+          const codeValue = String(row.code || row.course_id || '').toUpperCase();
+          return {
+            id: codeValue,
+            code: codeValue,
+            title: row.title || '',
+            icon: row.icon || 'book-outline',
+            grade: typeof row.grade === 'number' ? row.grade : parseFloat(row.grade) || 0,
+            crncr: !!row.crncr
+          };
+        });
+        suppressCloudSync = true;
+        save();
+        suppressCloudSync = false;
+        return true;
+      }
+
+      return false;
+    }
+
+    function initCloudSync() {
+      if (!supabaseClient) {
+        cloudReady = true;
+        return;
+      }
+      loadFromCloud().then((loaded) => {
+        cloudReady = true;
+        if (loaded) {
+          render();
+        } else if (state.courses.length) {
+          queueCloudSync();
+        }
+        if (cloudSyncPending) {
+          cloudSyncPending = false;
+          queueCloudSync();
+        }
+      });
     }
 
 
@@ -2401,6 +2542,7 @@ document.querySelectorAll('.pw-eye').forEach(icon => {
     load();
     refreshAuthUI();
     render();
+    initCloudSync();
 
     // After init, prefer nickname → profile full name → signup full name → username
     const displayName = getDisplayName();
