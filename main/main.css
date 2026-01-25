@@ -220,6 +220,146 @@
     .navbtn.gray { border-color: #94a3b8; color: #475569; }
     .navbtn.gray:hover { background: #94a3b8; color: #fff; }
 
+    .sidebar-section {
+      margin-top: 40px;
+      display: grid;
+      gap: 10px;
+    }
+    .sidebar-title {
+      font-size: 12px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .sidebar-card {
+      background: var(--card);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-weight: 600;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-default);
+    }
+    .sidebar-card .label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .sidebar-card .value {
+      font-size: 14px;
+      color: var(--text);
+      text-align: right;
+      max-width: 60%;
+    }
+
+  .profile-academic {
+    display: grid;
+    gap: 12px;
+  }
+  .profile-academic-title {
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .profile-input,
+  .profile-select,
+  .profile-select-button {
+    width: 100%;
+    border: 2px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    background: var(--card);
+    outline: none;
+    transition: var(--transition);
+  }
+  .profile-input:focus,
+  .profile-select:focus,
+  .profile-select-button:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+  .profile-select {
+    appearance: none;
+    background-image: linear-gradient(45deg, transparent 50%, #94a3b8 50%), linear-gradient(135deg, #94a3b8 50%, transparent 50%);
+    background-position: calc(100% - 18px) calc(50% + 1px), calc(100% - 12px) calc(50% + 1px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 34px;
+  }
+  .readonly-field {
+    background: #f8fafc;
+    color: #475569;
+    cursor: not-allowed;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .profile-select-wrap {
+    position: relative;
+  }
+  .profile-select-button {
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+  }
+  .profile-select-button::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #94a3b8;
+    border-bottom: 2px solid #94a3b8;
+    transform: translateY(-60%) rotate(45deg);
+  }
+  .profile-select-menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 8px);
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 18px 40px rgba(15, 23, 42, 0.15);
+    display: none;
+    max-height: 220px;
+    overflow-y: auto;
+    z-index: 5;
+  }
+  .profile-select-wrap.open .profile-select-menu {
+    display: grid;
+    gap: 6px;
+  }
+  .profile-select-option {
+    border: 1px solid transparent;
+    background: var(--card);
+    color: var(--text);
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .profile-select-option:hover,
+  .profile-select-option.is-selected {
+    border-color: var(--blue);
+    background: #eef2ff;
+    color: #1e3a8a;
+  }
+
     
     .wrap {
       max-width: 1100px;
@@ -1025,6 +1165,61 @@
       box-shadow: 0 2px 10px rgba(37,99,235,0.09);
     }
     .settings-gpa-btn:hover { background: #f1f5fd; }
+    .settings-estimate-btn {
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 11px;
+      border: 2px solid var(--line);
+      background: var(--chip-bg);
+      color: var(--chip-text);
+      padding: 8px 22px;
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: none;
+      outline: none;
+    }
+    .settings-estimate-btn.active, .settings-estimate-btn:focus {
+      border-color: var(--blue);
+      background: #e0e7ff;
+      color: #1e40af;
+      box-shadow: 0 2px 10px rgba(37,99,235,0.09);
+    }
+    .settings-estimate-btn:hover { background: #f1f5fd; }
+    .settings-estimate-input {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid var(--line);
+      border-radius: 11px;
+      padding: 6px 12px;
+      background: var(--chip-bg);
+      color: var(--chip-text);
+      font-weight: 600;
+      font-size: 14px;
+      min-width: 130px;
+      justify-content: space-between;
+    }
+    .settings-estimate-input input {
+      width: 52px;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 14px;
+      outline: none;
+      text-align: center;
+    }
+    .settings-estimate-input input::-webkit-outer-spin-button,
+    .settings-estimate-input input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .settings-estimate-input input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    .settings-estimate-input input::placeholder { color: #94a3b8; }
     .settings-switch-row {
       display: flex; align-items: center; gap: 12px; margin-top: 2px;
     }
@@ -1084,9 +1279,10 @@
       color: #b91c1c;
       border-color: #b91c1c;
     }
-    .settings-data-btnrow .btn-plain ion-icon {
+  .settings-data-btnrow .btn-plain ion-icon {
       font-size: 17px;
     }
+
     
     @keyframes modalIn {
       from { opacity: 0; transform: translateY(24px) scale(0.97);}
@@ -1183,3 +1379,122 @@
     border-bottom-right-radius: 18px;
   }
 
+  .tour-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(4px);
+    display: none;
+    z-index: 2100;
+    pointer-events: none;
+  }
+  .tour-overlay.show {
+    display: block;
+  }
+  .tour-card {
+    position: absolute;
+    width: min(460px, 90vw);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 18px;
+    padding: 18px 18px 14px;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: auto;
+  }
+  .tour-card::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--card);
+    transform: rotate(45deg);
+  }
+  .tour-card[data-pos="top"]::after {
+    left: 24px;
+    bottom: -6px;
+  }
+  .tour-card[data-pos="bottom"]::after {
+    left: 24px;
+    top: -6px;
+  }
+  .tour-card[data-pos="right"]::after {
+    left: -6px;
+    top: 18px;
+  }
+  .tour-card[data-pos="left"]::after {
+    right: -6px;
+    top: 18px;
+  }
+  .tour-badge {
+    align-self: flex-start;
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--blue);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border-radius: 999px;
+  }
+  .tour-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .tour-body {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.6;
+    font-size: 14.5px;
+  }
+  .tour-progress {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .tour-dots {
+    display: flex;
+    gap: 6px;
+  }
+  .tour-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #cbd5f5;
+    transition: transform 0.2s var(--ease), background 0.2s var(--ease);
+  }
+  .tour-dot.active {
+    background: var(--blue);
+    transform: scale(1.2);
+  }
+  .tour-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  .tour-nav {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  .tour-highlight {
+    position: relative;
+    z-index: 2200;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.35);
+    border-radius: 16px;
+  }
+  @media (max-width: 520px) {
+    .tour-card {
+      width: min(380px, 92vw);
+    }
+    .tour-actions { flex-direction: column; align-items: stretch; }
+    .tour-nav { width: 100%; }
+    .tour-nav .btn-plain, .tour-nav .btn-primary, #tourSkip { width: 100%; }
+  }

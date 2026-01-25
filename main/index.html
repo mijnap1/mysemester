@@ -19,7 +19,26 @@
       <div class="sync-spinner"></div>
       Syncing your courses...
     </div>
-  </div><header>
+  </div>
+  <div id="tourOverlay" class="tour-overlay" aria-hidden="true">
+    <div class="tour-card" role="dialog" aria-live="polite" aria-labelledby="tourTitle">
+      <div class="tour-badge">Getting Started</div>
+      <h2 id="tourTitle" class="tour-title"></h2>
+      <p id="tourBody" class="tour-body"></p>
+      <div class="tour-progress">
+        <span id="tourStepLabel"></span>
+        <div class="tour-dots" id="tourDots"></div>
+      </div>
+      <div class="tour-actions">
+        <button type="button" class="btn-plain" id="tourSkip">Skip</button>
+        <div class="tour-nav">
+          <button type="button" class="btn-plain" id="tourPrev">Back</button>
+          <button type="button" class="btn-primary" id="tourNext">Next</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <header>
     <div class="brand">
       <ion-icon name="school-outline" style="font-size:22px;color:var(--blue)"></ion-icon>
       <h1>MySemester</h1>
@@ -66,6 +85,21 @@
     <button class="navbtn green" id="openAddCourse"><ion-icon name="add-circle-outline"></ion-icon> Add Course</button>
     <button class="navbtn blue" id="openSettings"><ion-icon name="settings-outline"></ion-icon> Settings</button>
     <button class="navbtn gray" id="openAbout"><ion-icon name="information-circle-outline"></ion-icon> About</button>
+    <div class="sidebar-section">
+      <div class="sidebar-title">Academic Profile</div>
+      <div class="sidebar-card">
+        <span class="label">University</span>
+        <span id="sidebarUniversity" class="value">Not set</span>
+      </div>
+      <div class="sidebar-card">
+        <span class="label">Year</span>
+        <span id="sidebarYear" class="value">Not set</span>
+      </div>
+      <div class="sidebar-card">
+        <span class="label">Program</span>
+        <span id="sidebarProgram" class="value">Not set</span>
+      </div>
+    </div>
   </aside><dialog id="aboutModal">
     <div class="modal-head about-modal-head">
       <ion-icon name="information-circle-outline"></ion-icon>
@@ -77,30 +111,26 @@
       <div class="about-content">
         <h2>About MySemester</h2>
         <p><ion-icon name="school-outline" style="color:#2563eb;margin-right:6px;vertical-align:middle;"></ion-icon>
-MySemester is a modern web platform built primarily for University of Toronto students, designed to help you manage and visualize your academic progress with clarity. It gives you a fast, intuitive dashboard for tracking grades, as well as a clean, student-friendly interface so you always know where you stand and what you need to aim for.</p>
+MySemester is a modern grade tracking platform built for Canadian universities. It gives you a clean, fast dashboard to manage courses, track assessments, and keep your academic progress organized.</p>
 
 <div class="about-divider"></div>
 <h3><ion-icon name="flash-outline" style="color:#2563eb;margin-right:6px;vertical-align:middle;"></ion-icon> Core Features</h3>
 <ul>
-  <li><strong>Real‑Time GPA Insights</strong> — dynamic GPA calculations in both 4.0 and percentage formats</li>
-  <li><strong>Course Management</strong> — organize and edit courses effortlessly with auto‑icons</li>
-  <li><strong>Adaptive Themes</strong> — light, dark, and system modes for personalized comfort</li>
-  <li><strong>Local Privacy</strong> — your data stays stored safely in your browser</li>
-  <li><strong>Performance Visualization</strong> — clean UI for monitoring trends and progress</li>
+  <li><strong>Course &amp; Assessment Tracking</strong> — add courses, manage weights, and save grades quickly</li>
+  <li><strong>Smart Estimates</strong> — set a target and calculate what you need on remaining work</li>
+  <li><strong>Flexible Grading</strong> — supports percent, letter, and university-specific credit options</li>
+  <li><strong>Cloud Sync</strong> — access the same data across devices when signed in</li>
+  <li><strong>Import &amp; Export</strong> — back up or move your courses anytime</li>
+  <li><strong>Guided Onboarding</strong> — setup flow + quick tour for new users</li>
 </ul>
-
-<div class="about-divider"></div>
-<h3><ion-icon name="code-slash-outline" style="color:#2563eb;margin-right:6px;vertical-align:middle;"></ion-icon> Technology Stack</h3>
-<p>Developed using <strong>HTML</strong>, <strong>CSS</strong>, and <strong>JavaScript</strong>, with <strong>Ionicons</strong> for sleek visuals and <strong>Supabase</strong> for authentication and database connectivity. Every component is optimized for speed, accessibility, and consistency across devices.</p>
 
 <div class="about-divider"></div>
 <h3><ion-icon name="rocket-outline" style="color:#2563eb;margin-right:6px;vertical-align:middle;"></ion-icon> What’s Next</h3>
 <ul>
-  <li>Cloud‑based synchronization across devices</li>
-  <li>AI‑driven grade and performance predictions</li>
-  <li>Custom GPA analytics dashboards</li>
-  <li>Collaborative study group features</li>
-  <li>Progress milestone tracking and notifications</li>
+  <li>More university-specific grading profiles</li>
+  <li>Smarter analytics and trend insights</li>
+  <li>Enhanced course templates and presets</li>
+  <li>Optional notifications and reminders</li>
 </ul>
 
 <div class="about-divider"></div>
@@ -140,11 +170,22 @@ MySemester is a modern web platform built primarily for University of Toronto st
             <span>Spacious</span>
           </label>
         </div>
-      </section><section class="settings-card">
+      </section><section class="settings-card" id="gpaSettingsCard">
         <div class="settings-card-title"><ion-icon name="stats-chart-outline"></ion-icon><span>Default GPA Format</span></div>
         <div class="settings-toggle-row">
           <button type="button" class="settings-gpa-btn" data-gpa="4.0">4.0</button>
           <button type="button" class="settings-gpa-btn" data-gpa="%">%</button>
+        </div>
+      </section><section class="settings-card">
+        <div class="settings-card-title"><ion-icon name="speedometer-outline"></ion-icon><span>Estimate Target</span></div>
+        <div class="settings-toggle-row">
+          <button type="button" class="settings-estimate-btn" data-estimate="85">85</button>
+          <button type="button" class="settings-estimate-btn" data-estimate="90">90</button>
+          <button type="button" class="settings-estimate-btn" data-estimate="95">95</button>
+          <div class="settings-estimate-input">
+            <span>Custom</span>
+            <input type="number" id="estimateTargetInput" min="50" max="100" step="1" placeholder="e.g. 88">
+          </div>
         </div>
       </section><section class="settings-card">
         <div class="settings-card-title"><ion-icon name="cloud-download-outline"></ion-icon><span>Data Controls</span></div>
@@ -160,6 +201,7 @@ MySemester is a modern web platform built primarily for University of Toronto st
       </section>
     </div>
     <div class="modal-actions">
+      <button type="button" class="btn-primary" id="saveSettingsBtn">Save</button>
       <button type="button" class="btn-plain" id="closeSettings">Close</button>
     </div>
   </dialog>
@@ -197,7 +239,75 @@ MySemester is a modern web platform built primarily for University of Toronto st
             <div style="flex:1;min-width:220px;">
               <p style="font-size:13px;color:var(--muted);margin:4px 0 0;">PNG or JPG, up to ~3MB</p>
             </div>
-          </div><div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+          </div>
+          <div class="profile-academic">
+            <div class="profile-academic-title">Academic Profile</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+              <div>
+                <label style="font-size:13px;font-weight:600;color:var(--muted);">University</label>
+                <input id="profileUniversityInput" class="profile-input readonly-field" placeholder="University" readonly aria-readonly="true" />
+              </div>
+              <div>
+                <label style="font-size:13px;font-weight:600;color:var(--muted);">Year</label>
+                <div class="profile-select-wrap" id="profileYearWrap">
+                  <button type="button" class="profile-select-button" id="profileYearButton">Select year</button>
+                  <input type="hidden" id="profileYearSelect" value="">
+                  <div class="profile-select-menu" id="profileYearMenu" role="listbox">
+                    <button type="button" class="profile-select-option" data-value="Year 1">Year 1</button>
+                    <button type="button" class="profile-select-option" data-value="Year 2">Year 2</button>
+                    <button type="button" class="profile-select-option" data-value="Year 3">Year 3</button>
+                    <button type="button" class="profile-select-option" data-value="Year 4">Year 4</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+              <div>
+                <label style="font-size:13px;font-weight:600;color:var(--muted);">Program</label>
+                <div class="profile-select-wrap" id="profileProgramWrap">
+                  <button type="button" class="profile-select-button" id="profileProgramButton">Select program</button>
+                  <input type="hidden" id="profileProgramInput" value="">
+                  <div class="profile-select-menu" id="profileProgramMenu" role="listbox">
+                    <button type="button" class="profile-select-option" data-value="Accounting">Accounting</button>
+                    <button type="button" class="profile-select-option" data-value="Architecture">Architecture</button>
+                    <button type="button" class="profile-select-option" data-value="Biology">Biology</button>
+                    <button type="button" class="profile-select-option" data-value="Biomedical Engineering">Biomedical Engineering</button>
+                    <button type="button" class="profile-select-option" data-value="Business Administration">Business Administration</button>
+                    <button type="button" class="profile-select-option" data-value="Chemical Engineering">Chemical Engineering</button>
+                    <button type="button" class="profile-select-option" data-value="Chemistry">Chemistry</button>
+                    <button type="button" class="profile-select-option" data-value="Civil Engineering">Civil Engineering</button>
+                    <button type="button" class="profile-select-option" data-value="Computer Engineering">Computer Engineering</button>
+                    <button type="button" class="profile-select-option" data-value="Computer Science">Computer Science</button>
+                    <button type="button" class="profile-select-option" data-value="Economics">Economics</button>
+                    <button type="button" class="profile-select-option" data-value="Electrical Engineering">Electrical Engineering</button>
+                    <button type="button" class="profile-select-option" data-value="Engineering">Engineering</button>
+                    <button type="button" class="profile-select-option" data-value="English">English</button>
+                    <button type="button" class="profile-select-option" data-value="Finance">Finance</button>
+                    <button type="button" class="profile-select-option" data-value="History">History</button>
+                    <button type="button" class="profile-select-option" data-value="Industrial Engineering">Industrial Engineering</button>
+                    <button type="button" class="profile-select-option" data-value="International Relations">International Relations</button>
+                    <button type="button" class="profile-select-option" data-value="Life Sciences">Life Sciences</button>
+                    <button type="button" class="profile-select-option" data-value="Marketing">Marketing</button>
+                    <button type="button" class="profile-select-option" data-value="Mathematics">Mathematics</button>
+                    <button type="button" class="profile-select-option" data-value="Mechanical Engineering">Mechanical Engineering</button>
+                    <button type="button" class="profile-select-option" data-value="Neuroscience">Neuroscience</button>
+                    <button type="button" class="profile-select-option" data-value="Nursing">Nursing</button>
+                    <button type="button" class="profile-select-option" data-value="Philosophy">Philosophy</button>
+                    <button type="button" class="profile-select-option" data-value="Physics">Physics</button>
+                    <button type="button" class="profile-select-option" data-value="Political Science">Political Science</button>
+                    <button type="button" class="profile-select-option" data-value="Psychology">Psychology</button>
+                    <button type="button" class="profile-select-option" data-value="Public Health">Public Health</button>
+                    <button type="button" class="profile-select-option" data-value="Sociology">Sociology</button>
+                    <button type="button" class="profile-select-option" data-value="Software Engineering">Software Engineering</button>
+                    <button type="button" class="profile-select-option" data-value="Statistics">Statistics</button>
+                    <button type="button" class="profile-select-option" data-value="Urban Planning">Urban Planning</button>
+                  </div>
+                </div>
+              </div>
+              <div></div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
             <div>
               <label style="font-size:13px;font-weight:600;color:var(--muted);">Full Name</label>
               <input id="profileNameInput" type="text" placeholder="Full Name" />
@@ -300,84 +410,6 @@ MySemester is a modern web platform built primarily for University of Toronto st
     </form>
   </dialog>
 
-</dialog><dialog id="profileModal">
-  <form id="profileForm" style="margin:0;">
-    <div class="modal-head">
-      <ion-icon name="person-outline"></ion-icon>
-      <span style="font-size:20px;font-weight:700;letter-spacing:-0.01em;display:flex;align-items:center;gap:10px;">
-        Profile
-      </span>
-    </div>
-    <div class="modal-body" style="gap: 18px;">
-      <div style="display:flex;align-items:center;gap:18px;">
-        <img id="profilePicPreview" src="" alt="Profile Picture" style="width:58px;height:58px;border-radius:50%;object-fit:cover;background:#e5e7eb;flex-shrink:0;" />
-        <div style="flex:1;">
-          <label for="profilePicInput" style="font-size:13px;font-weight:600;color:var(--muted);display:block;">Profile Picture</label>
-          <input type="file" id="profilePicInput" accept="image/*" style="margin-top:6px;font-size:14px;">
-        </div>
-      </div>
-      <div class="modal-grid">
-        <div>
-          <label for="profileNameInput">Name</label>
-          <input id="profileNameInput" name="name" autocomplete="name" placeholder="Full Name" />
-        </div>
-        <div>
-          <label for="profileNickInput">Nickname</label>
-          <input id="profileNickInput" name="nickname" autocomplete="nickname" placeholder="Preferred Name/Nickname" />
-        </div>
-      </div>
-      <div class="modal-grid">
-        <div>
-          <label for="profileEmailInput">Email</label>
-          <input id="profileEmailInput" name="email" type="email" autocomplete="email" placeholder="Email" />
-        </div>
-        <div>
-          <label for="profilePasswordInput">Password</label>
-          <input id="profilePasswordInput" name="password" type="password" autocomplete="new-password" placeholder="Password" />
-        </div>
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button type="button" class="btn-plain" id="profileCancelBtn">Cancel</button>
-      <button type="submit" class="btn-primary">Save Changes</button>
-    </div>
-  </form>
 </dialog>
-<dialog id="profileModal">
-  <form id="profileForm" method="dialog" style="padding: 24px; border: none; background: var(--card); border-radius: 18px; width: min(500px, 90vw); box-shadow: 0 20px 60px rgba(0,0,0,.2);">
-    <h2 style="margin-top: 0; text-align: center; font-weight: 700;">Edit Profile</h2>
-
-    <div style="display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; margin-bottom: 20px;">
-      <img id="profilePicPreview" src="https://api.dicebear.com/7.x/initials/svg?seed=User" alt="Profile Picture" 
-           style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--line);" />
-      <label for="profilePicInput" style="font-size: 14px; color: var(--blue); font-weight: 600; cursor: pointer;">Choose Photo</label>
-      <input type="file" id="profilePicInput" accept="image/*" style="display: none;" />
-    </div>
-
-    <div style="display: grid; gap: 16px;">
-      <div>
-        <label style="font-weight: 600; font-size: 14px;">Full Name</label>
-        <input id="profileNameInput" type="text" placeholder="Enter your name" />
-      </div>
-      <div>
-        <label style="font-weight: 600; font-size: 14px;">Nickname</label>
-        <input id="profileNickInput" type="text" placeholder="Optional nickname" />
-      </div>
-      <div>
-        <label style="font-weight: 600; font-size: 14px;">Email</label>
-        <input id="profileEmailInput" type="email" placeholder="you@example.com" />
-      </div>
-      <div>
-        <label style="font-weight: 600; font-size: 14px;">Change Password</label>
-        <input id="profilePasswordInput" type="password" placeholder="Enter new password" />
-      </div>
-    </div>
-
-    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px;">
-      <button type="button" class="btn-plain" id="profileCancelBtn">Cancel</button>
-      <button type="submit" class="btn-primary">Save Changes</button>
-    </div>
-  </form>
-</dialog>
-
-</dialog>
+</body>
+</html>

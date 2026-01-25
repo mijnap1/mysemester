@@ -27,6 +27,43 @@ const courseCrncrTagEl = document.getElementById('courseCrncrTag');
 const gpaSummaryBlockEl = document.getElementById('gpaSummaryBlock');
 const estimateBtnEl = document.querySelector('.actions .estimate');
 
+function getUniversityRules() {
+  let university = '';
+  try {
+    const setup = JSON.parse(localStorage.getItem('uoft_onboarding_v1') || 'null');
+    university = setup?.university || '';
+  } catch (err) {
+    university = '';
+  }
+  const base = { showGpa: true, showLetter: true, showPercent: true, creditAllowed: false, creditLabel: '' };
+  if (university === 'University of Toronto') {
+    return { ...base, creditAllowed: true, creditLabel: 'CR/NCR' };
+  }
+  if (university === 'University of British Columbia') {
+    return { ...base, creditAllowed: true, creditLabel: 'CR/D/F' };
+  }
+  if (university === 'McGill University') {
+    return { ...base, creditAllowed: true, creditLabel: 'S/U' };
+  }
+  if (university === 'University of Waterloo') {
+    return { ...base, showGpa: false, showLetter: false, creditAllowed: false };
+  }
+  if (university === 'University of Alberta') {
+    return { ...base, creditAllowed: false };
+  }
+  if (university === 'McMaster University') {
+    return { ...base, creditAllowed: false };
+  }
+  if (university === 'University of Ottawa') {
+    return { ...base, creditAllowed: false };
+  }
+  return base;
+}
+const universityRules = getUniversityRules();
+function isCreditCourse() {
+  return !!(universityRules.creditAllowed && courseMeta && courseMeta.crncr);
+}
+
 if (courseMeta && (courseMeta.code || courseMeta.title)) {
   const codeText = courseMeta.code ? courseMeta.code.toUpperCase() : courseId;
   courseCodeTextEl.textContent = codeText;
@@ -37,15 +74,42 @@ if (courseMeta && (courseMeta.code || courseMeta.title)) {
 }
 
 
-if (courseMeta && courseMeta.crncr) {
-  if (courseCrncrTagEl) courseCrncrTagEl.style.display = 'inline-flex';
-  if (gpaSummaryBlockEl) gpaSummaryBlockEl.style.display = 'none';
-  if (estimateBtnEl) estimateBtnEl.textContent = 'Estimate for CR (50%)';
-} else {
-  if (courseCrncrTagEl) courseCrncrTagEl.style.display = 'none';
-  if (gpaSummaryBlockEl) gpaSummaryBlockEl.style.display = 'inline';
-  if (estimateBtnEl) estimateBtnEl.textContent = 'Estimate for 4.0 GPA';
+function updateEstimateLabel() {
+  if (!estimateBtnEl) return;
+  if (isCreditCourse()) {
+    const creditLabel = universityRules.creditLabel || 'CR/NCR';
+    const shortLabel = creditLabel.split('/')[0];
+    estimateBtnEl.textContent = `Estimate for ${shortLabel} (50%)`;
+    return;
+  }
+  const directTarget = localStorage.getItem('uoft_estimate_target');
+  const settings = getSettings();
+  const rawTarget = parseFloat(directTarget || settings.estimateTarget);
+  const targetValue = !isNaN(rawTarget) ? rawTarget : 85;
+  estimateBtnEl.textContent = `Estimate for ${targetValue}`;
 }
+
+if (isCreditCourse()) {
+  if (courseCrncrTagEl) {
+    courseCrncrTagEl.textContent = universityRules.creditLabel || 'CR/NCR';
+    courseCrncrTagEl.style.display = 'inline-flex';
+  }
+} else if (courseCrncrTagEl) {
+  courseCrncrTagEl.style.display = 'none';
+}
+if (gpaSummaryBlockEl) {
+  gpaSummaryBlockEl.style.display = isCreditCourse() || !universityRules.showGpa ? 'none' : 'inline';
+}
+updateEstimateLabel();
+
+window.addEventListener('focus', () => {
+  updateEstimateLabel();
+});
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    updateEstimateLabel();
+  }
+});
     
     const userAuth = JSON.parse(localStorage.getItem("uoft_auth_v1"));
     const currentUser = userAuth && userAuth.username ? userAuth.username : "guest";
@@ -54,6 +118,7 @@ if (courseMeta && courseMeta.crncr) {
     const SUPABASE_URL = "https://dqstskgvdiwdkonbapke.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxc3Rza2d2ZGl3ZGtvbmJhcGtlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAzMDI0NzYsImV4cCI6MjA3NTg3ODQ3Nn0.2iFEYtVQZjQOY8_sF4x0SvWIKk8L-jg4yzpXzLLFe60";
     const CLOUD_TABLE = "mysemester_courses";
+    const SETTINGS_KEY = "uoft_settings_v1";
 
     function getSupabaseClient() {
       if (window.supabase && typeof window.supabase.createClient === "function") {
@@ -63,6 +128,15 @@ if (courseMeta && courseMeta.crncr) {
     }
 
     let supabaseClient = getSupabaseClient();
+
+    function getSettings() {
+      try {
+        const s = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+        return s || {};
+      } catch (err) {
+        return {};
+      }
+    }
 
     async function getCloudUserId() {
       if (!supabaseClient) {
@@ -349,7 +423,10 @@ if (courseMeta && courseMeta.crncr) {
     }
 
     function estimateTarget() {
-      const goal = (courseMeta && courseMeta.crncr) ? 50 : 85; 
+      const settings = getSettings();
+      const rawTarget = parseFloat(settings.estimateTarget);
+      const targetValue = !isNaN(rawTarget) ? rawTarget : 85;
+      const goal = isCreditCourse() ? 50 : targetValue;
       if (weights.length === 0) return;
 
       let weightedTotal = 0;
@@ -401,17 +478,23 @@ if (courseMeta && courseMeta.crncr) {
           totalWeight += w.weight;
         }
       });
-      const avg = totalWeight ? total / totalWeight : 0;
-      document.getElementById('avgDisplay').textContent = avg.toFixed(1) + '%';
-      const gpa = gpaFromPct(avg);
-      const letter = letterFromPct(avg);
-      document.getElementById('gpaDisplay').textContent = gpa.toFixed(2);
-      document.getElementById('letterDisplay').textContent = letter;
-      const gpaEl = document.getElementById('gpaDisplay');
-      gpaEl.style.color =
-        (letter === 'C+' || letter === 'C' || letter === 'C-' || letter.startsWith('D') || letter === 'F')
-          ? '#dc2626'
-          : '#22c55e';
+      const avg = totalWeight ? total / totalWeight : null;
+      if (avg == null) {
+        document.getElementById('avgDisplay').textContent = '—';
+        document.getElementById('gpaDisplay').textContent = '—';
+        document.getElementById('letterDisplay').textContent = '—';
+      } else {
+        document.getElementById('avgDisplay').textContent = avg.toFixed(1) + '%';
+        const gpa = gpaFromPct(avg);
+        const letter = letterFromPct(avg);
+        document.getElementById('gpaDisplay').textContent = gpa.toFixed(2);
+        document.getElementById('letterDisplay').textContent = letter;
+        const gpaEl = document.getElementById('gpaDisplay');
+        gpaEl.style.color =
+          (letter === 'C+' || letter === 'C' || letter === 'C-' || letter.startsWith('D') || letter === 'F')
+            ? '#dc2626'
+            : '#22c55e';
+      }
 
       
       try {
@@ -421,7 +504,7 @@ if (courseMeta && courseMeta.crncr) {
           if (mainState && Array.isArray(mainState.courses)) {
             const idx = mainState.courses.findIndex(c => (c.code || '').toUpperCase() === courseId);
             if (idx !== -1) {
-              mainState.courses[idx].grade = avg;
+              mainState.courses[idx].grade = avg == null ? null : avg;
               localStorage.setItem('uoft-grade-lite-v5', JSON.stringify(mainState));
             }
           }
@@ -441,7 +524,7 @@ if (courseMeta && courseMeta.crncr) {
           totalWeight += (parseFloat(w.weight) || 0);
         }
       });
-      const avg = totalWeight ? total / totalWeight : 0;
+      const avg = totalWeight ? total / totalWeight : null;
 
       
       const payload = {
@@ -449,9 +532,9 @@ if (courseMeta && courseMeta.crncr) {
         title: courseMeta.title || '',
         icon: courseMeta.icon || 'book-outline',
         crncr: !!courseMeta.crncr,
-        grade: parseFloat(avg.toFixed(1)),
-        gpa: gpaFromPct(avg),
-        letter: letterFromPct(avg),
+        grade: avg == null ? null : parseFloat(avg.toFixed(1)),
+        gpa: avg == null ? null : gpaFromPct(avg),
+        letter: avg == null ? null : letterFromPct(avg),
         weights: weights,
         updatedAt: new Date().toISOString()
       };
@@ -511,5 +594,157 @@ if (courseMeta && courseMeta.crncr) {
       if (e.key === THEME_KEY && e.newValue) {
         applyTheme(e.newValue);
       }
+      if (e.key === SETTINGS_KEY) {
+        updateEstimateLabel();
+      }
+      if (e.key === 'uoft_estimate_target') {
+        updateEstimateLabel();
+      }
     });
+
+    const tourOverlay = document.getElementById('tourOverlay');
+    const tourCard = document.querySelector('.tour-card');
+    const tourTitle = document.getElementById('tourTitle');
+    const tourBody = document.getElementById('tourBody');
+    const tourStepLabel = document.getElementById('tourStepLabel');
+    const tourDots = document.getElementById('tourDots');
+    const tourPrev = document.getElementById('tourPrev');
+    const tourNext = document.getElementById('tourNext');
+    const tourSkip = document.getElementById('tourSkip');
+
+    const TOUR_KEY = 'uoft_tour_state_v2';
+    const TOUR_SEEN_KEY = 'uoft_tour_seen_v2';
+
+    const gradeSteps = [
+      {
+        title: 'Add an assessment',
+        body: 'Tap Add Assessment to create new rows for assignments or tests.',
+        selector: '.actions .add'
+      },
+      {
+        title: 'Save your grades',
+        body: 'Use Save Grades to store progress and sync with your course.',
+        selector: '.actions .save'
+      }
+    ];
+
+    let gradeIndex = 0;
+    let gradeTarget = null;
+
+    function clearGradeHighlight() {
+      if (gradeTarget) {
+        gradeTarget.classList.remove('tour-highlight');
+        gradeTarget = null;
+      }
+    }
+
+    function positionGradeCallout(target) {
+      if (!tourCard) return;
+      if (!target) {
+        tourCard.style.left = '50%';
+        tourCard.style.top = '50%';
+        tourCard.style.transform = 'translate(-50%, -50%)';
+        tourCard.dataset.pos = 'top';
+        return;
+      }
+      tourCard.style.transform = 'translate(0, 0)';
+      const rect = target.getBoundingClientRect();
+      const cardRect = tourCard.getBoundingClientRect();
+      let top = rect.bottom + 12;
+      let pos = 'bottom';
+      if (top + cardRect.height > window.innerHeight - 12) {
+        top = rect.top - cardRect.height - 12;
+        pos = 'top';
+      }
+      let left = rect.left + rect.width / 2 - cardRect.width / 2;
+      left = Math.max(12, Math.min(left, window.innerWidth - cardRect.width - 12));
+      tourCard.style.top = `${Math.round(top)}px`;
+      tourCard.style.left = `${Math.round(left)}px`;
+      tourCard.dataset.pos = pos;
+    }
+
+    function renderGradeTour() {
+      if (!tourOverlay) return;
+      const step = gradeSteps[gradeIndex];
+      tourTitle.textContent = step.title;
+      tourBody.textContent = step.body;
+      tourStepLabel.textContent = `${gradeIndex + 1} of ${gradeSteps.length}`;
+      tourDots.innerHTML = '';
+      gradeSteps.forEach((_, i) => {
+        const dot = document.createElement('span');
+        dot.className = `tour-dot${i === gradeIndex ? ' active' : ''}`;
+        tourDots.appendChild(dot);
+      });
+      tourPrev.disabled = gradeIndex === 0;
+      tourNext.textContent = gradeIndex === gradeSteps.length - 1 ? 'Done' : 'Next';
+      clearGradeHighlight();
+      gradeTarget = document.querySelector(step.selector);
+      if (gradeTarget) {
+        gradeTarget.classList.add('tour-highlight');
+      }
+      positionGradeCallout(gradeTarget);
+    }
+
+    function openGradeTour() {
+      if (!tourOverlay) return;
+      tourOverlay.classList.add('show');
+      tourOverlay.setAttribute('aria-hidden', 'false');
+      renderGradeTour();
+    }
+
+    function closeGradeTour() {
+      if (!tourOverlay) return;
+      tourOverlay.classList.remove('show');
+      tourOverlay.setAttribute('aria-hidden', 'true');
+      clearGradeHighlight();
+      localStorage.setItem(TOUR_SEEN_KEY, 'true');
+      localStorage.removeItem(TOUR_KEY);
+    }
+
+    tourNext?.addEventListener('click', () => {
+      if (gradeIndex < gradeSteps.length - 1) {
+        gradeIndex += 1;
+        renderGradeTour();
+      } else {
+        closeGradeTour();
+      }
+    });
+
+    tourPrev?.addEventListener('click', () => {
+      if (gradeIndex > 0) {
+        gradeIndex -= 1;
+        renderGradeTour();
+      }
+    });
+
+    tourSkip?.addEventListener('click', () => {
+      closeGradeTour();
+    });
+
+    window.addEventListener('resize', () => {
+      if (tourOverlay && tourOverlay.classList.contains('show')) {
+        positionGradeCallout(gradeTarget);
+      }
+    });
+
+    window.addEventListener('scroll', () => {
+      if (tourOverlay && tourOverlay.classList.contains('show')) {
+        positionGradeCallout(gradeTarget);
+      }
+    });
+
+    if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+      const state = (() => {
+        try {
+          return JSON.parse(localStorage.getItem(TOUR_KEY) || 'null');
+        } catch (err) {
+          return null;
+        }
+      })();
+      if (state && state.step === 4) {
+        setTimeout(() => {
+          openGradeTour();
+        }, 600);
+      }
+    }
   

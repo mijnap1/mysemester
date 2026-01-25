@@ -1,5 +1,15 @@
 
     (() => {
+      function hasCompletedSetup() {
+        try {
+          const raw = localStorage.getItem('uoft_onboarding_v1');
+          if (!raw) return false;
+          const data = JSON.parse(raw);
+          return !!(data && data.university && data.year && data.program);
+        } catch (err) {
+          return false;
+        }
+      }
       const cachedAuth = (() => {
         try {
           return JSON.parse(localStorage.getItem('uoft_auth_v1') || 'null');
@@ -9,7 +19,7 @@
       })();
 
       if (cachedAuth && cachedAuth.loggedIn && cachedAuth.username) {
-        window.location.replace('/main/');
+        window.location.replace(hasCompletedSetup() ? '/main/' : '/setup/');
         return;
       }
     
@@ -185,7 +195,7 @@
         }));
 
         
-        window.location.href = '/main/';
+        window.location.href = hasCompletedSetup() ? '/main/' : '/setup/';
       } catch (err) {
         console.error('Login error:', err);
         loginError.textContent = 'Unexpected error. Please try again.';

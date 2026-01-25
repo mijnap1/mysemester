@@ -14,6 +14,24 @@
 </head>
 
 <body>
+  <div id="tourOverlay" class="tour-overlay" aria-hidden="true">
+    <div class="tour-card" role="dialog" aria-live="polite" aria-labelledby="tourTitle">
+      <div class="tour-badge">Quick Tour</div>
+      <h2 id="tourTitle" class="tour-title"></h2>
+      <p id="tourBody" class="tour-body"></p>
+      <div class="tour-progress">
+        <span id="tourStepLabel"></span>
+        <div class="tour-dots" id="tourDots"></div>
+      </div>
+      <div class="tour-actions">
+        <button type="button" class="btn-plain" id="tourSkip">Skip</button>
+        <div class="tour-nav">
+          <button type="button" class="btn-plain" id="tourPrev">Back</button>
+          <button type="button" class="btn-primary" id="tourNext">Done</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <header>
     <ion-icon name="arrow-back-outline" onclick="window.location.href='/main/'"></ion-icon>
     <div style="margin-left:10px;">

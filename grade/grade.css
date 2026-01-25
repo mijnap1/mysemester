@@ -232,6 +232,119 @@
   transform: translateX(-50%) translateY(10px);
 }
 
+.tour-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  display: none;
+  z-index: 2100;
+  pointer-events: none;
+}
+.tour-overlay.show {
+  display: block;
+}
+.tour-card {
+  position: absolute;
+  width: min(440px, 90vw);
+  background: var(--card);
+  color: var(--text);
+  border-radius: 18px;
+  padding: 18px 18px 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  pointer-events: auto;
+}
+.tour-card::after {
+  content: "";
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--card);
+  transform: rotate(45deg);
+}
+.tour-card[data-pos="top"]::after {
+  left: 24px;
+  bottom: -6px;
+}
+.tour-card[data-pos="bottom"]::after {
+  left: 24px;
+  top: -6px;
+}
+.tour-badge {
+  align-self: flex-start;
+  background: rgba(37, 99, 235, 0.12);
+  color: var(--blue);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+.tour-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+}
+.tour-body {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+  font-size: 14px;
+}
+.tour-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.tour-dots {
+  display: flex;
+  gap: 6px;
+}
+.tour-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background: #cbd5f5;
+  transition: transform 0.2s var(--ease), background 0.2s var(--ease);
+}
+.tour-dot.active {
+  background: var(--blue);
+  transform: scale(1.2);
+}
+.tour-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.tour-nav {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.tour-highlight {
+  position: relative;
+  z-index: 2200;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.35);
+  border-radius: 14px;
+}
+
+@media (max-width: 520px) {
+  .tour-card {
+    width: min(360px, 92vw);
+  }
+  .tour-actions { flex-direction: column; align-items: stretch; }
+  .tour-nav { width: 100%; }
+  .tour-nav .btn-plain, .tour-nav .btn-primary, #tourSkip { width: 100%; }
+}
+
 @media (max-width: 700px) {
   body { padding: 50px 12px 90px; }
   header { width: 100%; flex-wrap: wrap; gap: 8px; }
@@ -244,4 +357,3 @@
   .actions button { width: 100%; }
   .summary { font-size: 16px; }
 }
-

@@ -180,13 +180,14 @@
             username,
             email
           }));
+          localStorage.removeItem('uoft_onboarding_v1');
         }
 
         successText.textContent = "Account created! Redirecting...";
         successText.style.display = "block";
 
         setTimeout(() => {
-          window.location.href = "/main/";
+          window.location.href = "/setup/";
         }, 900);
       } catch (err) {
         emailError.textContent = err.message || "Unexpected error. Please try again.";
@@ -194,4 +195,3 @@
       }
     });
   })();
-

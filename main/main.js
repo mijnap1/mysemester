@@ -1,11 +1,45 @@
 
     
     const SETTINGS_KEY = 'uoft_settings_v1';
+    function getUniversityRules() {
+      let university = '';
+      try {
+        const setup = JSON.parse(localStorage.getItem('uoft_onboarding_v1') || 'null');
+        university = setup?.university || '';
+      } catch (err) {
+        university = '';
+      }
+      const base = { showGpa: true, showLetter: true, showPercent: true, creditAllowed: false, creditLabel: '' };
+      if (university === 'University of Toronto') {
+        return { ...base, creditAllowed: true, creditLabel: 'CR/NCR' };
+      }
+      if (university === 'University of British Columbia') {
+        return { ...base, creditAllowed: true, creditLabel: 'CR/D/F' };
+      }
+      if (university === 'McGill University') {
+        return { ...base, creditAllowed: true, creditLabel: 'S/U' };
+      }
+      if (university === 'University of Waterloo') {
+        return { ...base, showGpa: false, showLetter: false, creditAllowed: false };
+      }
+      if (university === 'University of Alberta') {
+        return { ...base, creditAllowed: false };
+      }
+      if (university === 'McMaster University') {
+        return { ...base, creditAllowed: false };
+      }
+      if (university === 'University of Ottawa') {
+        return { ...base, creditAllowed: false };
+      }
+      return base;
+    }
+    const universityRules = getUniversityRules();
     
     const defaultSettings = {
       theme: 'light', 
       layout: 'compact', 
       gpaFormat: '4.0', 
+      estimateTarget: '85',
       tutorial: false
     };
     function getSettings() {
@@ -21,12 +55,16 @@
     const openSettingsBtn = document.getElementById('openSettings');
     const settingsModal = document.getElementById('settingsModal');
     const closeSettingsBtn = document.getElementById('closeSettings');
+    const saveSettingsBtn = document.getElementById('saveSettingsBtn');
     
     const themeBtns = Array.from(document.querySelectorAll('.settings-theme-btn'));
     
     const layoutRadios = Array.from(document.querySelectorAll('.settings-layout-radio'));
     
     const gpaBtns = Array.from(document.querySelectorAll('.settings-gpa-btn'));
+    const gpaSettingsCard = document.getElementById('gpaSettingsCard');
+    const estimateBtns = Array.from(document.querySelectorAll('.settings-estimate-btn'));
+    const estimateTargetInput = document.getElementById('estimateTargetInput');
     
     const exportCoursesBtn = document.getElementById('exportCoursesBtn');
     const importCoursesBtn = document.getElementById('importCoursesBtn');
@@ -34,6 +72,10 @@
     const importCoursesFileInput = document.getElementById('importCoursesFile');
 
     
+    if (gpaSettingsCard && !universityRules.showGpa) {
+      gpaSettingsCard.style.display = 'none';
+    }
+
     openSettingsBtn?.addEventListener('click', ()=>{
       settingsModal.showModal();
       sidebar.classList.remove('show');
@@ -49,9 +91,9 @@
     
     function syncSettingsModalUI() {
       const s = getSettings();
-      
+      const storedTheme = localStorage.getItem(THEME_KEY) || s.theme || 'light';
       themeBtns.forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.theme === s.theme);
+        btn.classList.toggle('active', btn.dataset.theme === storedTheme);
       });
       
       layoutRadios.forEach(r => {
@@ -61,6 +103,12 @@
       gpaBtns.forEach(btn => {
         btn.classList.toggle('active', btn.dataset.gpa === s.gpaFormat);
       });
+      estimateBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.estimate === String(s.estimateTarget));
+      });
+      if (estimateTargetInput) {
+        estimateTargetInput.value = s.estimateTarget || '85';
+      }
     }
 
     
@@ -135,6 +183,39 @@
         saveSettings(s);
         syncSettingsModalUI();
       });
+    });
+    estimateBtns.forEach(btn => {
+      btn.addEventListener('click', ()=>{
+        const s = getSettings();
+        s.estimateTarget = btn.dataset.estimate;
+        saveSettings(s);
+        localStorage.setItem('uoft_estimate_target', s.estimateTarget);
+        syncSettingsModalUI();
+      });
+    });
+    estimateTargetInput?.addEventListener('change', () => {
+      const raw = parseFloat(estimateTargetInput.value);
+      if (isNaN(raw)) return;
+      const clamped = Math.max(50, Math.min(100, raw));
+      const s = getSettings();
+      s.estimateTarget = String(Math.round(clamped));
+      saveSettings(s);
+      localStorage.setItem('uoft_estimate_target', s.estimateTarget);
+      syncSettingsModalUI();
+    });
+    saveSettingsBtn?.addEventListener('click', () => {
+      const s = getSettings();
+      if (estimateTargetInput) {
+        const raw = parseFloat(estimateTargetInput.value);
+        if (!isNaN(raw)) {
+          const clamped = Math.max(50, Math.min(100, raw));
+          s.estimateTarget = String(Math.round(clamped));
+        }
+      }
+      saveSettings(s);
+      localStorage.setItem('uoft_estimate_target', s.estimateTarget);
+      syncSettingsModalUI();
+      settingsModal.close();
     });
 
 
@@ -510,7 +591,7 @@
             code: codeValue,
             title: course.title || '',
             icon: course.icon || 'book-outline',
-            grade: typeof course.grade === 'number' ? course.grade : parseFloat(course.grade) || 0,
+            grade: typeof course.grade === 'number' ? course.grade : (Number.isFinite(parseFloat(course.grade)) ? parseFloat(course.grade) : null),
             crncr: !!course.crncr
           });
         });
@@ -524,7 +605,7 @@
             code: codeValue,
             title: row.title || '',
             icon: row.icon || 'book-outline',
-            grade: typeof row.grade === 'number' ? row.grade : parseFloat(row.grade) || 0,
+            grade: typeof row.grade === 'number' ? row.grade : (Number.isFinite(parseFloat(row.grade)) ? parseFloat(row.grade) : null),
             crncr: !!row.crncr
           });
         });
@@ -540,7 +621,7 @@
               code: codeValue,
               title: localCourse.title || cloudCourse.title || '',
               icon: localCourse.icon || cloudCourse.icon || 'book-outline',
-              grade: typeof localCourse.grade === 'number' ? localCourse.grade : cloudCourse.grade || 0,
+              grade: typeof localCourse.grade === 'number' ? localCourse.grade : (Number.isFinite(parseFloat(cloudCourse.grade)) ? parseFloat(cloudCourse.grade) : null),
               crncr: typeof localCourse.crncr === 'boolean' ? localCourse.crncr : !!cloudCourse.crncr
             });
           } else {
@@ -661,9 +742,15 @@
     }
 
     function recomputeOverview(){
-      const counted = state.courses.filter(c => !c.crncr);
-      if(!counted.length){ gpa4.textContent='0.00'; gpaLetter.textContent='—'; gpaPct.textContent='0%'; return; }
-      const av = counted.reduce((s,c)=> s + (c.grade||0), 0) / counted.length;
+      const counted = state.courses.filter(c => !(universityRules.creditAllowed && c.crncr));
+      const graded = counted.filter(c => typeof c.grade === 'number' && !isNaN(c.grade));
+      if(!graded.length){
+        gpa4.textContent='—';
+        gpaLetter.textContent='—';
+        gpaPct.textContent='—';
+        return;
+      }
+      const av = graded.reduce((s,c)=> s + c.grade, 0) / graded.length;
       gpa4.textContent = gpaFromPct(av).toFixed(2);
       gpaLetter.textContent = letterFromPct(av);
       gpaPct.textContent = Math.round(av) + '%';
@@ -674,6 +761,10 @@
     const gpa4 = document.getElementById('gpa4');
     const gpaLetter = document.getElementById('gpaLetter');
     const gpaPct = document.getElementById('gpaPct');
+    const gpa4Wrap = gpa4 ? gpa4.closest('.ov') : null;
+    const gpaLetterWrap = gpaLetter ? gpaLetter.closest('.ov') : null;
+    if (gpa4Wrap) gpa4Wrap.style.display = universityRules.showGpa ? '' : 'none';
+    if (gpaLetterWrap) gpaLetterWrap.style.display = universityRules.showLetter ? '' : 'none';
 
     function render(){
       grid.innerHTML='';
@@ -707,19 +798,29 @@
           if (storedGradesRaw) {
             try {
               const assessments = JSON.parse(storedGradesRaw);
-              if (Array.isArray(assessments) && assessments.length > 0) {
-                let totalWeighted = 0, totalWeight = 0;
-                assessments.forEach(a => {
-                  if (a.grade != null && !isNaN(a.grade)) {
-                    totalWeighted += a.grade * (a.weight || 0);
-                    totalWeight += (a.weight || 0);
+              if (Array.isArray(assessments)) {
+                if (assessments.length > 0) {
+                  let totalWeighted = 0, totalWeight = 0;
+                  assessments.forEach(a => {
+                    if (a.grade != null && !isNaN(a.grade)) {
+                      totalWeighted += a.grade * (a.weight || 0);
+                      totalWeight += (a.weight || 0);
+                    }
+                  });
+                  if (totalWeight > 0) {
+                    c.grade = totalWeighted / totalWeight;
+                  } else {
+                    c.grade = null;
                   }
-                });
-                if (totalWeight > 0) {
-                  c.grade = totalWeighted / totalWeight;
+                } else {
+                  c.grade = null;
                 }
+              } else {
+                c.grade = null;
               }
             } catch(e) { console.error("Error parsing grades for", c.code, e); }
+          } else if (c.grade === 0) {
+            c.grade = null;
           }
 
           const card = document.createElement('div');
@@ -727,16 +828,20 @@
           card.dataset.id = c.id;
 
           const markId = 'm_'+c.id;
+          const creditLabel = universityRules.creditLabel || 'CR/NCR';
+          const creditEnabled = universityRules.creditAllowed && c.crncr;
+          const hasGrade = typeof c.grade === 'number' && !isNaN(c.grade);
+          const gradeText = hasGrade ? `${Math.round(c.grade)}%` : '—';
           card.innerHTML = `
             <ion-icon class="course-icon" name="${c.icon}"></ion-icon>
             <div class="info">
               <div class="code">${c.code}</div>
               <div class="muted-sm">
                 ${c.title || ''}
-                ${c.crncr ? '<span class="tag-crncr">CR/NCR</span>' : ''}
+                ${creditEnabled ? `<span class="tag-crncr">${creditLabel}</span>` : ''}
               </div>
             </div>
-            <div class="mark"><span class="swap" id="${markId}">${Math.round(c.grade)}%</span></div>
+            <div class="mark"><span class="swap" id="${markId}">${gradeText}</span></div>
           `;
 
           
@@ -748,14 +853,16 @@
               code: c.code,
               title: c.title || '',
               icon: c.icon || 'book-outline',
-              crncr: !!c.crncr   
+              crncr: universityRules.creditAllowed && !!c.crncr   
             };
             localStorage.setItem('selectedCourse', JSON.stringify(courseData));
             window.location.href = `/grade/?course=${encodeURIComponent(c.code)}`;
           });
 
           grid.appendChild(card);
-          startSwap(document.getElementById(markId), c.grade);
+          if (hasGrade) {
+            startSwap(document.getElementById(markId), c.grade);
+          }
         }
       }
       recomputeOverview();
@@ -764,7 +871,12 @@
     
     const swapTimers = new Map();
     function startSwap(el, pct){
-      if(!el) return; if(swapTimers.has(el)) clearInterval(swapTimers.get(el));
+      if(!el) return;
+      if(swapTimers.has(el)) clearInterval(swapTimers.get(el));
+      if (!universityRules.showLetter) {
+        el.textContent = Math.round(pct) + '%';
+        return;
+      }
       let showingPct = true;
       const update = ()=>{
         el.style.opacity = 0;
@@ -781,6 +893,7 @@
     
     const ctx = document.getElementById('ctxMenu');
     const ctxCrncrLabelEl = document.getElementById('ctxCrncrLabel');
+    const ctxCrncrBtn = ctx ? ctx.querySelector('button[data-act="crncr"]') : null;
     let ctxCourseId = null;
     function openCtx(e, id){
       e.preventDefault();
@@ -788,10 +901,16 @@
 
       
       const course = state.courses.find(c => c.id === id);
-      if (course && course.crncr) {
-        if (ctxCrncrLabelEl) ctxCrncrLabelEl.textContent = 'Remove CR/NCR';
-      } else {
-        if (ctxCrncrLabelEl) ctxCrncrLabelEl.textContent = 'Set CR/NCR';
+      if (ctxCrncrBtn && !universityRules.creditAllowed) {
+        ctxCrncrBtn.style.display = 'none';
+      } else if (ctxCrncrBtn) {
+        ctxCrncrBtn.style.display = 'flex';
+        const creditLabel = universityRules.creditLabel || 'CR/NCR';
+        if (course && course.crncr) {
+          if (ctxCrncrLabelEl) ctxCrncrLabelEl.textContent = `Remove ${creditLabel}`;
+        } else {
+          if (ctxCrncrLabelEl) ctxCrncrLabelEl.textContent = `Set ${creditLabel}`;
+        }
       }
 
       positionCtx(e.clientX, e.clientY);
@@ -835,6 +954,7 @@
       addCourseModal.showModal();
     }
     function toggleCrncr(id){
+      if (!universityRules.creditAllowed) return;
       const c = state.courses.find(x=>x.id===id);
       if(!c) return;
       c.crncr = !c.crncr;
@@ -969,13 +1089,13 @@
 
       if(!code){ formError.style.display='block'; return; } else { formError.style.display='none'; }
       const normCode = code.toUpperCase();
-      const grade = gradeRaw === '' ? 0 : Math.max(0, Math.min(100, parseFloat(gradeRaw)));
+      const grade = gradeRaw === '' ? null : Math.max(0, Math.min(100, parseFloat(gradeRaw)));
 
       if(editingId){
         const c = state.courses.find(x=>x.id===editingId);
         if(c){ c.code = normCode; c.title = title; c.icon = autoIcon(normCode, icon); c.grade = grade; }
       } else {
-        state.courses.push({ id: uid(), code: normCode, title, icon: autoIcon(normCode, icon), grade, crncr: false });
+        state.courses.push({ id: uid(), code: normCode, title, icon: autoIcon(normCode, icon), grade: grade ?? null, crncr: false });
       }
       save(); render(); addCourseModal.close(); sidebar.classList.remove('show'); overlay.classList.remove('show');
       
@@ -1022,6 +1142,7 @@
     const accountDd = document.getElementById('accountDd');
     const accName = document.getElementById('accName');
     const accEmail = document.getElementById('accEmail');
+    const accSummary = document.getElementById('accSummary');
     const accActionsSignedOut = document.getElementById('accActionsSignedOut');
     const accActionsSignedIn = document.getElementById('accActionsSignedIn');
     const signOutBtn = document.getElementById('signOut');
@@ -1030,6 +1151,10 @@
     goProfile?.addEventListener('click', () => {
       accountDd.classList.remove('show');
       openProfileModal(); 
+    });
+    accSummary?.addEventListener('click', () => {
+      accountDd.classList.remove('show');
+      openProfileModal();
     });
     const chipWelcome = document.getElementById('chipWelcome');
     const welcomeTitle = document.getElementById('welcomeTitle');
@@ -1087,6 +1212,18 @@
     const profileEmailInput = document.getElementById('profileEmailInput');
     const profilePasswordInput = document.getElementById('profilePasswordInput');
     const profileCancelBtn = document.getElementById('profileCancelBtn');
+    const profileUniversityInput = document.getElementById('profileUniversityInput');
+    const profileYearSelect = document.getElementById('profileYearSelect');
+    const profileYearWrap = document.getElementById('profileYearWrap');
+    const profileYearButton = document.getElementById('profileYearButton');
+    const profileYearMenu = document.getElementById('profileYearMenu');
+    const profileProgramInput = document.getElementById('profileProgramInput');
+    const profileProgramWrap = document.getElementById('profileProgramWrap');
+    const profileProgramButton = document.getElementById('profileProgramButton');
+    const profileProgramMenu = document.getElementById('profileProgramMenu');
+    const sidebarUniversityEl = document.getElementById('sidebarUniversity');
+    const sidebarYearEl = document.getElementById('sidebarYear');
+    const sidebarProgramEl = document.getElementById('sidebarProgram');
 
     
     function getProfileUserKey() {
@@ -1119,6 +1256,24 @@
       return profile;
     }
 
+    function syncSidebarProfile() {
+      let setup = null;
+      try {
+        setup = JSON.parse(localStorage.getItem('uoft_onboarding_v1') || 'null');
+      } catch (err) {
+        setup = null;
+      }
+      if (sidebarUniversityEl) {
+        sidebarUniversityEl.textContent = setup?.university || 'Not set';
+      }
+      if (sidebarYearEl) {
+        sidebarYearEl.textContent = setup?.year || 'Not set';
+      }
+      if (sidebarProgramEl) {
+        sidebarProgramEl.textContent = setup?.program || 'Not set';
+      }
+    }
+
     
     function saveProfile(profile) {
       const userKey = getProfileUserKey();
@@ -1131,6 +1286,37 @@
     function openProfileModal() {
       const profile = loadProfile();
       if (!profile) return;
+      let setup = null;
+      try {
+        setup = JSON.parse(localStorage.getItem('uoft_onboarding_v1') || 'null');
+      } catch (err) {
+        setup = null;
+      }
+      if (profileUniversityInput) {
+        profileUniversityInput.value = setup?.university || '';
+      }
+      if (profileYearSelect) {
+        profileYearSelect.value = setup?.year || '';
+      }
+      if (profileProgramInput) {
+        profileProgramInput.value = setup?.program || '';
+      }
+      if (profileYearButton) {
+        profileYearButton.textContent = profileYearSelect?.value || 'Select year';
+      }
+      if (profileYearMenu) {
+        profileYearMenu.querySelectorAll('.profile-select-option').forEach(btn => {
+          btn.classList.toggle('is-selected', btn.dataset.value === profileYearSelect?.value);
+        });
+      }
+      if (profileProgramButton) {
+        profileProgramButton.textContent = profileProgramInput?.value || 'Select program';
+      }
+      if (profileProgramMenu) {
+        profileProgramMenu.querySelectorAll('.profile-select-option').forEach(btn => {
+          btn.classList.toggle('is-selected', btn.dataset.value === profileProgramInput?.value);
+        });
+      }
       profilePicPreview.src = profile.picture || "https://api.dicebear.com/7.x/initials/svg?seed=" + encodeURIComponent(profile.name || profile.nickname || "U");
       profileNameInput.value = profile.name || "";
       profileNickInput.value = profile.nickname || "";
@@ -1168,6 +1354,17 @@
         };
 
         saveProfile(newProfile);
+        try {
+          const setup = JSON.parse(localStorage.getItem('uoft_onboarding_v1') || 'null') || {};
+          const nextSetup = {
+            ...setup,
+            university: profileUniversityInput?.value?.trim() || setup.university || '',
+            year: profileYearSelect?.value || setup.year || '',
+            program: profileProgramInput?.value?.trim() || setup.program || ''
+          };
+          localStorage.setItem('uoft_onboarding_v1', JSON.stringify(nextSetup));
+        } catch (err) {}
+        syncSidebarProfile();
 
         
         const avatarEl = document.getElementById('accountAvatar');
@@ -1202,6 +1399,53 @@
         profileModal.close();
       });
     }
+    syncSidebarProfile();
+
+    function closeProgramMenu() {
+      if (profileProgramWrap) profileProgramWrap.classList.remove('open');
+    }
+    function closeYearMenu() {
+      if (profileYearWrap) profileYearWrap.classList.remove('open');
+    }
+    profileYearButton?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!profileYearWrap) return;
+      profileYearWrap.classList.toggle('open');
+    });
+    profileYearMenu?.addEventListener('click', (e) => {
+      const option = e.target.closest('.profile-select-option');
+      if (!option) return;
+      const value = option.dataset.value || '';
+      if (profileYearSelect) profileYearSelect.value = value;
+      if (profileYearButton) profileYearButton.textContent = value;
+      profileYearMenu.querySelectorAll('.profile-select-option').forEach(btn => {
+        btn.classList.toggle('is-selected', btn === option);
+      });
+      closeYearMenu();
+    });
+    profileProgramButton?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!profileProgramWrap) return;
+      profileProgramWrap.classList.toggle('open');
+    });
+    profileProgramMenu?.addEventListener('click', (e) => {
+      const option = e.target.closest('.profile-select-option');
+      if (!option) return;
+      const value = option.dataset.value || '';
+      if (profileProgramInput) profileProgramInput.value = value;
+      if (profileProgramButton) profileProgramButton.textContent = value;
+      profileProgramMenu.querySelectorAll('.profile-select-option').forEach(btn => {
+        btn.classList.toggle('is-selected', btn === option);
+      });
+      closeProgramMenu();
+    });
+    document.addEventListener('click', (e) => {
+      if (profileYearWrap && profileYearWrap.classList.contains('open') && !profileYearWrap.contains(e.target)) {
+        closeYearMenu();
+      }
+      if (!profileProgramWrap || !profileProgramWrap.classList.contains('open')) return;
+      if (!profileProgramWrap.contains(e.target)) closeProgramMenu();
+    });
 
     
     profileCancelBtn?.addEventListener('click', function() {
@@ -1341,3 +1585,194 @@ document.getElementById('profileCancelBtn')?.addEventListener('click', ()=>{
   document.getElementById('profileModal').close();
 });
 
+const tourOverlay = document.getElementById('tourOverlay');
+const tourCard = document.querySelector('.tour-card');
+const tourTitle = document.getElementById('tourTitle');
+const tourBody = document.getElementById('tourBody');
+const tourStepLabel = document.getElementById('tourStepLabel');
+const tourDots = document.getElementById('tourDots');
+const tourPrev = document.getElementById('tourPrev');
+const tourNext = document.getElementById('tourNext');
+const tourSkip = document.getElementById('tourSkip');
+
+const TOUR_KEY = 'uoft_tour_state_v2';
+const TOUR_SEEN_KEY = 'uoft_tour_seen_v2';
+
+const tourSteps = [
+  {
+    title: 'Add your first course',
+    body: 'Tap Add Course to create a class with a code, title, and icon.',
+    selector: '#openAddCourse'
+  },
+  {
+    title: 'Customize your dashboard',
+    body: 'Open Settings to switch themes, layout, and GPA format.',
+    selector: '#openSettings'
+  },
+  {
+    title: 'Update your profile',
+    body: 'Use the profile icon to edit your name, email, and avatar.',
+    selector: '#accountBtn'
+  },
+  {
+    title: 'Open a course',
+    body: 'Select a course card to enter assessments and grades.',
+    selector: '.card'
+  }
+];
+
+let tourIndex = 0;
+let tourTarget = null;
+
+function getTourState() {
+  try {
+    return JSON.parse(localStorage.getItem(TOUR_KEY) || 'null') || { step: 0 };
+  } catch (err) {
+    return { step: 0 };
+  }
+}
+
+function setTourState(step) {
+  localStorage.setItem(TOUR_KEY, JSON.stringify({ step }));
+}
+
+function clearTourHighlight() {
+  if (tourTarget) {
+    tourTarget.classList.remove('tour-highlight');
+    tourTarget = null;
+  }
+}
+
+function findTarget(selector) {
+  if (selector === '.card') {
+    return document.querySelector('.card') || document.querySelector('.empty-state-card');
+  }
+  return document.querySelector(selector);
+}
+
+function positionCallout(target) {
+  if (!tourCard) return;
+  if (!target) {
+    tourCard.style.left = '50%';
+    tourCard.style.top = '50%';
+    tourCard.style.transform = 'translate(-50%, -50%)';
+    tourCard.dataset.pos = 'top';
+    return;
+  }
+  tourCard.style.transform = 'translate(0, 0)';
+  const rect = target.getBoundingClientRect();
+  const cardRect = tourCard.getBoundingClientRect();
+  let top = rect.bottom + 12;
+  let pos = 'bottom';
+  if (top + cardRect.height > window.innerHeight - 12) {
+    top = rect.top - cardRect.height - 12;
+    pos = 'top';
+  }
+  let left = rect.left + rect.width / 2 - cardRect.width / 2;
+  left = Math.max(12, Math.min(left, window.innerWidth - cardRect.width - 12));
+  tourCard.style.top = `${Math.round(top)}px`;
+  tourCard.style.left = `${Math.round(left)}px`;
+  tourCard.dataset.pos = pos;
+}
+
+function renderTour() {
+  if (!tourOverlay) return;
+  const step = tourSteps[tourIndex];
+  let target = findTarget(step.selector);
+  let bodyText = step.body;
+  if (tourIndex === 3 && !document.querySelector('.card')) {
+    bodyText = 'Create a course first. Then open it to manage assessments.';
+  }
+  tourTitle.textContent = step.title;
+  tourBody.textContent = bodyText;
+  tourStepLabel.textContent = `${tourIndex + 1} of ${tourSteps.length}`;
+  tourDots.innerHTML = '';
+  tourSteps.forEach((_, i) => {
+    const dot = document.createElement('span');
+    dot.className = `tour-dot${i === tourIndex ? ' active' : ''}`;
+    tourDots.appendChild(dot);
+  });
+  tourPrev.disabled = tourIndex === 0;
+  if (tourIndex === 3) {
+    tourNext.textContent = document.querySelector('.card') ? 'Open course' : 'Next';
+    tourNext.disabled = !document.querySelector('.card');
+  } else {
+    tourNext.textContent = 'Next';
+    tourNext.disabled = false;
+  }
+  clearTourHighlight();
+  tourTarget = target;
+  if (tourTarget) {
+    tourTarget.classList.add('tour-highlight');
+    tourTarget.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+  positionCallout(tourTarget);
+}
+
+function openTour() {
+  if (!tourOverlay) return;
+  tourOverlay.classList.add('show');
+  tourOverlay.setAttribute('aria-hidden', 'false');
+  renderTour();
+}
+
+function closeTour() {
+  if (!tourOverlay) return;
+  tourOverlay.classList.remove('show');
+  tourOverlay.setAttribute('aria-hidden', 'true');
+  clearTourHighlight();
+  localStorage.setItem(TOUR_SEEN_KEY, 'true');
+  localStorage.removeItem(TOUR_KEY);
+}
+
+tourNext?.addEventListener('click', () => {
+  if (tourIndex === 3) {
+    if (!document.querySelector('.card')) return;
+    const nextCourse = state && Array.isArray(state.courses) ? state.courses[0] : null;
+    if (nextCourse && nextCourse.code) {
+      setTourState(4);
+      window.location.href = `/grade/?course=${encodeURIComponent(nextCourse.code)}`;
+      return;
+    }
+  }
+  if (tourIndex < tourSteps.length - 1) {
+    tourIndex += 1;
+    setTourState(tourIndex);
+    renderTour();
+  }
+});
+
+tourPrev?.addEventListener('click', () => {
+  if (tourIndex > 0) {
+    tourIndex -= 1;
+    setTourState(tourIndex);
+    renderTour();
+  }
+});
+
+tourSkip?.addEventListener('click', () => {
+  closeTour();
+});
+
+window.addEventListener('resize', () => {
+  if (tourOverlay && tourOverlay.classList.contains('show')) {
+    positionCallout(tourTarget);
+  }
+});
+
+window.addEventListener('scroll', () => {
+  if (tourOverlay && tourOverlay.classList.contains('show')) {
+    positionCallout(tourTarget);
+  }
+});
+
+if (!localStorage.getItem(TOUR_SEEN_KEY)) {
+  const auth = getAuth();
+  if (auth && auth.loggedIn) {
+    const saved = getTourState();
+    tourIndex = Math.max(0, Math.min(3, saved.step || 0));
+    setTimeout(() => {
+      openTour();
+    }, 700);
+  }
+}
