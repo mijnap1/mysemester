@@ -177,6 +177,22 @@
       margin-top: 20px;
     }
 
+    .privacy-note {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 8px;
+      line-height: 1.4;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      justify-content: center;
+      text-align: center;
+    }
+    .privacy-note ion-icon {
+      font-size: 15px;
+      color: var(--muted);
+    }
+
     a {
       color: var(--blue);
       font-weight: 600;

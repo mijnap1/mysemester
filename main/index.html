@@ -20,24 +20,6 @@
       Syncing your courses...
     </div>
   </div>
-  <div id="tourOverlay" class="tour-overlay" aria-hidden="true">
-    <div class="tour-card" role="dialog" aria-live="polite" aria-labelledby="tourTitle">
-      <div class="tour-badge">Getting Started</div>
-      <h2 id="tourTitle" class="tour-title"></h2>
-      <p id="tourBody" class="tour-body"></p>
-      <div class="tour-progress">
-        <span id="tourStepLabel"></span>
-        <div class="tour-dots" id="tourDots"></div>
-      </div>
-      <div class="tour-actions">
-        <button type="button" class="btn-plain" id="tourSkip">Skip</button>
-        <div class="tour-nav">
-          <button type="button" class="btn-plain" id="tourPrev">Back</button>
-          <button type="button" class="btn-primary" id="tourNext">Next</button>
-        </div>
-      </div>
-    </div>
-  </div>
   <header>
     <div class="brand">
       <ion-icon name="school-outline" style="font-size:22px;color:var(--blue)"></ion-icon>
@@ -301,6 +283,7 @@ MySemester is a modern grade tracking platform built for Canadian universities. 
                     <button type="button" class="profile-select-option" data-value="Software Engineering">Software Engineering</button>
                     <button type="button" class="profile-select-option" data-value="Statistics">Statistics</button>
                     <button type="button" class="profile-select-option" data-value="Urban Planning">Urban Planning</button>
+                    <button type="button" class="profile-select-option" data-value="Other">Other</button>
                   </div>
                 </div>
               </div>
@@ -371,21 +354,21 @@ MySemester is a modern grade tracking platform built for Canadian universities. 
       <div class="modal-head"><ion-icon name="add-circle-outline"></ion-icon> <span id="modalTitle">Add Course</span></div>
       <div class="modal-body">
         <div class="modal-grid">
-          <div>
+          <div id="courseCodeField">
             <label>Course Code</label>
             <input name="code" id="codeInput" placeholder="CSC108" />
           </div>
-          <div>
+          <div id="courseNameField">
             <label>Course Name</label>
             <input name="title" id="titleInput" placeholder="Intro to Computer Science" />
           </div>
         </div>
         <div class="modal-grid">
-          <div>
+          <div id="initialGradeField">
             <label>Initial Grade (%) — optional</label>
             <input name="grade" id="gradeInput" type="number" step="0.1" min="0" max="100" placeholder="e.g., 85" />
           </div>
-          <div>
+          <div id="iconField">
             <label>Icon</label>
             <input name="icon" id="iconInput" placeholder="e.g., laptop-outline" />
             <div class="hint">Preview: <ion-icon id="iconPreview" name="book-outline"></ion-icon></div>
@@ -408,8 +391,28 @@ MySemester is a modern grade tracking platform built for Canadian universities. 
         <button type="submit" class="btn-primary" id="saveCourse">Save Course</button>
       </div>
     </form>
+    <div class="tour-modal-mask" aria-hidden="true"></div>
   </dialog>
 
 </dialog>
+
+<div class="tour-overlay" id="tourOverlay" aria-hidden="true">
+  <div class="tour-card no-arrow" role="dialog" aria-live="polite">
+    <div class="tour-pill">Getting Started</div>
+    <h3 id="tourTitle">Welcome to MySemester</h3>
+    <p id="tourBody">Let’s set up your dashboard in a few quick steps.</p>
+    <div class="tour-footer">
+      <div class="tour-step">
+        <span id="tourStepLabel">1 of 1</span>
+        <div class="tour-dots" id="tourDots"></div>
+      </div>
+      <div class="tour-actions">
+        <button class="tour-btn ghost" id="tourSkip" type="button">Skip</button>
+        <button class="tour-btn primary" id="tourNext" type="button">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

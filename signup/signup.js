@@ -181,6 +181,8 @@
             email
           }));
           localStorage.removeItem('uoft_onboarding_v1');
+          localStorage.setItem('ms_tutorial_start', '1');
+          localStorage.removeItem('ms_tutorial_seen');
         }
 
         successText.textContent = "Account created! Redirecting...";

@@ -9,7 +9,7 @@
       } catch (err) {
         university = '';
       }
-      const base = { showGpa: true, showLetter: true, showPercent: true, creditAllowed: false, creditLabel: '' };
+      const base = { university, showGpa: true, showLetter: true, showPercent: true, creditAllowed: false, creditLabel: '', gpaScale: 4.0 };
       if (university === 'University of Toronto') {
         return { ...base, creditAllowed: true, creditLabel: 'CR/NCR' };
       }
@@ -20,7 +20,7 @@
         return { ...base, creditAllowed: true, creditLabel: 'S/U' };
       }
       if (university === 'University of Waterloo') {
-        return { ...base, showGpa: false, showLetter: false, creditAllowed: false };
+        return { ...base, showGpa: false, showLetter: false, creditAllowed: false, gpaScale: null };
       }
       if (university === 'University of Alberta') {
         return { ...base, creditAllowed: false };
@@ -29,7 +29,7 @@
         return { ...base, creditAllowed: false };
       }
       if (university === 'University of Ottawa') {
-        return { ...base, creditAllowed: false };
+        return { ...base, creditAllowed: false, gpaScale: 10 };
       }
       return base;
     }
@@ -78,6 +78,8 @@
 
     openSettingsBtn?.addEventListener('click', ()=>{
       settingsModal.showModal();
+      settingsModal.scrollTop = 0;
+      settingsModal.querySelector('.modal-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
       sidebar.classList.remove('show');
       overlay.classList.remove('show');
       syncSettingsModalUI();
@@ -394,6 +396,8 @@
     const closeAboutBtn = document.getElementById('closeAbout');
     openAboutBtn?.addEventListener('click', () => {
       aboutModal.showModal();
+      aboutModal.scrollTop = 0;
+      aboutModal.querySelector('.about-modal-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
       sidebar.classList.remove('show');
       overlay.classList.remove('show');
     });
@@ -727,6 +731,52 @@
     }
 
     
+    const GPA_MAPS = {
+      'University of Toronto': {
+        'A+': 4.0, 'A': 4.0, 'A-': 3.7,
+        'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+        'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+        'D+': 1.3, 'D': 1.0, 'D-': 0.7,
+        'F': 0.0
+      },
+      'University of British Columbia': {
+        'A+': 4.0, 'A': 4.0, 'A-': 3.7,
+        'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+        'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+        'D': 1.0,
+        'F': 0.0
+      },
+      'McGill University': {
+        'A': 4.0, 'A-': 3.7,
+        'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+        'C+': 2.3, 'C': 2.0,
+        'D': 1.0,
+        'F': 0.0
+      },
+      'McMaster University': {
+        'A+': 4.0, 'A': 3.9, 'A-': 3.7,
+        'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+        'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+        'D+': 1.3, 'D': 1.0,
+        'F': 0.0
+      },
+      'University of Ottawa': {
+        'A+': 10, 'A': 9, 'A-': 8,
+        'B+': 7, 'B': 6,
+        'C+': 5, 'C': 4,
+        'D+': 3, 'D': 2,
+        'E': 1,
+        'F': 0
+      },
+      'University of Alberta': {
+        'A+': 4.0, 'A': 4.0, 'A-': 3.7,
+        'B+': 3.3, 'B': 3.0, 'B-': 2.7,
+        'C+': 2.3, 'C': 2.0, 'C-': 1.7,
+        'D+': 1.3, 'D': 1.0,
+        'F': 0.0
+      }
+    };
+
     function letterFromPct(p){
       if(p>=90) return 'A+'; if(p>=85) return 'A'; if(p>=80) return 'A-';
       if(p>=77) return 'B+'; if(p>=73) return 'B'; if(p>=70) return 'B-';
@@ -734,11 +784,37 @@
       if(p>=57) return 'D+'; if(p>=53) return 'D'; if(p>=50) return 'D-';
       return 'F';
     }
+    function normalizeLetterForSchool(letter, school) {
+      if (!school) return letter;
+      if (school === 'McGill University') {
+        if (letter === 'A+') return 'A';
+        if (letter === 'D+' || letter === 'D-') return 'D';
+        if (letter === 'C-') return 'C';
+      }
+      if (school === 'University of British Columbia') {
+        if (letter === 'D+' || letter === 'D-') return 'D';
+      }
+      if (school === 'McMaster University') {
+        if (letter === 'D-') return 'D';
+      }
+      if (school === 'University of Ottawa') {
+        if (letter === 'B-') return 'B';
+        if (letter === 'C-') return 'C';
+        if (letter === 'D-') return 'D';
+      }
+      return letter;
+    }
     function gpaFromPct(p){
-      if(p>=90) return 4.0; if(p>=85) return 4.0; if(p>=80) return 3.7; if(p>=77) return 3.3;
-      if(p>=73) return 3.0; if(p>=70) return 2.7; if(p>=67) return 2.3; if(p>=63) return 2.0;
-      if(p>=60) return 1.7; if(p>=57) return 1.3; if(p>=53) return 1.0; if(p>=50) return 0.7;
-      return 0.0;
+      const school = universityRules.university || '';
+      const letter = normalizeLetterForSchool(letterFromPct(p), school);
+      const map = GPA_MAPS[school];
+      if (!map) return 0.0;
+      if (Object.prototype.hasOwnProperty.call(map, letter)) return map[letter];
+      if (letter.endsWith('+') || letter.endsWith('-')) {
+        const base = letter.slice(0, -1);
+        if (Object.prototype.hasOwnProperty.call(map, base)) return map[base];
+      }
+      return map.F ?? 0.0;
     }
 
     function recomputeOverview(){
@@ -752,7 +828,7 @@
       }
       const av = graded.reduce((s,c)=> s + c.grade, 0) / graded.length;
       gpa4.textContent = gpaFromPct(av).toFixed(2);
-      gpaLetter.textContent = letterFromPct(av);
+      gpaLetter.textContent = normalizeLetterForSchool(letterFromPct(av), universityRules.university || '');
       gpaPct.textContent = Math.round(av) + '%';
     }
 
@@ -763,12 +839,20 @@
     const gpaPct = document.getElementById('gpaPct');
     const gpa4Wrap = gpa4 ? gpa4.closest('.ov') : null;
     const gpaLetterWrap = gpaLetter ? gpaLetter.closest('.ov') : null;
+    const gpa4Label = gpa4Wrap ? gpa4Wrap.querySelector('.label') : null;
+    if (gpa4Label && universityRules.gpaScale) {
+      gpa4Label.textContent = `GPA (${universityRules.gpaScale})`;
+    }
     if (gpa4Wrap) gpa4Wrap.style.display = universityRules.showGpa ? '' : 'none';
     if (gpaLetterWrap) gpaLetterWrap.style.display = universityRules.showLetter ? '' : 'none';
 
     function render(){
       grid.innerHTML='';
+      grid.classList.remove('grid-empty');
+      document.body.classList.remove('no-scroll-empty');
       if (!state.courses.length) {
+        grid.classList.add('grid-empty');
+        document.body.classList.add('no-scroll-empty');
         
         const empty = document.createElement('div');
         empty.className = 'empty-state-card';
@@ -864,6 +948,25 @@
             startSwap(document.getElementById(markId), c.grade);
           }
         }
+
+        const addCard = document.createElement('button');
+        addCard.type = 'button';
+        addCard.className = 'card add-course-card';
+        addCard.innerHTML = `
+          <ion-icon class="course-icon" name="add-outline"></ion-icon>
+          <div class="info">
+            <div class="code">Add Course</div>
+            <div class="muted-sm">Create another class</div>
+          </div>
+        `;
+        addCard.addEventListener('click', () => {
+          editingId = null;
+          modalTitle.textContent = 'Add Course';
+          addCourseForm.reset();
+          iconPreview.setAttribute('name', 'book-outline');
+          addCourseModal.showModal();
+        });
+        grid.appendChild(addCard);
       }
       recomputeOverview();
     }
@@ -971,6 +1074,7 @@
     const addCourseModal = document.getElementById('addCourseModal');
     const addCourseForm = document.getElementById('addCourseForm');
     const cancelCourse = document.getElementById('cancelCourse');
+    const saveCourse = document.getElementById('saveCourse');
     const iconInput = document.getElementById('iconInput');
     const iconPreview = document.getElementById('iconPreview');
     const formError = document.getElementById('formError');
@@ -1586,193 +1690,539 @@ document.getElementById('profileCancelBtn')?.addEventListener('click', ()=>{
 });
 
 const tourOverlay = document.getElementById('tourOverlay');
-const tourCard = document.querySelector('.tour-card');
 const tourTitle = document.getElementById('tourTitle');
 const tourBody = document.getElementById('tourBody');
 const tourStepLabel = document.getElementById('tourStepLabel');
 const tourDots = document.getElementById('tourDots');
-const tourPrev = document.getElementById('tourPrev');
-const tourNext = document.getElementById('tourNext');
 const tourSkip = document.getElementById('tourSkip');
-
-const TOUR_KEY = 'uoft_tour_state_v2';
-const TOUR_SEEN_KEY = 'uoft_tour_seen_v2';
+const tourNext = document.getElementById('tourNext');
+const openTourPreview = document.getElementById('openTourPreview');
 
 const tourSteps = [
   {
-    title: 'Add your first course',
-    body: 'Tap Add Course to create a class with a code, title, and icon.',
-    selector: '#openAddCourse'
-  },
-  {
-    title: 'Customize your dashboard',
-    body: 'Open Settings to switch themes, layout, and GPA format.',
-    selector: '#openSettings'
+    title: 'Welcome to MySemester',
+    body: 'Let’s set up your dashboard in a few quick steps.',
+    center: true,
+    noArrow: true,
+    spotlight: false
   },
   {
     title: 'Update your profile',
-    body: 'Use the profile icon to edit your name, email, and avatar.',
-    selector: '#accountBtn'
+    body: 'Tap the profile icon to edit your name, email, and avatar.',
+    selector: '#accountBtn',
+    preferPos: 'right',
+    spotlight: true
   },
   {
-    title: 'Open a course',
-    body: 'Select a course card to enter assessments and grades.',
-    selector: '.card'
+    title: 'Add your first course',
+    body: 'Tap Add Course to create your first class.',
+    selector: '.empty-state-card',
+    clickSelector: '#emptyAddCourseBtn',
+    preferPos: 'bottom',
+    spotlight: true,
+    requireClick: true,
+    hideNext: true
+  },
+  {
+    title: 'Course code',
+    body: 'Enter the course code (e.g., ECO101).',
+    selector: '#courseCodeField',
+    highlightSelector: '#codeInput',
+    spotlightSelector: '#courseCodeField',
+    modalSpotlightSelector: '#courseCodeField',
+    preferPos: 'left',
+    alignCenter: true,
+    spotlight: true,
+    ensureModalOpen: true,
+    requireInputSelector: '#codeInput',
+    suppressHighlight: true,
+    compact: true,
+    modalPos: 'top',
+    modalGap: -30
+  },
+  {
+    title: 'Course name',
+    body: 'Add the course name so it is easy to recognize.',
+    selector: '#courseNameField',
+    highlightSelector: '#titleInput',
+    spotlightSelector: '#courseNameField',
+    modalSpotlightSelector: '#courseNameField',
+    preferPos: 'left',
+    alignCenter: true,
+    spotlight: true,
+    ensureModalOpen: true,
+    requireInputSelector: '#titleInput',
+    suppressHighlight: true,
+    compact: true,
+    modalPos: 'top',
+    modalGap: -30
+  },
+  {
+    title: 'Initial grade (optional)',
+    body: 'Add a starting grade if you already have one.',
+    selector: '#initialGradeField',
+    highlightSelector: '#gradeInput',
+    spotlightSelector: '#initialGradeField',
+    modalSpotlightSelector: '#initialGradeField',
+    preferPos: 'left',
+    alignCenter: true,
+    spotlight: true,
+    ensureModalOpen: true,
+    optionalInput: true,
+    requireInputSelector: '#gradeInput',
+    suppressHighlight: true,
+    compact: true,
+    modalPos: 'bottom',
+    modalGap: -50
+  },
+  {
+    title: 'Pick an icon',
+    body: 'Use an Ionicons name for a custom icon (e.g., laptop-outline).',
+    selector: '#iconField',
+    highlightSelector: '#iconInput',
+    spotlightSelector: '#iconField',
+    modalSpotlightSelector: '#iconField',
+    preferPos: 'left',
+    alignCenter: true,
+    spotlight: true,
+    ensureModalOpen: true,
+    optionalInput: true,
+    requireInputSelector: '#iconInput',
+    suppressHighlight: true,
+    compact: true,
+    modalPos: 'bottom',
+    modalGap: -50
+  },
+  {
+    title: 'Save your course',
+    body: 'Tap Save Course to add it to your dashboard.',
+    selector: '#saveCourse',
+    highlightSelector: '#saveCourse',
+    spotlightSelector: '#saveCourse',
+    modalSpotlightSelector: '#saveCourse',
+    preferPos: 'left',
+    alignCenter: true,
+    spotlight: true,
+    ensureModalOpen: true,
+    enableSave: true,
+    suppressHighlight: true,
+    compact: true,
+    modalPos: 'top',
+    modalGap: -300,
+    hideNext: true,
+    requireClick: true,
+    clickSelector: '#saveCourse',
+    nextOnClick: true
+  },
+  {
+    title: 'Open your course',
+    body: 'Tap your new course card to open it.',
+    selector: '.card',
+    highlightSelector: '.card',
+    preferPos: 'bottom',
+    alignCenter: true,
+    spotlight: true,
+    requireClick: true,
+    hideNext: true
   }
 ];
 
 let tourIndex = 0;
 let tourTarget = null;
-
-function getTourState() {
-  try {
-    return JSON.parse(localStorage.getItem(TOUR_KEY) || 'null') || { step: 0 };
-  } catch (err) {
-    return { step: 0 };
-  }
-}
-
-function setTourState(step) {
-  localStorage.setItem(TOUR_KEY, JSON.stringify({ step }));
-}
+let tourTargetClickHandler = null;
+let tourFieldHighlight = null;
+let tourInputTarget = null;
+let tourInputHandler = null;
+let tourAllowedEls = [];
 
 function clearTourHighlight() {
   if (tourTarget) {
     tourTarget.classList.remove('tour-highlight');
+    tourTarget.classList.remove('tour-highlight-round');
+    tourTarget.classList.remove('tour-highlight-card');
     tourTarget = null;
   }
 }
 
-function findTarget(selector) {
-  if (selector === '.card') {
-    return document.querySelector('.card') || document.querySelector('.empty-state-card');
+function clearTargetClickHandler() {
+  if (tourTarget && tourTargetClickHandler) {
+    tourTarget.removeEventListener('click', tourTargetClickHandler);
   }
-  return document.querySelector(selector);
+  tourTargetClickHandler = null;
+}
+
+function clearTourInputHandler() {
+  if (tourInputTarget && tourInputHandler) {
+    tourInputTarget.removeEventListener('input', tourInputHandler);
+  }
+  tourInputTarget = null;
+  tourInputHandler = null;
+}
+
+function clearTourAllowed() {
+  tourAllowedEls.forEach((el) => el.classList.remove('tour-allow'));
+  tourAllowedEls = [];
+}
+
+function allowTourElement(el) {
+  if (!el) return;
+  el.classList.add('tour-allow');
+  tourAllowedEls.push(el);
+}
+
+function clearTourFieldHighlight() {
+  if (tourFieldHighlight) {
+    tourFieldHighlight.classList.remove('tour-field-highlight');
+    tourFieldHighlight = null;
+  }
+}
+
+function updateTourModalInteractivity(step) {
+  const modalStep = !!(step && step.ensureModalOpen);
+  const currentField = step?.highlightSelector ? document.querySelector(step.highlightSelector) : null;
+  const iconTryToggle = document.getElementById('iconTryToggle');
+  const iconChipRow = document.getElementById('iconChipRow');
+  const iconExtrasDisabled = modalStep && currentField !== iconInput;
+
+  [codeInput, titleInput, gradeInput, iconInput].forEach((field) => {
+    if (!field) return;
+    field.disabled = modalStep && field !== currentField;
+  });
+  if (cancelCourse) cancelCourse.disabled = modalStep;
+  if (saveCourse) {
+    saveCourse.disabled = step?.enableSave ? false : (modalStep ? true : false);
+  }
+
+  if (iconTryToggle) {
+    iconTryToggle.setAttribute('aria-disabled', iconExtrasDisabled ? 'true' : 'false');
+    iconTryToggle.classList.toggle('disabled', iconExtrasDisabled);
+  }
+  if (iconChipRow) {
+    iconChipRow.classList.toggle('disabled', iconExtrasDisabled);
+  }
+}
+
+function updateSpotlight(target) {
+  if (!tourOverlay) return;
+  if (!target) {
+    tourOverlay.classList.remove('spotlight');
+    tourOverlay.style.removeProperty('--spot-x');
+    tourOverlay.style.removeProperty('--spot-y');
+    tourOverlay.style.removeProperty('--spot-w');
+    tourOverlay.style.removeProperty('--spot-h');
+    return;
+  }
+  if (!document.body.contains(target)) return;
+  const rect = target.getBoundingClientRect();
+  const pad = 8;
+  tourOverlay.classList.add('spotlight');
+  tourOverlay.style.setProperty('--spot-x', `${Math.max(rect.left - pad, 0)}px`);
+  tourOverlay.style.setProperty('--spot-y', `${Math.max(rect.top - pad, 0)}px`);
+  tourOverlay.style.setProperty('--spot-w', `${Math.min(rect.width + pad * 2, window.innerWidth)}px`);
+  tourOverlay.style.setProperty('--spot-h', `${Math.min(rect.height + pad * 2, window.innerHeight)}px`);
+}
+
+function updateModalSpotlight(target) {
+  if (!addCourseModal) return;
+  if (!target) {
+    addCourseModal.classList.remove('tour-mask-active');
+    addCourseModal.style.removeProperty('--modal-spot-x');
+    addCourseModal.style.removeProperty('--modal-spot-y');
+    addCourseModal.style.removeProperty('--modal-spot-w');
+    addCourseModal.style.removeProperty('--modal-spot-h');
+    return;
+  }
+  if (!document.body.contains(target)) return;
+  const rect = target.getBoundingClientRect();
+  const modalRect = addCourseModal.getBoundingClientRect();
+  const pad = 10;
+  addCourseModal.classList.add('tour-mask-active');
+  addCourseModal.style.setProperty('--modal-spot-x', `${Math.max(rect.left - modalRect.left - pad, 0)}px`);
+  addCourseModal.style.setProperty('--modal-spot-y', `${Math.max(rect.top - modalRect.top - pad, 0)}px`);
+  addCourseModal.style.setProperty('--modal-spot-w', `${Math.min(rect.width + pad * 2, modalRect.width)}px`);
+  addCourseModal.style.setProperty('--modal-spot-h', `${Math.min(rect.height + pad * 2, modalRect.height)}px`);
+}
+
+function positionCalloutInModal(target) {
+  const tourCard = document.querySelector('.tour-card');
+  if (!tourCard || !target || !addCourseModal) return;
+  const modalRect = addCourseModal.getBoundingClientRect();
+  const cardRect = tourCard.getBoundingClientRect();
+  const step = tourSteps[tourIndex] || {};
+  const gap = typeof step.modalGap === 'number' ? step.modalGap : 16;
+  const pos = step.modalPos || 'top';
+  const left = (modalRect.width - cardRect.width) / 2;
+  const top = pos === 'bottom'
+    ? modalRect.height + gap
+    : -cardRect.height - gap;
+  tourCard.style.left = `${Math.round(left)}px`;
+  tourCard.style.top = `${Math.round(top)}px`;
+  tourCard.style.transform = 'translate(0, 0)';
+  tourCard.dataset.pos = pos === 'bottom' ? 'bottom' : 'top';
 }
 
 function positionCallout(target) {
+  const tourCard = document.querySelector('.tour-card');
   if (!tourCard) return;
-  if (!target) {
+  const step = tourSteps[tourIndex];
+  if (!target || step.center) {
     tourCard.style.left = '50%';
     tourCard.style.top = '50%';
     tourCard.style.transform = 'translate(-50%, -50%)';
     tourCard.dataset.pos = 'top';
     return;
   }
-  tourCard.style.transform = 'translate(0, 0)';
   const rect = target.getBoundingClientRect();
   const cardRect = tourCard.getBoundingClientRect();
-  let top = rect.bottom + 12;
-  let pos = 'bottom';
-  if (top + cardRect.height > window.innerHeight - 12) {
-    top = rect.top - cardRect.height - 12;
-    pos = 'top';
+  let pos = step.preferPos || 'right';
+  let top = rect.top + rect.height / 2 - cardRect.height / 2;
+  let left = rect.right + 16;
+
+  if (pos === 'right') {
+    left = rect.left - cardRect.width - 16;
+    left = Math.max(12, left);
+  } else if (pos === 'left') {
+    left = rect.right + 16;
+    if (left + cardRect.width > window.innerWidth - 12) {
+      pos = 'right';
+      left = Math.max(12, rect.left - cardRect.width - 16);
+    }
+  } else if (pos === 'bottom') {
+    top = rect.bottom + 16;
+    left = rect.left + rect.width / 2 - cardRect.width / 2;
+  } else if (pos === 'top') {
+    top = rect.top - cardRect.height - 16;
+    left = rect.left + rect.width / 2 - cardRect.width / 2;
   }
-  let left = rect.left + rect.width / 2 - cardRect.width / 2;
+
+  top = Math.max(12, Math.min(top, window.innerHeight - cardRect.height - 12));
+  if (step.alignCenter) {
+    left = rect.left + rect.width / 2 - cardRect.width / 2;
+  }
   left = Math.max(12, Math.min(left, window.innerWidth - cardRect.width - 12));
-  tourCard.style.top = `${Math.round(top)}px`;
   tourCard.style.left = `${Math.round(left)}px`;
+  tourCard.style.top = `${Math.round(top)}px`;
+  tourCard.style.transform = 'translate(0, 0)';
   tourCard.dataset.pos = pos;
 }
 
 function renderTour() {
   if (!tourOverlay) return;
   const step = tourSteps[tourIndex];
-  let target = findTarget(step.selector);
-  let bodyText = step.body;
-  if (tourIndex === 3 && !document.querySelector('.card')) {
-    bodyText = 'Create a course first. Then open it to manage assessments.';
+  const tourCard = document.querySelector('.tour-card');
+  if (tourCard) {
+    tourCard.style.display = '';
+  }
+  tourCard?.classList.toggle('compact', !!step.compact);
+  if (step.ensureModalOpen && addCourseModal && !addCourseModal.open) {
+    addCourseModal.showModal();
+  }
+  updateTourModalInteractivity(step);
+  let target = step.selector ? document.querySelector(step.selector) : null;
+  const clickTarget = step.clickSelector ? document.querySelector(step.clickSelector) : target;
+  if (!target && step.fallbackSelector) {
+    target = document.querySelector(step.fallbackSelector);
   }
   tourTitle.textContent = step.title;
-  tourBody.textContent = bodyText;
+  tourBody.textContent = step.body;
   tourStepLabel.textContent = `${tourIndex + 1} of ${tourSteps.length}`;
+  if (tourNext) {
+    tourNext.textContent = step.nextLabel || 'Next';
+    tourNext.dataset.action = step.nextAction || '';
+    tourNext.style.display = step.hideNext ? 'none' : '';
+  }
+  if (tourSkip) {
+    tourSkip.style.display = '';
+  }
+  const disableTarget = !!(step.disableTargetClick && !step.clickSelector);
+  document.body.classList.toggle('tour-disable-target', disableTarget);
+  document.body.classList.add('tour-restrict');
   tourDots.innerHTML = '';
   tourSteps.forEach((_, i) => {
     const dot = document.createElement('span');
     dot.className = `tour-dot${i === tourIndex ? ' active' : ''}`;
     tourDots.appendChild(dot);
   });
-  tourPrev.disabled = tourIndex === 0;
-  if (tourIndex === 3) {
-    tourNext.textContent = document.querySelector('.card') ? 'Open course' : 'Next';
-    tourNext.disabled = !document.querySelector('.card');
+  clearTargetClickHandler();
+  clearTourInputHandler();
+  clearTourHighlight();
+  clearTourFieldHighlight();
+  clearTourAllowed();
+  if (step.noArrow || step.center || !target || step.suppressHighlight) {
+    tourCard?.classList.add('no-arrow');
+    tourTarget = null;
   } else {
-    tourNext.textContent = 'Next';
+    tourCard?.classList.remove('no-arrow');
+    tourTarget = target;
+    tourTarget.classList.add('tour-highlight');
+    if (tourTarget.classList.contains('empty-state-card')) {
+      tourTarget.classList.add('tour-highlight-card');
+    } else if (tourTarget.matches('.avatar-btn, .iconbtn, button')) {
+      tourTarget.classList.add('tour-highlight-round');
+    }
+  }
+  if (step.highlightSelector) {
+    const highlightTarget = document.querySelector(step.highlightSelector);
+    if (highlightTarget) {
+      highlightTarget.classList.add('tour-field-highlight');
+      tourFieldHighlight = highlightTarget;
+      allowTourElement(highlightTarget);
+    }
+  }
+  allowTourElement(clickTarget);
+  const spotlightTarget = step.spotlightSelector
+    ? document.querySelector(step.spotlightSelector)
+    : tourTarget;
+  const modalSpotlightTarget = step.modalSpotlightSelector
+    ? document.querySelector(step.modalSpotlightSelector)
+    : null;
+  if (tourCard) {
+    tourCard.classList.toggle('in-modal', !!modalSpotlightTarget);
+    if (modalSpotlightTarget && addCourseModal && tourCard.parentElement !== addCourseModal) {
+      addCourseModal.appendChild(tourCard);
+    } else if (!modalSpotlightTarget && tourCard.parentElement !== document.body) {
+      document.body.appendChild(tourCard);
+    }
+  }
+  if (modalSpotlightTarget) {
+    positionCalloutInModal(modalSpotlightTarget);
+  } else {
+    positionCallout(tourTarget);
+  }
+  if (step.spotlight && spotlightTarget && !modalSpotlightTarget) {
+    updateSpotlight(spotlightTarget);
+    requestAnimationFrame(() => {
+      updateSpotlight(spotlightTarget);
+      setTimeout(() => {
+        updateSpotlight(spotlightTarget);
+      }, 60);
+    });
+  } else {
+    updateSpotlight(null);
+  }
+  updateModalSpotlight(modalSpotlightTarget);
+
+  if (step.requireInputSelector && tourNext && !step.optionalInput) {
+    const input = document.querySelector(step.requireInputSelector);
+    if (input) {
+      const updateNextState = () => {
+        tourNext.disabled = !input.value.trim();
+      };
+      tourInputTarget = input;
+      tourInputHandler = updateNextState;
+      input.addEventListener('input', updateNextState);
+      updateNextState();
+      input.focus();
+      allowTourElement(input);
+    } else {
+      tourNext.disabled = false;
+    }
+  }
+
+  if (step.requireClick && clickTarget) {
+    tourNext.disabled = true;
+    tourTargetClickHandler = () => {
+      if (step.nextOnClick && tourIndex < tourSteps.length - 1) {
+        tourIndex += 1;
+        setTimeout(() => {
+          renderTour();
+        }, 60);
+        return;
+      }
+      if (tourIndex < tourSteps.length - 1) {
+        tourIndex += 1;
+        setTimeout(() => {
+          renderTour();
+        }, 60);
+        return;
+      }
+      closeTour();
+    };
+    clickTarget.addEventListener('click', tourTargetClickHandler, { once: true });
+  } else if (!step.requireInputSelector) {
     tourNext.disabled = false;
   }
-  clearTourHighlight();
-  tourTarget = target;
-  if (tourTarget) {
-    tourTarget.classList.add('tour-highlight');
-    tourTarget.scrollIntoView({ block: 'center', behavior: 'smooth' });
-  }
-  positionCallout(tourTarget);
 }
 
 function openTour() {
   if (!tourOverlay) return;
+  document.body.classList.add('tour-lock');
   tourOverlay.classList.add('show');
+  tourOverlay.style.display = 'flex';
   tourOverlay.setAttribute('aria-hidden', 'false');
   renderTour();
 }
 
 function closeTour() {
   if (!tourOverlay) return;
+  document.body.classList.remove('tour-lock');
+  document.body.classList.remove('tour-disable-target');
+  document.body.classList.remove('tour-restrict');
   tourOverlay.classList.remove('show');
+  tourOverlay.style.display = 'none';
   tourOverlay.setAttribute('aria-hidden', 'true');
+  tourOverlay.classList.remove('spotlight');
+  localStorage.setItem('ms_tutorial_seen', '1');
+  localStorage.removeItem('ms_tutorial_start');
+  const tourCard = document.querySelector('.tour-card');
+  if (tourCard) {
+    tourCard.style.display = 'none';
+  }
+  clearTargetClickHandler();
+  clearTourInputHandler();
   clearTourHighlight();
-  localStorage.setItem(TOUR_SEEN_KEY, 'true');
-  localStorage.removeItem(TOUR_KEY);
+  clearTourFieldHighlight();
+  clearTourAllowed();
+  updateTourModalInteractivity(null);
+  updateModalSpotlight(null);
 }
 
+tourSkip?.addEventListener('click', (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  closeTour();
+});
+
 tourNext?.addEventListener('click', () => {
-  if (tourIndex === 3) {
-    if (!document.querySelector('.card')) return;
-    const nextCourse = state && Array.isArray(state.courses) ? state.courses[0] : null;
-    if (nextCourse && nextCourse.code) {
-      setTourState(4);
-      window.location.href = `/grade/?course=${encodeURIComponent(nextCourse.code)}`;
-      return;
+  const step = tourSteps[tourIndex];
+  if (step?.nextAction === 'open-add-course') {
+    openAddCourse?.click();
+    if (tourIndex < tourSteps.length - 1) {
+      tourIndex += 1;
+      renderTour();
     }
+    return;
   }
   if (tourIndex < tourSteps.length - 1) {
     tourIndex += 1;
-    setTourState(tourIndex);
     renderTour();
+    return;
   }
-});
-
-tourPrev?.addEventListener('click', () => {
-  if (tourIndex > 0) {
-    tourIndex -= 1;
-    setTourState(tourIndex);
-    renderTour();
-  }
-});
-
-tourSkip?.addEventListener('click', () => {
   closeTour();
 });
 
 window.addEventListener('resize', () => {
   if (tourOverlay && tourOverlay.classList.contains('show')) {
     positionCallout(tourTarget);
+    updateSpotlight(tourTarget);
+    const step = tourSteps[tourIndex];
+    const modalSpotlightTarget = step?.modalSpotlightSelector
+      ? document.querySelector(step.modalSpotlightSelector)
+      : null;
+    updateModalSpotlight(modalSpotlightTarget);
   }
 });
 
-window.addEventListener('scroll', () => {
-  if (tourOverlay && tourOverlay.classList.contains('show')) {
-    positionCallout(tourTarget);
-  }
+openTourPreview?.addEventListener('click', () => {
+  tourIndex = 0;
+  openTour();
 });
 
-if (!localStorage.getItem(TOUR_SEEN_KEY)) {
-  const auth = getAuth();
-  if (auth && auth.loggedIn) {
-    const saved = getTourState();
-    tourIndex = Math.max(0, Math.min(3, saved.step || 0));
-    setTimeout(() => {
-      openTour();
-    }, 700);
-  }
+const tutorialStart = localStorage.getItem('ms_tutorial_start');
+const tutorialSeen = localStorage.getItem('ms_tutorial_seen');
+if (tutorialStart === '1' && !tutorialSeen) {
+  tourIndex = 0;
+  setTimeout(() => {
+    openTour();
+  }, 120);
 }

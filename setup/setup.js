@@ -86,7 +86,8 @@ const steps = [
       'Sociology',
       'Software Engineering',
       'Statistics',
-      'Urban Planning'
+      'Urban Planning',
+      'Other'
     ]
   }
 ];
