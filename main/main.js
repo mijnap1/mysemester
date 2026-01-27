@@ -404,6 +404,7 @@
     const aboutModal = document.getElementById('aboutModal');
     const closeAboutBtn = document.getElementById('closeAbout');
     openAboutBtn?.addEventListener('click', () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
       aboutModal.showModal();
       aboutModal.scrollTop = 0;
       aboutModal.querySelector('.about-modal-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -419,6 +420,22 @@
     document.addEventListener('keydown', (e)=>{
       if (e.key === 'Escape') aboutModal.close?.();
     });
+
+    
+    const quickTipEl = document.querySelector('.sidebar-help-text');
+    if (quickTipEl) {
+      const tips = [
+        'Right-click a course card for edit, duplicate, and more options.',
+        'Double-click an assessment name or weight to edit it.',
+        'Use the target estimate to see what you need on remaining work.',
+        'Switch between compact and spacious layouts in Settings.'
+      ];
+      let tipIndex = 0;
+      setInterval(() => {
+        tipIndex = (tipIndex + 1) % tips.length;
+        quickTipEl.textContent = tips[tipIndex];
+      }, 6000);
+    }
     
 
     

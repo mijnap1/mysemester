@@ -270,18 +270,37 @@ document.addEventListener('visibilitychange', () => {
     }
 
     function renderTable() {
+      const table = document.querySelector('table');
       const tbody = document.getElementById('gradeBody');
       tbody.innerHTML = '';
+      if (table) {
+        table.classList.toggle('empty', weights.length === 0);
+      }
+      if (weights.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="empty-msg" colspan="5">
+            No assessments yet. Click <span class="empty-cta">+ Add Assessment</span> to get started.
+          </td>
+        `;
+        tbody.appendChild(tr);
+        renderEstimates();
+        calcAvg();
+        return;
+      }
       weights.forEach((w, i) => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td ondblclick="editName(${i}, this)">${w.name}</td>
-          <td ondblclick="editWeight(${i}, this)">${w.weight}</td>
+          <td data-edit="name" ondblclick="editName(${i}, this)">${w.name}</td>
+          <td data-edit="weight" ondblclick="editWeight(${i}, this)">${w.weight}</td>
           <td><input type="number" min="0" max="100" step="0.01" value="${w.grade ?? ''}" data-i="${i}" data-type="grade"></td>
           <td><input type="number" min="0" max="100" step="0.01" value="${w.estimate ?? ''}" data-i="${i}" data-type="estimate"></td>
           <td><button class="remove-btn" onclick="removeAssessment(${i})"><ion-icon name="trash-outline"></ion-icon></button></td>
         `;
         tbody.appendChild(tr);
+        tr.querySelectorAll('td[data-edit]').forEach(cell => {
+          addLongPressEdit(cell, i, cell.dataset.edit);
+        });
       });
 
       document.querySelectorAll('input').forEach(inp => {
@@ -350,6 +369,47 @@ document.addEventListener('visibilitychange', () => {
       });
       renderEstimates();
       calcAvg();
+    }
+
+    function addLongPressEdit(cell, i, type) {
+      if (!window.matchMedia || !window.matchMedia('(pointer: coarse)').matches) return;
+      let timer = null;
+      let startX = 0;
+      let startY = 0;
+      const threshold = 8;
+      const delay = 420;
+
+      const clearTimer = () => {
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+        }
+      };
+
+      cell.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        const t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+        clearTimer();
+        timer = setTimeout(() => {
+          if (type === 'name') editName(i, cell);
+          if (type === 'weight') editWeight(i, cell);
+        }, delay);
+      }, { passive: true });
+
+      cell.addEventListener('touchmove', (e) => {
+        if (!timer || !e.touches.length) return;
+        const t = e.touches[0];
+        const dx = Math.abs(t.clientX - startX);
+        const dy = Math.abs(t.clientY - startY);
+        if (dx > threshold || dy > threshold) {
+          clearTimer();
+        }
+      }, { passive: true });
+
+      cell.addEventListener('touchend', clearTimer);
+      cell.addEventListener('touchcancel', clearTimer);
     }
 
     function addAssessment() {

@@ -281,6 +281,30 @@ body.tour-restrict .tour-allow * {
       text-align: right;
       max-width: 60%;
     }
+    .sidebar-help {
+      margin-top: 4px;
+      padding: 14px 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      border: 1px dashed #cbd5f5;
+      color: #334155;
+      display: grid;
+      gap: 6px;
+    }
+    .sidebar-help-title {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+      font-size: 13px;
+      color: #2563eb;
+    }
+    .sidebar-help-title ion-icon { font-size: 16px; }
+    .sidebar-help-text {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #475569;
+    }
 
   .profile-academic {
     display: grid;
@@ -595,9 +619,21 @@ body.tour-restrict .tour-allow * {
       transition: transform .35s var(--ease), color .35s var(--ease);
     }
     .card:hover ion-icon.course-icon { color: var(--purple); transform: scale(1.08); }
-    .info { flex: 1; }
-    .info .code { font-size: 20px; font-weight: 700; }
-    .info .muted-sm { color: var(--muted); font-size: 14px; }
+    .info { flex: 1; min-width: 0; }
+    .info .code {
+      font-size: 20px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .info .muted-sm {
+      color: var(--muted);
+      font-size: 14px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .tag-crncr {
       font-family: "Outfit", sans-serif;
       display: inline-flex;
