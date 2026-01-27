@@ -212,11 +212,17 @@
     }
 
     @media (max-width: 600px) {
-      body { padding: 0 18px; transform: none; }
-      .title { font-size: 38px; margin-bottom: 26px; }
-      .card { width: min(380px, 90vw); padding: 28px 22px; }
-      h1 { font-size: 24px; }
+      * , *::before, *::after { box-sizing: border-box; }
+      body { min-height: 100svh; padding: 20px 16px 32px; transform: none; }
+      .title { font-size: 38px; margin-bottom: 22px; line-height: 1.1; }
+      .card { width: min(380px, 90vw); padding: 26px 20px; }
+      h1 { font-size: 24px; margin-bottom: 6px; }
       input, button { width: 100%; }
       .theme-toggle { top: 12px; right: 12px; }
+    }
+
+    @media (max-width: 360px) {
+      .card { padding: 22px 16px; }
+      .small { font-size: 13px; }
     }
   

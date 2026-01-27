@@ -930,6 +930,7 @@
 
           
           card.addEventListener('contextmenu', (e)=> openCtx(e, c.id));
+          addLongPressCtx(card, c.id);
 
           
           card.addEventListener('click', () => {
@@ -998,6 +999,53 @@
     const ctxCrncrLabelEl = document.getElementById('ctxCrncrLabel');
     const ctxCrncrBtn = ctx ? ctx.querySelector('button[data-act="crncr"]') : null;
     let ctxCourseId = null;
+    function addLongPressCtx(card, id){
+      let timer = null;
+      let startX = 0;
+      let startY = 0;
+      let lastLongPress = 0;
+      const threshold = 10;
+      const delay = 520;
+
+      function clearTimer(){
+        if (timer) {
+          clearTimeout(timer);
+          timer = null;
+        }
+      }
+
+      card.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        const t = e.touches[0];
+        startX = t.clientX;
+        startY = t.clientY;
+        clearTimer();
+        timer = setTimeout(() => {
+          lastLongPress = Date.now();
+          openCtx({ preventDefault(){}, clientX: startX, clientY: startY }, id);
+        }, delay);
+      }, { passive: true });
+
+      card.addEventListener('touchmove', (e) => {
+        if (!timer || !e.touches.length) return;
+        const t = e.touches[0];
+        const dx = Math.abs(t.clientX - startX);
+        const dy = Math.abs(t.clientY - startY);
+        if (dx > threshold || dy > threshold) {
+          clearTimer();
+        }
+      }, { passive: true });
+
+      card.addEventListener('touchend', clearTimer);
+      card.addEventListener('touchcancel', clearTimer);
+
+      card.addEventListener('click', (e) => {
+        if (Date.now() - lastLongPress < 700) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      }, true);
+    }
     function openCtx(e, id){
       e.preventDefault();
       ctxCourseId = id;
@@ -1711,7 +1759,10 @@ const tourSteps = [
     body: 'Tap the profile icon to edit your name, email, and avatar.',
     selector: '#accountBtn',
     preferPos: 'right',
-    spotlight: true
+    spotlight: true,
+    mobileWidth: 'min(360px, 60vw)',
+    mobileMinHeight: 300,
+    mobileOffsetX: -18
   },
   {
     title: 'Add your first course',
@@ -1738,7 +1789,8 @@ const tourSteps = [
     suppressHighlight: true,
     compact: true,
     modalPos: 'top',
-    modalGap: -30
+    mobileWidth: 'min(500px, 86vw)',
+    modalGap: -60
   },
   {
     title: 'Course name',
@@ -1754,8 +1806,8 @@ const tourSteps = [
     requireInputSelector: '#titleInput',
     suppressHighlight: true,
     compact: true,
-    modalPos: 'top',
-    modalGap: -30
+    mobileWidth: 'min(500px, 86vw)',
+    modalGap: -60
   },
   {
     title: 'Initial grade (optional)',
@@ -1773,7 +1825,7 @@ const tourSteps = [
     suppressHighlight: true,
     compact: true,
     modalPos: 'bottom',
-    modalGap: -50
+    modalGap: -80
   },
   {
     title: 'Pick an icon',
@@ -1791,7 +1843,7 @@ const tourSteps = [
     suppressHighlight: true,
     compact: true,
     modalPos: 'bottom',
-    modalGap: -50
+    modalGap: -80
   },
   {
     title: 'Save your course',
@@ -1830,6 +1882,7 @@ const tourSteps = [
 let tourIndex = 0;
 let tourTarget = null;
 let tourTargetClickHandler = null;
+let tourClickTarget = null;
 let tourFieldHighlight = null;
 let tourInputTarget = null;
 let tourInputHandler = null;
@@ -1845,10 +1898,11 @@ function clearTourHighlight() {
 }
 
 function clearTargetClickHandler() {
-  if (tourTarget && tourTargetClickHandler) {
-    tourTarget.removeEventListener('click', tourTargetClickHandler);
+  if (tourClickTarget && tourTargetClickHandler) {
+    tourClickTarget.removeEventListener('click', tourTargetClickHandler);
   }
   tourTargetClickHandler = null;
+  tourClickTarget = null;
 }
 
 function clearTourInputHandler() {
@@ -1995,6 +2049,10 @@ function positionCallout(target) {
     left = rect.left + rect.width / 2 - cardRect.width / 2;
   }
 
+  if (window.innerWidth <= 640) {
+    top += step.mobileOffsetY || 0;
+    left += step.mobileOffsetX || 0;
+  }
   top = Math.max(12, Math.min(top, window.innerHeight - cardRect.height - 12));
   if (step.alignCenter) {
     left = rect.left + rect.width / 2 - cardRect.width / 2;
@@ -2012,6 +2070,18 @@ function renderTour() {
   const tourCard = document.querySelector('.tour-card');
   if (tourCard) {
     tourCard.style.display = '';
+  }
+  if (tourCard) {
+    if (window.innerWidth <= 640 && step.mobileWidth) {
+      tourCard.style.width = step.mobileWidth;
+    } else {
+      tourCard.style.removeProperty('width');
+    }
+    if (window.innerWidth <= 640 && step.mobileMinHeight) {
+      tourCard.style.minHeight = `${step.mobileMinHeight}px`;
+    } else {
+      tourCard.style.removeProperty('min-height');
+    }
   }
   tourCard?.classList.toggle('compact', !!step.compact);
   if (step.ensureModalOpen && addCourseModal && !addCourseModal.open) {
@@ -2138,6 +2208,7 @@ function renderTour() {
       }
       closeTour();
     };
+    tourClickTarget = clickTarget;
     clickTarget.addEventListener('click', tourTargetClickHandler, { once: true });
   } else if (!step.requireInputSelector) {
     tourNext.disabled = false;

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>GPA Scaling — MySemester</title>
+  <link rel="icon" type="image/png" href="/mysemesterlogo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <link rel="stylesheet" href="gpa-scale.css">
+</head>
+<body>
+  <header class="page-header">
+    <a class="brand" href="/main/">
+      <ion-icon name="school-outline"></ion-icon>
+      <span>MySemester</span>
+    </a>
+    <a class="ghost-btn" href="/main/">Back to dashboard</a>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <span class="kicker">GPA Scaling</span>
+      <h1>Understand GPA scales by university.</h1>
+      <p>Each university can use a different scale. This page explains how grading scales work and provides a clean reference you can use while setting up your courses.</p>
+      <div class="hero-actions">
+        <a class="primary-btn" href="mailto:jamie.mails07@gmail.com">Add your university</a>
+        <a class="ghost-btn" href="#how-it-works">How it works</a>
+      </div>
+    </section>
+
+    <section class="grid" id="how-it-works">
+      <article class="card">
+        <div class="card-icon"><ion-icon name="grid-outline"></ion-icon></div>
+        <h2>Scale types</h2>
+        <p>Some schools use 4.0, others use 4.3, 4.33, 9.0, or percentage-to-letter conversions. MySemester supports multiple formats.</p>
+      </article>
+      <article class="card">
+        <div class="card-icon"><ion-icon name="stats-chart-outline"></ion-icon></div>
+        <h2>Letter mappings</h2>
+        <p>Letter grades often map to GPA ranges. These mappings vary by faculty and institution, so always confirm the official chart.</p>
+      </article>
+      <article class="card">
+        <div class="card-icon"><ion-icon name="shield-checkmark-outline"></ion-icon></div>
+        <h2>Official sources</h2>
+        <p>Use your university’s official policy page for the most accurate and current GPA conversion rules.</p>
+      </article>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2>University scales</h2>
+        <p>This library is growing. If your school is missing, send the details and we’ll add it.</p>
+      </div>
+      <div class="scale-list">
+        <div class="scale-row">
+          <div>
+            <h3>Sample University (4.0 scale)</h3>
+            <p>A+ = 4.0, A = 4.0, A- = 3.7, B+ = 3.3, B = 3.0, B- = 2.7</p>
+          </div>
+          <span class="pill">Example</span>
+        </div>
+        <div class="scale-row">
+          <div>
+            <h3>Sample University (4.3 scale)</h3>
+            <p>A+ = 4.3, A = 4.0, A- = 3.7, B+ = 3.3, B = 3.0, B- = 2.7</p>
+          </div>
+          <span class="pill">Example</span>
+        </div>
+        <div class="scale-row">
+          <div>
+            <h3>Sample University (Percent scale)</h3>
+            <p>90–100 = A+, 85–89 = A, 80–84 = A-, 77–79 = B+</p>
+          </div>
+          <span class="pill">Example</span>
+        </div>
+      </div>
+      <div class="panel-note">Replace these examples with your university’s official scale for precise conversions.</div>
+    </section>
+  </main>
+</body>
+</html>

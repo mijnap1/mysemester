@@ -215,6 +215,12 @@ body.tour-restrict .tour-allow * {
     }
     .sidebar.show { right: 0; }
 
+    @media (max-width: 600px) {
+      html, body { height: auto; }
+      body:not(.tour-lock) { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+      body.no-scroll-empty { overflow-y: auto; }
+    }
+
     .navbtn {
       font-family: 'Outfit', sans-serif;
       font-weight: 600;
@@ -1055,7 +1061,104 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.35); }
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      gap: 2px;
+      gap: 10px;
+    }
+    .about-hero {
+      display: grid;
+      gap: 10px;
+      animation: aboutFadeUp 0.45s var(--ease);
+    }
+    .about-kicker {
+      align-self: flex-start;
+      font-size: 12px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--blue);
+      font-weight: 700;
+      background: #e7efff;
+      padding: 6px 10px;
+      border-radius: 999px;
+    }
+    .about-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 2px; }
+    .about-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 12px;
+      background: #eef2ff;
+      color: #1e40af;
+      border: 1px solid #c7d2fe;
+      text-decoration: none;
+      transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease);
+    }
+    .about-link:hover { transform: translateY(-1px); box-shadow: 0 6px 16px rgba(37,99,235,0.18); }
+    .about-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 6px;
+    }
+    .about-card {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px 12px;
+      border-radius: 14px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-default);
+      animation: aboutFadeUp 0.5s var(--ease);
+    }
+    .about-card:nth-child(2) { animation-delay: 0.04s; }
+    .about-card:nth-child(3) { animation-delay: 0.08s; }
+    .about-card:nth-child(4) { animation-delay: 0.12s; }
+    .about-card-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: #eef2ff;
+      color: #2563eb;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+    .about-card h4 {
+      margin: 0 0 4px 0;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .about-card p {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+    .about-section h3 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .about-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 8px 0 4px 0;
+      display: grid;
+      gap: 8px;
+    }
+    .about-list li {
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-default);
+    }
+    @keyframes aboutFadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
     #aboutModal h2 {
       font-size: 28px;
@@ -1123,6 +1226,24 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.35); }
       border-bottom-left-radius: 18px;
       border-bottom-right-radius: 18px;
     }
+
+    @media (max-width: 600px) {
+      #aboutModal { width: min(360px, 92vw); padding: 18px 18px 0; border-radius: 16px; }
+      .about-modal-head { padding: 16px 16px 12px; font-size: 16px; min-height: 48px; }
+      .about-modal-body { max-height: 70vh; overflow-y: auto; }
+      .about-content { padding: 18px 16px 0; gap: 6px; }
+      #aboutModal h2 { font-size: 22px; margin-bottom: 10px; }
+      #aboutModal h3 { font-size: 16px; margin: 16px 0 8px; }
+      #aboutModal p, #aboutModal ul { font-size: 14px; line-height: 1.55; }
+      #aboutModal ul { columns: 1; padding-left: 18px; }
+      #aboutModal ul li { font-size: 14px; }
+      .about-grid { grid-template-columns: 1fr; }
+      .about-card { grid-template-columns: 1fr; }
+      .about-card-icon { width: 32px; height: 32px; font-size: 16px; }
+      .about-link { width: 100%; justify-content: center; }
+      .about-divider { margin: 14px 0; }
+      .about-modal-actions { padding: 14px 16px 16px; }
+    }
   
 
     
@@ -1173,9 +1294,19 @@ dialog::backdrop { background: rgba(0, 0, 0, 0.35); }
     }
 
     @media (max-width: 600px) {
-      #settingsModal { width: min(420px, 88vw); }
-      #settingsModal .modal-body { padding: 18px 18px 16px; gap: 18px; }
-      #settingsModal .modal-actions { padding: 16px 18px 20px; }
+      #settingsModal { width: min(360px, 86vw); }
+      #settingsModal .modal-head { padding: 18px 18px 14px; font-size: 16px; }
+      #settingsModal .modal-body { padding: 16px 16px 14px; gap: 14px; }
+      #settingsModal .modal-actions { padding: 14px 16px 16px; }
+      .settings-card { padding: 14px 14px 12px; border-radius: 14px; gap: 10px; }
+      .settings-card-title { font-size: 15px; }
+      .settings-theme-btn, .settings-gpa-btn, .settings-estimate-btn {
+        font-size: 14px; padding: 7px 12px; border-radius: 10px;
+      }
+      .settings-theme-btnrow, .settings-toggle-row { flex-wrap: wrap; }
+      .settings-radio-row { flex-direction: column; gap: 10px; }
+      .settings-estimate-input { min-width: 0; width: 100%; justify-content: space-between; }
+      .settings-estimate-input input { width: 60px; }
       .settings-theme-btnrow { flex-wrap: wrap; }
       .settings-data-btnrow { flex-direction: column; align-items: stretch; }
       .settings-data-btnrow .btn-plain { width: 100%; justify-content: center; }
@@ -1784,8 +1915,17 @@ body.tour-lock #addCourseModal input:focus {
 
 @media (max-width: 640px) {
   .tour-card {
-    padding: 22px 20px;
+    width: min(420px, 86vw);
+    padding: 18px 16px;
+    border-radius: 20px;
   }
+
+  .tour-card h3 { font-size: 20px; }
+  .tour-card p { font-size: 14px; }
+  .tour-pill { font-size: 10px; padding: 4px 8px; margin-bottom: 10px; }
+  .tour-step { font-size: 12px; gap: 8px; }
+  .tour-dot { width: 7px; height: 7px; }
+  .tour-btn { font-size: 14px; padding: 8px 14px; border-radius: 14px; }
 
   .tour-footer {
     flex-direction: column;

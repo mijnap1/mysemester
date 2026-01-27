@@ -169,6 +169,7 @@
       cursor: pointer;
       transition: background 0.25s var(--ease), transform 0.2s var(--ease);
     }
+    button:hover { background: #1d4ed8; transform: translateY(-1px); }
 
 
     p {
@@ -264,12 +265,29 @@
     }
 
     @media (max-width: 600px) {
-      body { padding: 0 18px; }
-      .title { font-size: 38px; margin-bottom: 26px; }
-      .card { width: min(380px, 90vw); padding: 28px 22px; }
-      h1 { font-size: 24px; margin-bottom: 20px; }
+      *, *::before, *::after { box-sizing: border-box; }
+      body { min-height: 100svh; padding: 20px 16px 32px; }
+      .title { font-size: 38px; margin-bottom: 22px; line-height: 1.1; }
+      .card { width: min(380px, 90vw); padding: 26px 20px; }
+      h1 { font-size: 24px; margin-bottom: 16px; }
       form { gap: 14px; }
       .theme-toggle { top: 12px; right: 12px; }
       button[type="submit"] { width: 100%; }
+      .privacy-note {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 8px;
+        text-align: left;
+        margin-left: auto;
+        margin-right: auto;
+        max-width: 320px;
+      }
+      .privacy-note ion-icon { flex: 0 0 auto; margin-top: 2px; }
+    }
+
+    @media (max-width: 360px) {
+      .card { padding: 22px 16px; }
+      p { font-size: 13px; }
     }
   

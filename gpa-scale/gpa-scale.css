@@ -1,0 +1,173 @@
+:root {
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --blue: #2563eb;
+  --line: #e2e8f0;
+  --radius: 18px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Outfit', system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: radial-gradient(1200px 600px at 10% -10%, #dbeafe 0, rgba(219,234,254,0) 60%), var(--bg);
+  color: var(--text);
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  position: sticky;
+  top: 0;
+  background: rgba(248, 250, 252, 0.9);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+  z-index: 10;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  color: var(--text);
+  text-decoration: none;
+}
+.brand ion-icon { color: var(--blue); font-size: 22px; }
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 36px 20px 80px;
+  display: grid;
+  gap: 28px;
+}
+
+.hero {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 28px;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.4s var(--ease);
+}
+.kicker {
+  display: inline-flex;
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--blue);
+  background: #e7efff;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+.hero h1 { margin: 12px 0 8px; font-size: 32px; letter-spacing: -0.01em; }
+.hero p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.6; }
+.hero-actions { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 10px; }
+
+.primary-btn, .ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+}
+.primary-btn { background: var(--blue); color: #fff; }
+.ghost-btn { background: #fff; color: var(--text); border-color: var(--line); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.45s var(--ease);
+}
+.card-icon {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: #eef2ff;
+  color: var(--blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+.card h2 { margin: 0 0 6px; font-size: 18px; }
+.card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+.panel {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 22px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+.panel-head h2 { margin: 0 0 6px; font-size: 22px; }
+.panel-head p { margin: 0 0 18px; color: var(--muted); }
+
+.scale-list {
+  display: grid;
+  gap: 12px;
+}
+.scale-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #f8fafc;
+}
+.scale-row h3 { margin: 0 0 4px; font-size: 16px; }
+.scale-row p { margin: 0; color: var(--muted); font-size: 14px; }
+.pill {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--blue);
+  background: #e7efff;
+  padding: 6px 10px;
+  border-radius: 999px;
+}
+.panel-note {
+  margin-top: 14px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 840px) {
+  .grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .page { padding: 24px 16px 60px; }
+  .hero { padding: 20px; }
+  .hero h1 { font-size: 26px; }
+  .panel { padding: 18px; }
+  .scale-row { flex-direction: column; align-items: flex-start; }
+  .page-header { padding: 14px 16px; }
+}
