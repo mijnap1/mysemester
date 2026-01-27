@@ -305,6 +305,17 @@ body.tour-restrict .tour-allow * {
       line-height: 1.45;
       color: #475569;
     }
+    :root[data-theme="dark"] .sidebar-help {
+      background: #0f172a;
+      border-color: #334155;
+      color: #e2e8f0;
+    }
+    :root[data-theme="dark"] .sidebar-help-title {
+      color: #60a5fa;
+    }
+    :root[data-theme="dark"] .sidebar-help-text {
+      color: #cbd5e1;
+    }
 
   .profile-academic {
     display: grid;
