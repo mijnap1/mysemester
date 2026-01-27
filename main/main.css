@@ -710,7 +710,10 @@ dialog {
   padding: 0;
   position: relative;
 }
-dialog::backdrop { background: rgba(0, 0, 0, 0.35); }
+    dialog::backdrop { background: rgba(0, 0, 0, 0.35); }
+    body.dialog-lock {
+      overflow: hidden;
+    }
 .modal-head {
       padding: 18px 22px;
       border-bottom: 1px solid var(--line);

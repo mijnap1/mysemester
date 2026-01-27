@@ -76,6 +76,11 @@
       gpaSettingsCard.style.display = 'none';
     }
 
+    function updateDialogLock() {
+      const anyOpen = (settingsModal?.open || aboutModal?.open);
+      document.body.classList.toggle('dialog-lock', !!anyOpen);
+    }
+
     openSettingsBtn?.addEventListener('click', ()=>{
       settingsModal.showModal();
       settingsModal.scrollTop = 0;
@@ -83,9 +88,13 @@
       sidebar.classList.remove('show');
       overlay.classList.remove('show');
       syncSettingsModalUI();
+      updateDialogLock();
     });
-    closeSettingsBtn?.addEventListener('click', ()=>settingsModal.close());
-    settingsModal.addEventListener('close', ()=>{});
+    closeSettingsBtn?.addEventListener('click', ()=>{
+      settingsModal.close();
+      updateDialogLock();
+    });
+    settingsModal.addEventListener('close', updateDialogLock);
     document.addEventListener('keydown', (e)=>{
       if (e.key === 'Escape') settingsModal.close?.();
     });
@@ -400,9 +409,13 @@
       aboutModal.querySelector('.about-modal-body')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
       sidebar.classList.remove('show');
       overlay.classList.remove('show');
+      updateDialogLock();
     });
-    closeAboutBtn?.addEventListener('click', ()=>aboutModal.close());
-    aboutModal.addEventListener('close', ()=>{});
+    closeAboutBtn?.addEventListener('click', ()=>{
+      aboutModal.close();
+      updateDialogLock();
+    });
+    aboutModal.addEventListener('close', updateDialogLock);
     document.addEventListener('keydown', (e)=>{
       if (e.key === 'Escape') aboutModal.close?.();
     });
