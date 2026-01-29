@@ -138,6 +138,26 @@
       display: none;
       animation: fadeIn .3s var(--ease);
     }
+    .success {
+      color: #16a34a;
+      font-size: 14px;
+      display: none;
+      animation: fadeIn .3s var(--ease);
+    }
+    .link-btn {
+      background: transparent;
+      border: none;
+      color: var(--blue);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0;
+      margin-top: -6px;
+      display: none;
+    }
+    .link-btn:hover { text-decoration: underline; transform: translateY(-1px); background: transparent; }
+    .link-btn:focus { outline: none; background: transparent; }
+    #sendResetBtn { display: none; }
 
     
     body.dark {
@@ -204,6 +224,27 @@
 
     body.dark .theme-toggle {
       color: var(--muted);
+    }
+    .reset-mode #password,
+    .reset-mode #loginBtn {
+      display: none;
+    }
+    .reset-mode #forgotPassword {
+      display: none;
+    }
+    #backToLogin {
+      display: none;
+    }
+    .reset-mode #backToLogin {
+      display: inline-flex;
+    }
+    .reset-mode #forgotPassword,
+    .reset-mode #backToLogin { margin-top: 4px; }
+    .reset-mode #sendResetBtn {
+      display: inline-flex;
+      justify-content: center;
+      width: 90%;
+      margin: 0 auto;
     }
 
     @keyframes fadeIn {

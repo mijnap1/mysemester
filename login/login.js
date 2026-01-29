@@ -87,6 +87,33 @@
 
     const loginBtn = document.getElementById('loginBtn');
     const loginError = document.getElementById('loginError');
+    const resetSuccess = document.getElementById('resetSuccess');
+    const forgotPasswordBtn = document.getElementById('forgotPassword');
+    const backToLoginBtn = document.getElementById('backToLogin');
+    const sendResetBtn = document.getElementById('sendResetBtn');
+    let failedAttempts = 0;
+
+    function enterResetMode() {
+      document.body.classList.add('reset-mode');
+      if (resetSuccess) resetSuccess.style.display = 'none';
+      loginError.style.display = 'none';
+      if (forgotPasswordBtn) forgotPasswordBtn.style.display = 'none';
+      if (backToLoginBtn) backToLoginBtn.style.display = 'inline-flex';
+      if (sendResetBtn) sendResetBtn.style.display = 'inline-flex';
+      usernameInputEl.placeholder = 'Email or username';
+    }
+
+    function exitResetMode() {
+      document.body.classList.remove('reset-mode');
+      if (resetSuccess) resetSuccess.style.display = 'none';
+      loginError.style.display = 'none';
+      if (failedAttempts >= 2 && forgotPasswordBtn) {
+        forgotPasswordBtn.style.display = 'inline-flex';
+      }
+      if (backToLoginBtn) backToLoginBtn.style.display = 'none';
+      if (sendResetBtn) sendResetBtn.style.display = 'none';
+      usernameInputEl.placeholder = 'Username';
+    }
 
     const usernameInputEl = document.getElementById('username');
     const passwordInputEl = document.getElementById('password');
@@ -97,6 +124,7 @@
       const password = passwordInputEl.value.trim();
 
       loginError.style.display = 'none';
+      if (resetSuccess) resetSuccess.style.display = 'none';
 
       if (!supabaseClient) {
         supabaseClient = getSupabaseClient();
@@ -171,6 +199,10 @@
         if (signInError || !signInData?.user) {
           loginError.textContent = 'Invalid username, email, or password.';
           loginError.style.display = 'block';
+          failedAttempts += 1;
+          if (forgotPasswordBtn && failedAttempts >= 2) {
+            forgotPasswordBtn.style.display = 'inline-flex';
+          }
           return;
         }
 
@@ -193,6 +225,10 @@
           email: email,
           id: profileId,
         }));
+        failedAttempts = 0;
+        if (forgotPasswordBtn) {
+          forgotPasswordBtn.style.display = 'none';
+        }
 
         
         window.location.href = hasCompletedSetup() ? '/main/' : '/setup/';
@@ -204,6 +240,66 @@
         loginBtn.textContent = originalText;
         loginBtn.disabled = false;
       }
+    });
+
+    forgotPasswordBtn?.addEventListener('click', () => {
+      enterResetMode();
+    });
+
+    sendResetBtn?.addEventListener('click', async () => {
+      const usernameOrEmail = usernameInputEl.value.trim();
+      loginError.style.display = 'none';
+      if (resetSuccess) resetSuccess.style.display = 'none';
+
+      if (!supabaseClient) {
+        supabaseClient = getSupabaseClient();
+      }
+      if (!supabaseClient) {
+        loginError.textContent = 'Password reset is unavailable. Please check your connection and refresh.';
+        loginError.style.display = 'block';
+        return;
+      }
+      if (!usernameOrEmail) {
+        loginError.textContent = 'Enter your email or username to reset your password.';
+        loginError.style.display = 'block';
+        return;
+      }
+
+      try {
+        let emailToUse = null;
+        const { data: emailFromRpc, error: rpcError } = await supabaseClient
+          .rpc('get_email_by_username', { u: usernameOrEmail });
+
+        if (emailFromRpc) {
+          emailToUse = emailFromRpc;
+        }
+        if (!emailToUse && rpcError) {
+          console.warn('Username lookup failed:', rpcError.message);
+        }
+        if (!emailToUse) {
+          emailToUse = usernameOrEmail;
+        }
+
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(emailToUse, {
+          redirectTo: `${window.location.origin}/reset-password/`
+        });
+
+        if (error) {
+          loginError.textContent = error.message || 'Unable to send reset email.';
+          loginError.style.display = 'block';
+          return;
+        }
+
+        if (resetSuccess) resetSuccess.style.display = 'block';
+      } catch (err) {
+        console.error('Reset error:', err);
+        loginError.textContent = 'Unexpected error. Please try again.';
+        loginError.style.display = 'block';
+      }
+    });
+
+    backToLoginBtn?.addEventListener('click', () => {
+      exitResetMode();
     });
     })();
   

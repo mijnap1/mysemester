@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reset Password</title>
+  <link rel="icon" type="image/png" href="/mysemesterlogo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <link rel="stylesheet" href="reset-password.css">
+</head>
+<body>
+  <div class="title">MySemester</div>
+  <div class="card">
+    <h1>Reset Password</h1>
+    <p class="sub">Enter a new password for your account.</p>
+
+    <input type="password" id="newPassword" placeholder="New password" />
+    <input type="password" id="confirmPassword" placeholder="Confirm password" />
+
+    <div class="error" id="resetError">⚠ Please fill in both fields.</div>
+    <div class="success" id="resetSuccess">Password updated. You can now log in.</div>
+
+    <button id="resetBtn">Update Password</button>
+    <div class="small"><a href="/login/">Back to login</a></div>
+  </div>
+
+  <script src="reset-password.js" defer></script>
+</body>
+</html>
