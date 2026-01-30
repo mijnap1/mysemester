@@ -23,6 +23,34 @@
     return;
   }
 
+  async function initResetSession() {
+    const hash = window.location.hash.replace(/^#/, '');
+    const params = new URLSearchParams(hash);
+    const accessToken = params.get('access_token');
+    const refreshToken = params.get('refresh_token');
+    const code = new URLSearchParams(window.location.search).get('code');
+
+    try {
+      if (accessToken && refreshToken) {
+        const { error } = await supabaseClient.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken
+        });
+        if (error) throw error;
+      } else if (code) {
+        const { error } = await supabaseClient.auth.exchangeCodeForSession(code);
+        if (error) throw error;
+      }
+    } catch (err) {
+      console.error('Session init error:', err);
+      resetError.textContent = 'Reset link is invalid or expired. Request a new reset email.';
+      resetError.style.display = 'block';
+      resetBtn.disabled = true;
+    }
+  }
+
+  initResetSession();
+
   resetBtn.addEventListener('click', async () => {
     resetError.style.display = 'none';
     resetSuccess.style.display = 'none';
