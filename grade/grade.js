@@ -312,6 +312,7 @@ document.addEventListener('visibilitychange', () => {
           if (raw === '') {
             weights[i][type] = null;
             calcAvg();
+            scheduleAutoSave({ notify: type === 'grade' });
             return;
           }
 
@@ -327,6 +328,7 @@ document.addEventListener('visibilitychange', () => {
           if (!isNaN(num)) {
             weights[i][type] = num;
             calcAvg();
+            scheduleAutoSave({ notify: type === 'grade' });
           }
         };
 
@@ -339,6 +341,7 @@ document.addEventListener('visibilitychange', () => {
             e.target.value = '';
             weights[i][type] = null;
             calcAvg();
+            scheduleAutoSave({ notify: type === 'grade' });
             return;
           }
 
@@ -347,6 +350,7 @@ document.addEventListener('visibilitychange', () => {
             e.target.value = '';
             weights[i][type] = null;
             calcAvg();
+            scheduleAutoSave({ notify: type === 'grade' });
             return;
           }
 
@@ -358,6 +362,7 @@ document.addEventListener('visibilitychange', () => {
           e.target.value = formatted;
           weights[i][type] = num;
           calcAvg();
+          scheduleAutoSave({ notify: type === 'grade' });
         };
 
         
@@ -422,12 +427,14 @@ document.addEventListener('visibilitychange', () => {
       weights.push(newRow);
       renderTable();
       calcAvg();
+      scheduleAutoSave({ notify: false });
     }
 
     function removeAssessment(i) {
       weights.splice(i, 1);
       renderTable();
       calcAvg();
+      scheduleAutoSave({ notify: false });
     }
 
     function editWeight(i, cell) {
@@ -448,6 +455,7 @@ document.addEventListener('visibilitychange', () => {
           weights[i].weight = newWeight;
           renderTable();
           calcAvg();
+          scheduleAutoSave({ notify: false });
         } else cell.textContent = oldWeight;
       });
       input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
@@ -469,6 +477,7 @@ document.addEventListener('visibilitychange', () => {
         if (newName) {
           weights[i].name = newName;
           renderTable();
+          scheduleAutoSave({ notify: false });
         } else cell.textContent = oldName;
       });
       input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
@@ -519,6 +528,7 @@ document.addEventListener('visibilitychange', () => {
 
       renderEstimates();
       calcAvg();
+      scheduleAutoSave({ notify: false });
     }
 
     function renderEstimates() {
@@ -575,7 +585,25 @@ document.addEventListener('visibilitychange', () => {
     }
 
     
-    function saveCourseData() {
+    let autoSaveTimer = null;
+    let autoSaveInFlight = false;
+    let autoSaveNotify = false;
+
+    function scheduleAutoSave({ notify = false } = {}) {
+      if (autoSaveTimer) clearTimeout(autoSaveTimer);
+      autoSaveNotify = autoSaveNotify || notify;
+      autoSaveTimer = setTimeout(() => {
+        autoSaveTimer = null;
+        if (autoSaveInFlight) return;
+        autoSaveInFlight = true;
+        saveCourseData({ notify: autoSaveNotify });
+        autoSaveNotify = false;
+        autoSaveInFlight = false;
+      }, 650);
+    }
+
+    function saveCourseData(options = {}) {
+      const { notify = true } = options;
       
       let total = 0, totalWeight = 0;
       weights.forEach(w => {
@@ -609,11 +637,13 @@ document.addEventListener('visibilitychange', () => {
       syncCourseToCloud(payload);
 
       
-      const notif = document.getElementById('saveNotification');
-      if (notif) {
-        notif.textContent = 'Grades saved successfully!';
-        notif.classList.add('show');
-        setTimeout(() => notif.classList.remove('show'), 1600);
+      if (notify) {
+        const notif = document.getElementById('saveNotification');
+        if (notif) {
+          notif.textContent = 'Grades saved successfully!';
+          notif.classList.add('show');
+          setTimeout(() => notif.classList.remove('show'), 1600);
+        }
       }
 
       
