@@ -127,7 +127,6 @@
     }
     .toggle-password:hover,
     .toggle-password:focus {
-      
       transform: translateY(-50%) scale(1.1);
     }
     .toggle-password[aria-pressed="true"] {
@@ -169,7 +168,7 @@
       cursor: pointer;
       transition: background 0.25s var(--ease), transform 0.2s var(--ease);
     }
-    button:hover { background: #1d4ed8; transform: translateY(-1px); }
+    button:hover {transform: translateY(-1px); }
 
 
     p {
