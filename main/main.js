@@ -1114,13 +1114,49 @@
       if(act==='crncr') toggleCrncr(ctxCourseId);
     });
 
+    let undoTimer = null;
+    let pendingUndo = null;
+
+    function hideUndoToast() {
+      if (!undoToast) return;
+      undoToast.classList.remove('show');
+    }
+
+    function showUndoToast(course, index) {
+      if (!undoToast || !undoBtn || !undoText) return;
+      if (undoTimer) clearTimeout(undoTimer);
+      pendingUndo = { course, index };
+      undoText.textContent = `${course.code || 'Course'} removed.`;
+      undoToast.classList.add('show');
+      undoBtn.onclick = () => {
+        if (!pendingUndo) return;
+        const insertAt = Math.min(Math.max(pendingUndo.index, 0), state.courses.length);
+        state.courses.splice(insertAt, 0, pendingUndo.course);
+        save();
+        render();
+        pendingUndo = null;
+        if (undoTimer) clearTimeout(undoTimer);
+        hideUndoToast();
+      };
+      undoTimer = setTimeout(() => {
+        pendingUndo = null;
+        hideUndoToast();
+      }, 4500);
+    }
+
     function removeCourse(id){
       const card = [...document.querySelectorAll('.card')].find(c=>c.dataset.id===id);
       if(!confirm('Remove this course?')) return;
+      const idx = state.courses.findIndex(c => c.id === id);
+      const removedCourse = idx !== -1 ? state.courses[idx] : null;
       if(card){ card.classList.add('fade-out'); setTimeout(()=>{
         state.courses = state.courses.filter(c=>c.id!==id); save(); render();
+        if (removedCourse) showUndoToast(removedCourse, idx);
       }, 260); }
-      else { state.courses = state.courses.filter(c=>c.id!==id); save(); render(); }
+      else {
+        state.courses = state.courses.filter(c=>c.id!==id); save(); render();
+        if (removedCourse) showUndoToast(removedCourse, idx);
+      }
     }
     function duplicateCourse(id){
       const c = state.courses.find(x=>x.id===id); if(!c) return;
@@ -1413,6 +1449,9 @@
     const profilePasswordError = document.getElementById('profilePasswordError');
     const profileStatus = document.getElementById('profileStatus');
     const profileLastUpdated = document.getElementById('profileLastUpdated');
+    const undoToast = document.getElementById('undoToast');
+    const undoText = document.getElementById('undoText');
+    const undoBtn = document.getElementById('undoBtn');
 
     
     function getProfileUserKey() {

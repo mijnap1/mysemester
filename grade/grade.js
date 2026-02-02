@@ -26,6 +26,9 @@ const courseDescEl = document.getElementById('courseDesc');
 const courseCrncrTagEl = document.getElementById('courseCrncrTag');
 const gpaSummaryBlockEl = document.getElementById('gpaSummaryBlock');
 const estimateBtnEl = document.querySelector('.actions .estimate');
+const undoToastEl = document.getElementById('undoToast');
+const undoTextEl = document.getElementById('undoText');
+const undoBtnEl = document.getElementById('undoBtn');
 
 function getUniversityRules() {
   let university = '';
@@ -430,11 +433,44 @@ document.addEventListener('visibilitychange', () => {
       scheduleAutoSave({ notify: false });
     }
 
+    let undoTimer = null;
+    let pendingUndo = null;
+
+    function hideUndoToast() {
+      if (!undoToastEl) return;
+      undoToastEl.classList.remove('show');
+    }
+
+    function showUndoAssessment(removed, index) {
+      if (!undoToastEl || !undoBtnEl || !undoTextEl) return;
+      if (undoTimer) clearTimeout(undoTimer);
+      pendingUndo = { removed, index };
+      undoTextEl.textContent = `${removed.name || 'Assessment'} removed.`;
+      undoToastEl.classList.add('show');
+      undoBtnEl.onclick = () => {
+        if (!pendingUndo) return;
+        const insertAt = Math.min(Math.max(pendingUndo.index, 0), weights.length);
+        weights.splice(insertAt, 0, pendingUndo.removed);
+        renderTable();
+        calcAvg();
+        scheduleAutoSave({ notify: false });
+        pendingUndo = null;
+        if (undoTimer) clearTimeout(undoTimer);
+        hideUndoToast();
+      };
+      undoTimer = setTimeout(() => {
+        pendingUndo = null;
+        hideUndoToast();
+      }, 4500);
+    }
+
     function removeAssessment(i) {
+      const removed = weights[i];
       weights.splice(i, 1);
       renderTable();
       calcAvg();
       scheduleAutoSave({ notify: false });
+      if (removed) showUndoAssessment(removed, i);
     }
 
     function editWeight(i, cell) {
