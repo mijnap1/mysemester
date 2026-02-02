@@ -343,6 +343,7 @@
             <div>
               <label style="font-size:13px;font-weight:600;color:var(--muted);">Full Name</label>
               <input id="profileNameInput" type="text" placeholder="Full Name" />
+              <div class="profile-inline" id="profileNameError"></div>
             </div>
             <div>
               <label style="font-size:13px;font-weight:600;color:var(--muted);">Nickname</label>
@@ -354,6 +355,7 @@
             <div>
               <label style="font-size:13px;font-weight:600;color:var(--muted);">Email</label>
               <input id="profileEmailInput" type="email" placeholder="you@example.com" />
+              <div class="profile-inline" id="profileEmailError"></div>
             </div>
             <div>
               <label style="font-size:13px;font-weight:600;color:var(--muted);">Current Password</label>
@@ -381,11 +383,16 @@
                 <ion-icon name="eye-outline" class="pw-eye" data-target="profilePasswordInput"
                           style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--muted);cursor:pointer;"></ion-icon>
               </div>
+              <div class="profile-inline" id="profilePasswordError"></div>
             </div>
           </div>
         </div>
 
-        <div class="modal-actions" style="padding:18px 32px;display:flex;justify-content:flex-end;gap:12px;">
+        <div class="modal-actions" style="padding:18px 32px;display:flex;justify-content:space-between;gap:12px;align-items:center;">
+          <div class="profile-status-wrap">
+            <div class="profile-status" id="profileStatus" aria-live="polite"></div>
+            <div class="profile-updated" id="profileLastUpdated"></div>
+          </div>
           <button type="button" class="btn-plain" id="profileCancelBtn">Cancel</button>
           <button type="submit" class="btn-primary">Save Changes</button>
         </div>
