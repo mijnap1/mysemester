@@ -446,7 +446,6 @@ body.tour-restrict .tour-allow * {
       font-size: 18px;
       font-weight: 400;
     }
-
     .grid {
       display: flex;
       justify-content: center;
@@ -460,6 +459,25 @@ body.tour-restrict .tour-allow * {
     .grid.grid-empty {
       align-items: center;
       min-height: 340px;
+    }
+
+    .folder-card {
+      border: 2px solid #e2e8f0;
+      background: #f8fafc;
+    }
+    .folder-card:hover {
+      border-color: #c7d2fe;
+      background: #eef2ff;
+    }
+    .folder-card.drag-over {
+      outline: 2px dashed var(--blue);
+      outline-offset: 2px;
+    }
+    .hero-back {
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
     
     .empty-state-card {

@@ -486,7 +486,7 @@
     }
 
     
-    let state = { courses: [] };
+    let state = { courses: [], folders: [], currentFolderId: null };
 
     const uid = () => Math.random().toString(36).slice(2,9);
 
@@ -508,9 +508,12 @@
         try { state = JSON.parse(raw) || {courses:[]}; } catch(_) { state = {courses:[]}; }
       } else {
         
-        state = { courses: [] };
+        state = { courses: [], folders: [], currentFolderId: null };
         save();
       }
+      if (!Array.isArray(state.courses)) state.courses = [];
+      if (!Array.isArray(state.folders)) state.folders = [];
+      if (state.currentFolderId === undefined) state.currentFolderId = null;
     }
 
     function save(){
@@ -626,7 +629,8 @@
             title: course.title || '',
             icon: course.icon || 'book-outline',
             grade: typeof course.grade === 'number' ? course.grade : (Number.isFinite(parseFloat(course.grade)) ? parseFloat(course.grade) : null),
-            crncr: !!course.crncr
+            crncr: !!course.crncr,
+            folderId: course.folderId || null
           });
         });
 
@@ -640,7 +644,8 @@
             title: row.title || '',
             icon: row.icon || 'book-outline',
             grade: typeof row.grade === 'number' ? row.grade : (Number.isFinite(parseFloat(row.grade)) ? parseFloat(row.grade) : null),
-            crncr: !!row.crncr
+            crncr: !!row.crncr,
+            folderId: null
           });
         });
 
@@ -656,7 +661,8 @@
               title: localCourse.title || cloudCourse.title || '',
               icon: localCourse.icon || cloudCourse.icon || 'book-outline',
               grade: typeof localCourse.grade === 'number' ? localCourse.grade : (Number.isFinite(parseFloat(cloudCourse.grade)) ? parseFloat(cloudCourse.grade) : null),
-              crncr: typeof localCourse.crncr === 'boolean' ? localCourse.crncr : !!cloudCourse.crncr
+              crncr: typeof localCourse.crncr === 'boolean' ? localCourse.crncr : !!cloudCourse.crncr,
+              folderId: localCourse.folderId || null
             });
           } else {
             localMap.set(codeValue, cloudCourse);
@@ -877,13 +883,137 @@
     if (gpaLetterWrap) gpaLetterWrap.style.display = universityRules.showLetter ? '' : 'none';
 
     function render(){
-      grid.innerHTML='';
+      grid.innerHTML = '';
       grid.classList.remove('grid-empty');
       document.body.classList.remove('no-scroll-empty');
-      if (!state.courses.length) {
+
+      const inFolderView = !!state.currentFolderId;
+      const folderBackBtn = document.getElementById('folderBackBtn');
+      if (folderBackBtn) {
+        folderBackBtn.style.display = inFolderView ? 'inline-flex' : 'none';
+        folderBackBtn.onclick = () => {
+          state.currentFolderId = null;
+          save();
+          render();
+        };
+      }
+
+      const auth = getAuth();
+      const username = auth && auth.username ? auth.username : "guest";
+
+      function syncGradeFromLocal(c) {
+        const gradeKey = `grades_${username}_${c.code}_v3`;
+        const storedGradesRaw = localStorage.getItem(gradeKey);
+        if (storedGradesRaw) {
+          try {
+            const assessments = JSON.parse(storedGradesRaw);
+            if (Array.isArray(assessments)) {
+              if (assessments.length > 0) {
+                let totalWeighted = 0, totalWeight = 0;
+                assessments.forEach(a => {
+                  if (a.grade != null && !isNaN(a.grade)) {
+                    totalWeighted += a.grade * (a.weight || 0);
+                    totalWeight += (a.weight || 0);
+                  }
+                });
+                c.grade = totalWeight > 0 ? (totalWeighted / totalWeight) : null;
+              } else {
+                c.grade = null;
+              }
+            } else {
+              c.grade = null;
+            }
+          } catch(e) { console.error("Error parsing grades for", c.code, e); }
+        } else if (c.grade === 0) {
+          c.grade = null;
+        }
+      }
+
+      function buildCourseCard(c) {
+        syncGradeFromLocal(c);
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.dataset.id = c.id;
+        card.draggable = true;
+
+        const markId = 'm_'+c.id;
+        const creditLabel = universityRules.creditLabel || 'CR/NCR';
+        const creditEnabled = universityRules.creditAllowed && c.crncr;
+        const hasGrade = typeof c.grade === 'number' && !isNaN(c.grade);
+        const gradeText = hasGrade ? `${Math.round(c.grade)}%` : '—';
+        card.innerHTML = `
+          <ion-icon class="course-icon" name="${c.icon}"></ion-icon>
+          <div class="info">
+            <div class="code">${c.code}</div>
+            <div class="muted-sm">
+              ${c.title || ''}
+              ${creditEnabled ? `<span class="tag-crncr">${creditLabel}</span>` : ''}
+            </div>
+          </div>
+          <div class="mark"><span class="swap" id="${markId}">${gradeText}</span></div>
+        `;
+
+        card.addEventListener('contextmenu', (e)=> openCtx(e, c.id));
+        addLongPressCtx(card, c.id);
+        card.addEventListener('click', () => {
+          const courseData = {
+            code: c.code,
+            title: c.title || '',
+            icon: c.icon || 'book-outline',
+            crncr: universityRules.creditAllowed && !!c.crncr   
+          };
+          localStorage.setItem('selectedCourse', JSON.stringify(courseData));
+          window.location.href = `/grade/?course=${encodeURIComponent(c.code)}`;
+        });
+        card.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('text/plain', c.id);
+          e.dataTransfer.effectAllowed = 'move';
+        });
+        if (hasGrade) {
+          requestAnimationFrame(() => startSwap(document.getElementById(markId), c.grade));
+        }
+        return card;
+      }
+
+      function buildFolderCard(folder) {
+        const card = document.createElement('div');
+        card.className = 'card folder-card';
+        card.dataset.folderId = folder.id;
+        const count = state.courses.filter(c => c.folderId === folder.id).length;
+        card.innerHTML = `
+          <ion-icon class="course-icon" name="folder-outline"></ion-icon>
+          <div class="info">
+            <div class="code">${folder.name}</div>
+            <div class="muted-sm">${count} course${count === 1 ? '' : 's'}</div>
+          </div>
+        `;
+        card.addEventListener('click', () => {
+          state.currentFolderId = folder.id;
+          save();
+          render();
+        });
+        card.addEventListener('contextmenu', (e) => openFolderCtx(e, folder.id));
+        card.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          card.classList.add('drag-over');
+        });
+        card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+        card.addEventListener('drop', (e) => {
+          e.preventDefault();
+          card.classList.remove('drag-over');
+          const id = e.dataTransfer.getData('text/plain');
+          const course = state.courses.find(c => c.id === id);
+          if (!course) return;
+          course.folderId = folder.id;
+          save();
+          render();
+        });
+        return card;
+      }
+
+      if (!state.courses.length && !state.folders.length) {
         grid.classList.add('grid-empty');
         document.body.classList.add('no-scroll-empty');
-        
         const empty = document.createElement('div');
         empty.className = 'empty-state-card';
         empty.innerHTML = `
@@ -902,84 +1032,21 @@
           iconPreview.setAttribute('name','book-outline');
           addCourseModal.showModal();
         });
-      } else {
-        for(const c of state.courses){
-          
-          const auth = getAuth();
-          const username = auth && auth.username ? auth.username : "guest";
-          const gradeKey = `grades_${username}_${c.code}_v3`;
-          const storedGradesRaw = localStorage.getItem(gradeKey);
-          if (storedGradesRaw) {
-            try {
-              const assessments = JSON.parse(storedGradesRaw);
-              if (Array.isArray(assessments)) {
-                if (assessments.length > 0) {
-                  let totalWeighted = 0, totalWeight = 0;
-                  assessments.forEach(a => {
-                    if (a.grade != null && !isNaN(a.grade)) {
-                      totalWeighted += a.grade * (a.weight || 0);
-                      totalWeight += (a.weight || 0);
-                    }
-                  });
-                  if (totalWeight > 0) {
-                    c.grade = totalWeighted / totalWeight;
-                  } else {
-                    c.grade = null;
-                  }
-                } else {
-                  c.grade = null;
-                }
-              } else {
-                c.grade = null;
-              }
-            } catch(e) { console.error("Error parsing grades for", c.code, e); }
-          } else if (c.grade === 0) {
-            c.grade = null;
-          }
+        recomputeOverview();
+        return;
+      }
 
-          const card = document.createElement('div');
-          card.className = 'card';
-          card.dataset.id = c.id;
+      if (!inFolderView) {
+        state.folders.forEach(folder => grid.appendChild(buildFolderCard(folder)));
+      }
 
-          const markId = 'm_'+c.id;
-          const creditLabel = universityRules.creditLabel || 'CR/NCR';
-          const creditEnabled = universityRules.creditAllowed && c.crncr;
-          const hasGrade = typeof c.grade === 'number' && !isNaN(c.grade);
-          const gradeText = hasGrade ? `${Math.round(c.grade)}%` : '—';
-          card.innerHTML = `
-            <ion-icon class="course-icon" name="${c.icon}"></ion-icon>
-            <div class="info">
-              <div class="code">${c.code}</div>
-              <div class="muted-sm">
-                ${c.title || ''}
-                ${creditEnabled ? `<span class="tag-crncr">${creditLabel}</span>` : ''}
-              </div>
-            </div>
-            <div class="mark"><span class="swap" id="${markId}">${gradeText}</span></div>
-          `;
+      const visibleCourses = inFolderView
+        ? state.courses.filter(c => c.folderId === state.currentFolderId)
+        : state.courses.filter(c => !c.folderId);
 
-          
-          card.addEventListener('contextmenu', (e)=> openCtx(e, c.id));
-          addLongPressCtx(card, c.id);
+      visibleCourses.forEach(c => grid.appendChild(buildCourseCard(c)));
 
-          
-          card.addEventListener('click', () => {
-            const courseData = {
-              code: c.code,
-              title: c.title || '',
-              icon: c.icon || 'book-outline',
-              crncr: universityRules.creditAllowed && !!c.crncr   
-            };
-            localStorage.setItem('selectedCourse', JSON.stringify(courseData));
-            window.location.href = `/grade/?course=${encodeURIComponent(c.code)}`;
-          });
-
-          grid.appendChild(card);
-          if (hasGrade) {
-            startSwap(document.getElementById(markId), c.grade);
-          }
-        }
-
+      if (!inFolderView) {
         const addCard = document.createElement('button');
         addCard.type = 'button';
         addCard.className = 'card add-course-card';
@@ -999,6 +1066,21 @@
         });
         grid.appendChild(addCard);
       }
+
+      grid.ondragover = (e) => {
+        if (!inFolderView) return;
+        e.preventDefault();
+      };
+      grid.ondrop = (e) => {
+        if (!inFolderView) return;
+        const id = e.dataTransfer.getData('text/plain');
+        const course = state.courses.find(c => c.id === id);
+        if (!course) return;
+        course.folderId = null;
+        save();
+        render();
+      };
+
       recomputeOverview();
     }
 
@@ -1026,9 +1108,11 @@
 
     
     const ctx = document.getElementById('ctxMenu');
+    const folderCtx = document.getElementById('folderCtxMenu');
     const ctxCrncrLabelEl = document.getElementById('ctxCrncrLabel');
     const ctxCrncrBtn = ctx ? ctx.querySelector('button[data-act="crncr"]') : null;
     let ctxCourseId = null;
+    let ctxFolderId = null;
     function addLongPressCtx(card, id){
       let timer = null;
       let startX = 0;
@@ -1105,6 +1189,21 @@
       ctx.style.left = left + 'px'; ctx.style.top = top + 'px';
     }
     function onDocClickClose(){ ctx.classList.remove('show'); }
+    function positionFolderCtx(x,y){
+      if (!folderCtx) return;
+      const pad = 8; const w = folderCtx.offsetWidth || 200; const h = folderCtx.offsetHeight || 120;
+      const vw = window.innerWidth, vh = window.innerHeight; let left = x, top = y;
+      if(left + w + pad > vw) left = vw - w - pad; if(top + h + pad > vh) top = vh - h - pad;
+      folderCtx.style.left = left + 'px'; folderCtx.style.top = top + 'px';
+    }
+    function openFolderCtx(e, id){
+      if (!folderCtx) return;
+      e.preventDefault();
+      ctxFolderId = id;
+      positionFolderCtx(e.clientX, e.clientY);
+      folderCtx.classList.add('show');
+      document.addEventListener('click', () => folderCtx.classList.remove('show'), { once: true });
+    }
 
     ctx.addEventListener('click', (e)=>{
       const btn = e.target.closest('button'); if(!btn) return; const act = btn.dataset.act; ctx.classList.remove('show');
@@ -1112,6 +1211,29 @@
       if(act==='dup') duplicateCourse(ctxCourseId);
       if(act==='edit') editCourse(ctxCourseId);
       if(act==='crncr') toggleCrncr(ctxCourseId);
+    });
+    folderCtx?.addEventListener('click', (e) => {
+      const btn = e.target.closest('button'); if(!btn) return;
+      const act = btn.dataset.act;
+      folderCtx.classList.remove('show');
+      const folder = state.folders.find(f => f.id === ctxFolderId);
+      if (!folder) return;
+      if (act === 'rename') {
+        const next = prompt('Rename folder', folder.name);
+        if (next && next.trim()) {
+          folder.name = next.trim();
+          save();
+          render();
+        }
+      }
+      if (act === 'del') {
+        if (!confirm(`Delete folder "${folder.name}"? Courses will become unassigned.`)) return;
+        state.folders = state.folders.filter(f => f.id !== ctxFolderId);
+        state.courses.forEach(c => { if (c.folderId === ctxFolderId) c.folderId = null; });
+        if (state.currentFolderId === ctxFolderId) state.currentFolderId = null;
+        save();
+        render();
+      }
     });
 
     let undoTimer = null;
@@ -1184,6 +1306,7 @@
     const sidebar = document.getElementById('sidebar');
     const overlay = document.getElementById('overlay');
     const openAddCourse = document.getElementById('openAddCourse');
+    const openAddFolder = document.getElementById('openAddFolder');
 
     const addCourseModal = document.getElementById('addCourseModal');
     const addCourseForm = document.getElementById('addCourseForm');
@@ -1206,6 +1329,7 @@
       sidebar.classList.remove('show');
       overlay.classList.remove('show');
       ctx.classList.remove('show');
+      folderCtx?.classList.remove('show');
       accountDd.classList.remove('show');
     });
     document.addEventListener('keydown', (e) => {
@@ -1214,6 +1338,7 @@
         overlay.classList.remove('show');
         addCourseModal.close?.();
         ctx.classList.remove('show');
+        folderCtx?.classList.remove('show');
         accountDd.classList.remove('show');
       }
     });
@@ -1222,6 +1347,19 @@
       editingId = null; modalTitle.textContent = 'Add Course';
       addCourseForm.reset(); iconPreview.setAttribute('name','book-outline');
       addCourseModal.showModal();
+    });
+    openAddFolder?.addEventListener('click', () => {
+      const name = prompt('Folder name');
+      if (!name || !name.trim()) return;
+      const trimmed = name.trim();
+      const exists = state.folders.some(f => f.name.toLowerCase() === trimmed.toLowerCase());
+      if (exists) {
+        alert('A folder with that name already exists.');
+        return;
+      }
+      state.folders.push({ id: uid(), name: trimmed, collapsed: false });
+      save();
+      render();
     });
 
     cancelCourse.addEventListener('click', ()=>{
@@ -1313,7 +1451,7 @@
         const c = state.courses.find(x=>x.id===editingId);
         if(c){ c.code = normCode; c.title = title; c.icon = autoIcon(normCode, icon); c.grade = grade; }
       } else {
-        state.courses.push({ id: uid(), code: normCode, title, icon: autoIcon(normCode, icon), grade: grade ?? null, crncr: false });
+        state.courses.push({ id: uid(), code: normCode, title, icon: autoIcon(normCode, icon), grade: grade ?? null, crncr: false, folderId: null });
       }
       save(); render(); addCourseModal.close(); sidebar.classList.remove('show'); overlay.classList.remove('show');
       
@@ -1326,11 +1464,13 @@
         if (!userAuth) return;
         const key = getUserSpecificKey(LS_KEY);
         const updatedStateRaw = localStorage.getItem(key);
-        let updatedCourses = [];
+        let updatedState = { courses: [], folders: [], currentFolderId: null };
         if (updatedStateRaw) {
-          try { updatedCourses = JSON.parse(updatedStateRaw).courses || []; } catch(e) { updatedCourses = []; }
+          try { updatedState = JSON.parse(updatedStateRaw) || updatedState; } catch(e) {}
         }
-        state.courses = updatedCourses;
+        state.courses = Array.isArray(updatedState.courses) ? updatedState.courses : [];
+        state.folders = Array.isArray(updatedState.folders) ? updatedState.folders : [];
+        state.currentFolderId = updatedState.currentFolderId || null;
         render();
         console.log("Synced latest grades across tabs/pages");
       }

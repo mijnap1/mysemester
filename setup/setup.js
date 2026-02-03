@@ -42,7 +42,8 @@ const steps = [
       'University of Waterloo',
       'University of Alberta',
       'McMaster University',
-      'University of Ottawa'
+      'University of Ottawa',
+      'York University'
     ]
   },
   {

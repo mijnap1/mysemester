@@ -65,6 +65,7 @@
 
   <aside class="sidebar" id="sidebar" aria-label="Sidebar Navigation">
     <button class="navbtn green" id="openAddCourse"><ion-icon name="add-circle-outline"></ion-icon> Add Course</button>
+    <button class="navbtn blue" id="openAddFolder"><ion-icon name="folder-outline"></ion-icon> New Folder</button>
     <button class="navbtn blue" id="openSettings"><ion-icon name="settings-outline"></ion-icon> Settings</button>
     <button class="navbtn gray" id="openAbout"><ion-icon name="information-circle-outline"></ion-icon> About</button>
     <div class="sidebar-help">
@@ -241,6 +242,10 @@
     <section class="hero">
       <h2 id="welcomeTitle">Welcome, Jamie</h2>
       <p>Courses and academic overview</p>
+      <button type="button" class="btn-plain hero-back" id="folderBackBtn" style="display:none;">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+        Back to all courses
+      </button>
     </section>
 
     <section class="grid" id="courseGrid"></section>
@@ -397,7 +402,7 @@
           <button type="submit" class="btn-primary">Save Changes</button>
         </div>
       </form>
-    </dialog></main><div class="ctx" id="ctxMenu" role="menu">
+  </dialog></main><div class="ctx" id="ctxMenu" role="menu">
     <button type="button" data-act="edit"><ion-icon name="create-outline"></ion-icon> Edit course</button>
     <button type="button" data-act="dup"><ion-icon name="copy-outline"></ion-icon> Duplicate</button>
     <button type="button" data-act="crncr">
@@ -405,6 +410,10 @@
       <span id="ctxCrncrLabel">Set CR/NCR</span>
     </button>
     <button type="button" class="danger" data-act="del"><ion-icon name="trash-outline"></ion-icon> Remove</button>
+  </div>
+  <div class="ctx" id="folderCtxMenu" role="menu">
+    <button type="button" data-act="rename"><ion-icon name="pencil-outline"></ion-icon> Rename folder</button>
+    <button type="button" class="danger" data-act="del"><ion-icon name="trash-outline"></ion-icon> Delete folder</button>
   </div><dialog id="addCourseModal">
     <form id="addCourseForm">
       <div class="modal-head"><ion-icon name="add-circle-outline"></ion-icon> <span id="modalTitle">Add Course</span></div>
