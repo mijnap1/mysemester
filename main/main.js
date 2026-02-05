@@ -985,12 +985,22 @@
           <div class="info">
             <div class="code">${folder.name}</div>
             <div class="muted-sm">${count} course${count === 1 ? '' : 's'}</div>
+            <div class="folder-hint">Click to open · Drag courses here</div>
           </div>
+          <span class="folder-badge">${count}</span>
         `;
         card.addEventListener('click', () => {
           state.currentFolderId = folder.id;
           save();
           render();
+        });
+        card.addEventListener('dblclick', () => {
+          const next = prompt('Rename folder', folder.name);
+          if (next && next.trim()) {
+            folder.name = next.trim();
+            save();
+            render();
+          }
         });
         card.addEventListener('contextmenu', (e) => openFolderCtx(e, folder.id));
         card.addEventListener('dragover', (e) => {
@@ -1036,8 +1046,9 @@
         return;
       }
 
+      const sortedFolders = [...state.folders].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
       if (!inFolderView) {
-        state.folders.forEach(folder => grid.appendChild(buildFolderCard(folder)));
+        sortedFolders.forEach(folder => grid.appendChild(buildFolderCard(folder)));
       }
 
       const visibleCourses = inFolderView
@@ -1045,6 +1056,18 @@
         : state.courses.filter(c => !c.folderId);
 
       visibleCourses.forEach(c => grid.appendChild(buildCourseCard(c)));
+      if (inFolderView && visibleCourses.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state-card';
+        empty.innerHTML = `
+          <div class="empty-plus-badge">
+            <ion-icon name="folder-open-outline"></ion-icon>
+          </div>
+          <div class="empty-title">This folder is empty</div>
+          <div class="empty-desc">Drag a course into the folder to get started.</div>
+        `;
+        grid.appendChild(empty);
+      }
 
       if (!inFolderView) {
         const addCard = document.createElement('button');

@@ -473,6 +473,29 @@ body.tour-restrict .tour-allow * {
       outline: 2px dashed var(--blue);
       outline-offset: 2px;
     }
+    .folder-badge {
+      position: absolute;
+      top: 14px;
+      right: 16px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 999px;
+    }
+    .folder-hint {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--muted);
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+    }
+    .folder-card:hover .folder-hint {
+      opacity: 1;
+      transform: translateY(0);
+    }
     .hero-back {
       margin-top: 12px;
       display: inline-flex;
