@@ -854,7 +854,11 @@
     }
 
     function recomputeOverview(){
-      const counted = state.courses.filter(c => !(universityRules.creditAllowed && c.crncr));
+      const inFolderView = !!state.currentFolderId;
+      const scopedCourses = inFolderView
+        ? state.courses.filter(c => c.folderId === state.currentFolderId)
+        : state.courses;
+      const counted = scopedCourses.filter(c => !(universityRules.creditAllowed && c.crncr));
       const graded = counted.filter(c => typeof c.grade === 'number' && !isNaN(c.grade));
       if(!graded.length){
         gpa4.textContent='—';
