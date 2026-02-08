@@ -1334,6 +1334,12 @@
     const overlay = document.getElementById('overlay');
     const openAddCourse = document.getElementById('openAddCourse');
     const openAddFolder = document.getElementById('openAddFolder');
+    const openBulkImport = document.getElementById('openBulkImport');
+    const bulkImportModal = document.getElementById('bulkImportModal');
+    const bulkImportInput = document.getElementById('bulkImportInput');
+    const bulkImportError = document.getElementById('bulkImportError');
+    const bulkImportCancel = document.getElementById('bulkImportCancel');
+    const bulkImportSave = document.getElementById('bulkImportSave');
 
     const addCourseModal = document.getElementById('addCourseModal');
     const addCourseForm = document.getElementById('addCourseForm');
@@ -1387,6 +1393,127 @@
       state.folders.push({ id: uid(), name: trimmed, collapsed: false });
       save();
       render();
+    });
+    function parseCsvLine(line) {
+      const out = [];
+      let current = '';
+      let inQuotes = false;
+      for (let i = 0; i < line.length; i += 1) {
+        const ch = line[i];
+        if (ch === '"') {
+          if (inQuotes && line[i + 1] === '"') {
+            current += '"';
+            i += 1;
+          } else {
+            inQuotes = !inQuotes;
+          }
+          continue;
+        }
+        if (ch === ',' && !inQuotes) {
+          out.push(current.trim());
+          current = '';
+          continue;
+        }
+        current += ch;
+      }
+      out.push(current.trim());
+      return out;
+    }
+    function showBulkImportError(msg) {
+      if (!bulkImportError) return;
+      bulkImportError.textContent = msg;
+      bulkImportError.style.display = 'block';
+    }
+    openBulkImport?.addEventListener('click', () => {
+      if (!bulkImportModal || !bulkImportInput) return;
+      bulkImportInput.value = '';
+      if (bulkImportError) bulkImportError.style.display = 'none';
+      bulkImportModal.showModal();
+      setTimeout(() => bulkImportInput.focus(), 0);
+    });
+    bulkImportCancel?.addEventListener('click', () => {
+      bulkImportModal?.close();
+    });
+    bulkImportSave?.addEventListener('click', () => {
+      if (!bulkImportInput) return;
+      if (bulkImportError) bulkImportError.style.display = 'none';
+
+      const raw = bulkImportInput.value.trim();
+      if (!raw) {
+        showBulkImportError('Paste CSV rows to import.');
+        return;
+      }
+
+      const lines = raw.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+      if (!lines.length) {
+        showBulkImportError('Paste CSV rows to import.');
+        return;
+      }
+
+      let rows = lines;
+      const first = parseCsvLine(lines[0]).map(v => v.toLowerCase());
+      if (first[0] === 'code') {
+        rows = lines.slice(1);
+      }
+      if (!rows.length) {
+        showBulkImportError('No data rows found after header.');
+        return;
+      }
+
+      const folderMap = new Map(state.folders.map(f => [f.name.toLowerCase(), f.id]));
+      const existingCodes = new Set(state.courses.map(c => (c.code || '').toUpperCase()));
+      let imported = 0;
+      let skipped = 0;
+
+      rows.forEach((line) => {
+        const cols = parseCsvLine(line);
+        const code = (cols[0] || '').trim().toUpperCase();
+        if (!code || existingCodes.has(code)) {
+          skipped += 1;
+          return;
+        }
+        const title = (cols[1] || '').trim();
+        const gradeRaw = (cols[2] || '').trim();
+        const icon = autoIcon(code, (cols[3] || '').trim() || 'book-outline');
+        const folderName = (cols[4] || '').trim();
+
+        let folderId = null;
+        if (folderName) {
+          const key = folderName.toLowerCase();
+          folderId = folderMap.get(key) || null;
+          if (!folderId) {
+            folderId = uid();
+            state.folders.push({ id: folderId, name: folderName, collapsed: false });
+            folderMap.set(key, folderId);
+          }
+        }
+
+        const parsedGrade = gradeRaw === '' ? null : Number(gradeRaw);
+        const grade = Number.isFinite(parsedGrade)
+          ? Math.max(0, Math.min(100, parsedGrade))
+          : null;
+
+        state.courses.push({
+          id: uid(),
+          code,
+          title,
+          icon,
+          grade,
+          crncr: false,
+          folderId
+        });
+        existingCodes.add(code);
+        imported += 1;
+      });
+
+      if (!imported) {
+        showBulkImportError('No new courses imported. Check duplicates and CSV format.');
+        return;
+      }
+
+      save();
+      render();
+      bulkImportModal?.close();
     });
 
     cancelCourse.addEventListener('click', ()=>{

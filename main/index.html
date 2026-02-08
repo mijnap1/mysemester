@@ -224,6 +224,7 @@
         <div class="settings-data-btnrow">
           <button type="button" class="btn-plain" id="exportCoursesBtn"><ion-icon name="download-outline"></ion-icon> Export Courses</button>
           <button type="button" class="btn-plain" id="importCoursesBtn"><ion-icon name="cloud-upload-outline"></ion-icon> Import Courses</button>
+          <button type="button" class="btn-plain" id="openBulkImport"><ion-icon name="document-text-outline"></ion-icon> Bulk Import (CSV)</button>
           <button type="button" class="btn-plain danger" id="resetDataBtn"><ion-icon name="refresh-outline"></ion-icon> Reset All Data</button>
         </div>
         <input type="file"
@@ -458,8 +459,21 @@
     </form>
     <div class="tour-modal-mask" aria-hidden="true"></div>
   </dialog>
-
-</dialog>
+  <dialog id="bulkImportModal">
+    <div class="modal-head">
+      <ion-icon name="document-text-outline"></ion-icon>
+      <span>Bulk Import Courses</span>
+    </div>
+    <div class="modal-body">
+      <p class="bulk-import-help">Paste CSV with columns: <strong>code,title,grade,icon,folder</strong>. Only <strong>code</strong> is required.</p>
+      <textarea id="bulkImportInput" placeholder="CSC108,Intro to CS,84,laptop-outline,Fall 2026"></textarea>
+      <div class="error" id="bulkImportError">Please paste at least one valid row.</div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-plain" id="bulkImportCancel">Cancel</button>
+      <button type="button" class="btn-primary" id="bulkImportSave">Import</button>
+    </div>
+  </dialog>
 
 <div class="tour-overlay" id="tourOverlay" aria-hidden="true">
   <div class="tour-card no-arrow" role="dialog" aria-live="polite">

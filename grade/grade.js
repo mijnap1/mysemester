@@ -29,6 +29,8 @@ const estimateBtnEl = document.querySelector('.actions .estimate');
 const undoToastEl = document.getElementById('undoToast');
 const undoTextEl = document.getElementById('undoText');
 const undoBtnEl = document.getElementById('undoBtn');
+const weightNotificationEl = document.getElementById('weightNotification');
+let hasShownOverweightNotice = false;
 
 function getUniversityRules() {
   let university = '';
@@ -421,9 +423,11 @@ document.addEventListener('visibilitychange', () => {
     }
 
     function addAssessment() {
+      const usedWeight = weights.reduce((sum, item) => sum + (parseFloat(item.weight) || 0), 0);
+      const remainingWeight = Math.max(0, 100 - usedWeight);
       const newRow = {
         name: `Assessment ${weights.length + 1}`,
-        weight: 10,
+        weight: Math.min(10, Math.round(remainingWeight * 100) / 100),
         grade: null,
         estimate: null
       };
@@ -487,8 +491,14 @@ document.addEventListener('visibilitychange', () => {
 
       input.addEventListener('blur', () => {
         const newWeight = parseFloat(input.value);
-        if (!isNaN(newWeight) && newWeight >= 0 && newWeight <= 100) {
-          weights[i].weight = newWeight;
+        if (!isNaN(newWeight) && newWeight >= 0) {
+          const otherTotal = weights.reduce((sum, item, idx) => {
+            if (idx === i) return sum;
+            return sum + (parseFloat(item.weight) || 0);
+          }, 0);
+          const maxAllowed = Math.max(0, 100 - otherTotal);
+          const adjusted = Math.min(newWeight, maxAllowed);
+          weights[i].weight = Math.round(adjusted * 100) / 100;
           renderTable();
           calcAvg();
           scheduleAutoSave({ notify: false });
@@ -577,8 +587,9 @@ document.addEventListener('visibilitychange', () => {
     }
 
     function calcAvg() {
-      let total = 0, totalWeight = 0;
+      let total = 0, totalWeight = 0, assignedWeight = 0;
       weights.forEach(w => {
+        assignedWeight += parseFloat(w.weight) || 0;
         if (w.grade != null && w.grade !== '') {
           total += (w.grade * w.weight);
           totalWeight += w.weight;
@@ -600,6 +611,22 @@ document.addEventListener('visibilitychange', () => {
           (letter === 'C+' || letter === 'C' || letter === 'C-' || letter.startsWith('D') || letter === 'F')
             ? '#dc2626'
             : '#22c55e';
+      }
+
+      if (weightNotificationEl) {
+        const overweight = assignedWeight > 100;
+        if (overweight && !hasShownOverweightNotice) {
+          weightNotificationEl.classList.add('show');
+          setTimeout(() => {
+            weightNotificationEl.classList.remove('show');
+          }, 1800);
+        }
+        if (!overweight) {
+          hasShownOverweightNotice = false;
+          weightNotificationEl.classList.remove('show');
+        } else {
+          hasShownOverweightNotice = true;
+        }
       }
 
       
