@@ -70,6 +70,144 @@
     const importCoursesBtn = document.getElementById('importCoursesBtn');
     const resetDataBtn = document.getElementById('resetDataBtn');
     const importCoursesFileInput = document.getElementById('importCoursesFile');
+    const appConfirmModal = document.getElementById('appConfirmModal');
+    const appConfirmTitle = document.getElementById('appConfirmTitle');
+    const appConfirmMessage = document.getElementById('appConfirmMessage');
+    const appConfirmCancel = document.getElementById('appConfirmCancel');
+    const appConfirmOk = document.getElementById('appConfirmOk');
+    const appInputModal = document.getElementById('appInputModal');
+    const appInputForm = document.getElementById('appInputForm');
+    const appInputTitle = document.getElementById('appInputTitle');
+    const appInputMessage = document.getElementById('appInputMessage');
+    const appInputField = document.getElementById('appInputField');
+    const appInputError = document.getElementById('appInputError');
+    const appInputCancel = document.getElementById('appInputCancel');
+    const appInputOk = document.getElementById('appInputOk');
+    const appToast = document.getElementById('appToast');
+
+    function showToast(message, type = 'info', duration = 2600) {
+      if (!appToast) return;
+      appToast.textContent = message;
+      appToast.classList.remove('show', 'is-success', 'is-error');
+      if (type === 'success') appToast.classList.add('is-success');
+      if (type === 'error') appToast.classList.add('is-error');
+      requestAnimationFrame(() => appToast.classList.add('show'));
+      setTimeout(() => {
+        appToast.classList.remove('show');
+      }, duration);
+    }
+
+    function askConfirm({
+      title = 'Confirm action',
+      message = 'Are you sure?',
+      confirmText = 'Confirm',
+      cancelText = 'Cancel',
+      confirmTone = 'primary',
+      showCancel = true
+    } = {}) {
+      if (!appConfirmModal || !appConfirmOk) {
+        return Promise.resolve(window.confirm(message));
+      }
+      return new Promise((resolve) => {
+        appConfirmTitle.textContent = title;
+        appConfirmMessage.textContent = message;
+        appConfirmOk.textContent = confirmText;
+        appConfirmOk.classList.toggle('danger', confirmTone === 'danger');
+        if (appConfirmCancel) {
+          appConfirmCancel.textContent = cancelText;
+          appConfirmCancel.style.display = showCancel ? '' : 'none';
+        }
+
+        const cleanup = () => {
+          appConfirmModal.removeEventListener('close', onClose);
+          appConfirmCancel?.removeEventListener('click', onCancel);
+          appConfirmOk.removeEventListener('click', onOk);
+        };
+        const onCancel = () => appConfirmModal.close('cancel');
+        const onOk = () => appConfirmModal.close('confirm');
+        const onClose = () => {
+          const confirmed = appConfirmModal.returnValue === 'confirm';
+          cleanup();
+          updateDialogLock();
+          resolve(confirmed);
+        };
+
+        appConfirmCancel?.addEventListener('click', onCancel);
+        appConfirmOk.addEventListener('click', onOk);
+        appConfirmModal.addEventListener('close', onClose);
+        appConfirmModal.showModal();
+        updateDialogLock();
+        setTimeout(() => appConfirmOk.focus(), 0);
+      });
+    }
+
+    function showNotice(message, title = 'Notice') {
+      return askConfirm({
+        title,
+        message,
+        confirmText: 'OK',
+        showCancel: false
+      });
+    }
+
+    function askInput({
+      title = 'Enter value',
+      message = 'Provide a value below.',
+      initialValue = '',
+      placeholder = '',
+      confirmText = 'Save',
+      validate = null
+    } = {}) {
+      if (!appInputModal || !appInputField || !appInputForm) {
+        const raw = window.prompt(message, initialValue);
+        return Promise.resolve(raw == null ? null : raw.trim());
+      }
+      return new Promise((resolve) => {
+        appInputTitle.textContent = title;
+        appInputMessage.textContent = message;
+        appInputField.value = initialValue;
+        appInputField.placeholder = placeholder;
+        appInputOk.textContent = confirmText;
+        appInputError.style.display = 'none';
+        appInputError.textContent = '';
+
+        const cleanup = () => {
+          appInputForm.removeEventListener('submit', onSubmit);
+          appInputCancel?.removeEventListener('click', onCancel);
+          appInputModal.removeEventListener('close', onClose);
+        };
+        const onCancel = () => appInputModal.close('cancel');
+        const onSubmit = (e) => {
+          e.preventDefault();
+          const nextValue = appInputField.value.trim();
+          const errorMessage = typeof validate === 'function' ? validate(nextValue) : '';
+          if (errorMessage) {
+            appInputError.textContent = errorMessage;
+            appInputError.style.display = 'block';
+            appInputField.focus();
+            return;
+          }
+          appInputModal.close('confirm');
+        };
+        const onClose = () => {
+          const wasConfirmed = appInputModal.returnValue === 'confirm';
+          const value = wasConfirmed ? appInputField.value.trim() : null;
+          cleanup();
+          updateDialogLock();
+          resolve(value);
+        };
+
+        appInputForm.addEventListener('submit', onSubmit);
+        appInputCancel?.addEventListener('click', onCancel);
+        appInputModal.addEventListener('close', onClose);
+        appInputModal.showModal();
+        updateDialogLock();
+        setTimeout(() => {
+          appInputField.focus();
+          appInputField.select();
+        }, 0);
+      });
+    }
 
     
     if (gpaSettingsCard && !universityRules.showGpa) {
@@ -77,8 +215,8 @@
     }
 
     function updateDialogLock() {
-      const anyOpen = (settingsModal?.open || aboutModal?.open);
-      document.body.classList.toggle('dialog-lock', !!anyOpen);
+      const anyOpen = !!document.querySelector('dialog[open]');
+      document.body.classList.toggle('dialog-lock', anyOpen);
     }
 
     openSettingsBtn?.addEventListener('click', ()=>{
@@ -237,7 +375,7 @@
       try {
         
         if (!state || !Array.isArray(state.courses)) {
-          alert('No courses to export.');
+          void showNotice('No courses to export.');
           return;
         }
         const auth = getAuth();
@@ -280,14 +418,14 @@
         URL.revokeObjectURL(url);
       } catch (err) {
         console.error('Export error:', err);
-        alert('Sorry, something went wrong while exporting your courses.');
+        void showNotice('Sorry, something went wrong while exporting your courses.', 'Export failed');
       }
     });
 
     
     importCoursesBtn?.addEventListener('click', () => {
       if (!importCoursesFileInput) {
-        alert('Import is not available in this environment.');
+        void showNotice('Import is not available in this environment.', 'Import unavailable');
         return;
       }
       importCoursesFileInput.click();
@@ -299,7 +437,7 @@
       if (!file) return;
 
       const reader = new FileReader();
-      reader.onload = (evt) => {
+      reader.onload = async (evt) => {
         try {
           const text = evt.target?.result;
           const parsed = JSON.parse(text);
@@ -309,11 +447,11 @@
             : (Array.isArray(parsed) ? parsed : null);
 
           if (!rawCourses) {
-            alert('This file does not look like a valid MySemester export.');
+            await showNotice('This file does not look like a valid MySemester export.', 'Import failed');
             return;
           }
           if (!rawCourses.length) {
-            alert('No courses were found in this file.');
+            await showNotice('No courses were found in this file.', 'Import failed');
             return;
           }
 
@@ -335,7 +473,13 @@
             };
           });
 
-          if (!confirm(`Import ${imported.length} courses? This will replace your current list.`)) {
+          const shouldImport = await askConfirm({
+            title: 'Import courses',
+            message: `Import ${imported.length} courses? This will replace your current list.`,
+            confirmText: 'Import',
+            confirmTone: 'danger'
+          });
+          if (!shouldImport) {
             return;
           }
 
@@ -355,10 +499,10 @@
             });
           }
 
-          alert('Courses imported successfully.');
+          showToast('Courses imported successfully.', 'success');
         } catch (err) {
           console.error('Import error:', err);
-          alert('Could not read this file. Please make sure it is a valid MySemester export.');
+          await showNotice('Could not read this file. Please make sure it is a valid MySemester export.', 'Import failed');
         } finally {
           
           importCoursesFileInput.value = '';
@@ -368,8 +512,14 @@
     });
 
     
-    resetDataBtn?.addEventListener('click', () => {
-      if (!confirm('Are you sure you want to reset ALL data for this account? This cannot be undone.')) {
+    resetDataBtn?.addEventListener('click', async () => {
+      const shouldReset = await askConfirm({
+        title: 'Reset all data?',
+        message: 'Are you sure you want to reset ALL data for this account? This cannot be undone.',
+        confirmText: 'Reset all data',
+        confirmTone: 'danger'
+      });
+      if (!shouldReset) {
         return;
       }
       try {
@@ -388,13 +538,13 @@
         localStorage.removeItem(SETTINGS_KEY);
 
         
-        state = { courses: [] };
+        state = { courses: [], folders: [], currentFolderId: null };
         save();
         render();
-        alert('All data for this account has been reset.');
+        showToast('All data for this account has been reset.', 'success');
       } catch (err) {
         console.error('Reset error:', err);
-        alert('Something went wrong while resetting data.');
+        await showNotice('Something went wrong while resetting data.', 'Reset failed');
       }
     });
     
@@ -489,6 +639,18 @@
     let state = { courses: [], folders: [], currentFolderId: null };
 
     const uid = () => Math.random().toString(36).slice(2,9);
+    let highlightedCardId = null;
+    let highlightedFolderId = null;
+
+    function applyCardEntrance(card, index) {
+      if (!card) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      card.style.setProperty('--card-enter-delay', `${Math.min(index * 36, 220)}ms`);
+      card.classList.add('card-enter');
+      card.addEventListener('animationend', () => {
+        card.classList.remove('card-enter');
+      }, { once: true });
+    }
 
     
     function getCurrentUserKey() {
@@ -937,6 +1099,9 @@
         syncGradeFromLocal(c);
         const card = document.createElement('div');
         card.className = 'card';
+        if (highlightedCardId && c.id === highlightedCardId) {
+          card.classList.add('card-pop');
+        }
         card.dataset.id = c.id;
         card.draggable = true;
 
@@ -982,6 +1147,9 @@
       function buildFolderCard(folder) {
         const card = document.createElement('div');
         card.className = 'card folder-card';
+        if (highlightedFolderId && folder.id === highlightedFolderId) {
+          card.classList.add('card-pop');
+        }
         card.dataset.folderId = folder.id;
         const count = state.courses.filter(c => c.folderId === folder.id).length;
         card.innerHTML = `
@@ -998,13 +1166,26 @@
           save();
           render();
         });
-        card.addEventListener('dblclick', () => {
-          const next = prompt('Rename folder', folder.name);
-          if (next && next.trim()) {
-            folder.name = next.trim();
-            save();
-            render();
-          }
+        card.addEventListener('dblclick', async () => {
+          const next = await askInput({
+            title: 'Rename folder',
+            message: 'Choose a new folder name.',
+            initialValue: folder.name,
+            placeholder: 'e.g. Midterms',
+            confirmText: 'Rename',
+            validate: (value) => {
+              if (!value) return 'Folder name is required.';
+              const exists = state.folders.some((f) => (
+                f.id !== folder.id && (f.name || '').toLowerCase() === value.toLowerCase()
+              ));
+              if (exists) return 'A folder with that name already exists.';
+              return '';
+            }
+          });
+          if (!next) return;
+          folder.name = next;
+          save();
+          render();
         });
         card.addEventListener('contextmenu', (e) => openFolderCtx(e, folder.id));
         card.addEventListener('dragover', (e) => {
@@ -1050,16 +1231,27 @@
         return;
       }
 
+      let entranceIndex = 0;
       const sortedFolders = [...state.folders].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
       if (!inFolderView) {
-        sortedFolders.forEach(folder => grid.appendChild(buildFolderCard(folder)));
+        sortedFolders.forEach((folder) => {
+          const folderCard = buildFolderCard(folder);
+          grid.appendChild(folderCard);
+          applyCardEntrance(folderCard, entranceIndex);
+          entranceIndex += 1;
+        });
       }
 
       const visibleCourses = inFolderView
         ? state.courses.filter(c => c.folderId === state.currentFolderId)
         : state.courses.filter(c => !c.folderId);
 
-      visibleCourses.forEach(c => grid.appendChild(buildCourseCard(c)));
+      visibleCourses.forEach((c) => {
+        const courseCard = buildCourseCard(c);
+        grid.appendChild(courseCard);
+        applyCardEntrance(courseCard, entranceIndex);
+        entranceIndex += 1;
+      });
       if (inFolderView && visibleCourses.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'empty-state-card';
@@ -1092,6 +1284,7 @@
           addCourseModal.showModal();
         });
         grid.appendChild(addCard);
+        applyCardEntrance(addCard, entranceIndex);
       }
 
       grid.ondragover = (e) => {
@@ -1109,6 +1302,8 @@
       };
 
       recomputeOverview();
+      highlightedCardId = null;
+      highlightedFolderId = null;
     }
 
     
@@ -1234,27 +1429,46 @@
 
     ctx.addEventListener('click', (e)=>{
       const btn = e.target.closest('button'); if(!btn) return; const act = btn.dataset.act; ctx.classList.remove('show');
-      if(act==='del') removeCourse(ctxCourseId);
+      if(act==='del') void removeCourse(ctxCourseId);
       if(act==='dup') duplicateCourse(ctxCourseId);
       if(act==='edit') editCourse(ctxCourseId);
       if(act==='crncr') toggleCrncr(ctxCourseId);
     });
-    folderCtx?.addEventListener('click', (e) => {
+    folderCtx?.addEventListener('click', async (e) => {
       const btn = e.target.closest('button'); if(!btn) return;
       const act = btn.dataset.act;
       folderCtx.classList.remove('show');
       const folder = state.folders.find(f => f.id === ctxFolderId);
       if (!folder) return;
       if (act === 'rename') {
-        const next = prompt('Rename folder', folder.name);
-        if (next && next.trim()) {
-          folder.name = next.trim();
-          save();
-          render();
-        }
+        const next = await askInput({
+          title: 'Rename folder',
+          message: 'Choose a new folder name.',
+          initialValue: folder.name,
+          placeholder: 'e.g. Midterms',
+          confirmText: 'Rename',
+          validate: (value) => {
+            if (!value) return 'Folder name is required.';
+            const exists = state.folders.some((f) => (
+              f.id !== folder.id && (f.name || '').toLowerCase() === value.toLowerCase()
+            ));
+            if (exists) return 'A folder with that name already exists.';
+            return '';
+          }
+        });
+        if (!next) return;
+        folder.name = next;
+        save();
+        render();
       }
       if (act === 'del') {
-        if (!confirm(`Delete folder "${folder.name}"? Courses will become unassigned.`)) return;
+        const shouldDelete = await askConfirm({
+          title: 'Delete folder?',
+          message: `Delete folder "${folder.name}"? Courses will become unassigned.`,
+          confirmText: 'Delete folder',
+          confirmTone: 'danger'
+        });
+        if (!shouldDelete) return;
         state.folders = state.folders.filter(f => f.id !== ctxFolderId);
         state.courses.forEach(c => { if (c.folderId === ctxFolderId) c.folderId = null; });
         if (state.currentFolderId === ctxFolderId) state.currentFolderId = null;
@@ -1281,6 +1495,7 @@
         if (!pendingUndo) return;
         const insertAt = Math.min(Math.max(pendingUndo.index, 0), state.courses.length);
         state.courses.splice(insertAt, 0, pendingUndo.course);
+        highlightedCardId = pendingUndo.course?.id || null;
         save();
         render();
         pendingUndo = null;
@@ -1293,9 +1508,15 @@
       }, 4500);
     }
 
-    function removeCourse(id){
+    async function removeCourse(id){
       const card = [...document.querySelectorAll('.card')].find(c=>c.dataset.id===id);
-      if(!confirm('Remove this course?')) return;
+      const shouldRemove = await askConfirm({
+        title: 'Remove course?',
+        message: 'Remove this course?',
+        confirmText: 'Remove',
+        confirmTone: 'danger'
+      });
+      if(!shouldRemove) return;
       const idx = state.courses.findIndex(c => c.id === id);
       const removedCourse = idx !== -1 ? state.courses[idx] : null;
       if(card){ card.classList.add('fade-out'); setTimeout(()=>{
@@ -1310,6 +1531,7 @@
     function duplicateCourse(id){
       const c = state.courses.find(x=>x.id===id); if(!c) return;
       const copy = { ...c, id: uid(), code: c.code+" (copy)" };
+      highlightedCardId = copy.id;
       state.courses.push(copy); save(); render();
     }
     function editCourse(id){
@@ -1381,16 +1603,28 @@
       addCourseForm.reset(); iconPreview.setAttribute('name','book-outline');
       addCourseModal.showModal();
     });
-    openAddFolder?.addEventListener('click', () => {
-      const name = prompt('Folder name');
-      if (!name || !name.trim()) return;
-      const trimmed = name.trim();
+    openAddFolder?.addEventListener('click', async () => {
+      const trimmed = await askInput({
+        title: 'New folder',
+        message: 'Choose a folder name.',
+        placeholder: 'e.g. Winter 2026',
+        confirmText: 'Create folder',
+        validate: (value) => {
+          if (!value) return 'Folder name is required.';
+          const exists = state.folders.some((f) => (f.name || '').toLowerCase() === value.toLowerCase());
+          if (exists) return 'A folder with that name already exists.';
+          return '';
+        }
+      });
+      if (!trimmed) return;
       const exists = state.folders.some(f => f.name.toLowerCase() === trimmed.toLowerCase());
       if (exists) {
-        alert('A folder with that name already exists.');
+        await showNotice('A folder with that name already exists.', 'Duplicate folder');
         return;
       }
-      state.folders.push({ id: uid(), name: trimmed, collapsed: false });
+      const newFolderId = uid();
+      highlightedFolderId = newFolderId;
+      state.folders.push({ id: newFolderId, name: trimmed, collapsed: false });
       save();
       render();
     });
@@ -1464,6 +1698,8 @@
       const existingCodes = new Set(state.courses.map(c => (c.code || '').toUpperCase()));
       let imported = 0;
       let skipped = 0;
+      let firstImportedCourseId = null;
+      let firstCreatedFolderId = null;
 
       rows.forEach((line) => {
         const cols = parseCsvLine(line);
@@ -1485,6 +1721,7 @@
             folderId = uid();
             state.folders.push({ id: folderId, name: folderName, collapsed: false });
             folderMap.set(key, folderId);
+            if (!firstCreatedFolderId) firstCreatedFolderId = folderId;
           }
         }
 
@@ -1493,8 +1730,9 @@
           ? Math.max(0, Math.min(100, parsedGrade))
           : null;
 
+        const newCourseId = uid();
         state.courses.push({
-          id: uid(),
+          id: newCourseId,
           code,
           title,
           icon,
@@ -1502,6 +1740,7 @@
           crncr: false,
           folderId
         });
+        if (!firstImportedCourseId) firstImportedCourseId = newCourseId;
         existingCodes.add(code);
         imported += 1;
       });
@@ -1511,6 +1750,8 @@
         return;
       }
 
+      highlightedCardId = firstImportedCourseId;
+      highlightedFolderId = firstCreatedFolderId;
       save();
       render();
       bulkImportModal?.close();
@@ -1605,7 +1846,9 @@
         const c = state.courses.find(x=>x.id===editingId);
         if(c){ c.code = normCode; c.title = title; c.icon = autoIcon(normCode, icon); c.grade = grade; }
       } else {
-        state.courses.push({ id: uid(), code: normCode, title, icon: autoIcon(normCode, icon), grade: grade ?? null, crncr: false, folderId: null });
+        const newCourseId = uid();
+        highlightedCardId = newCourseId;
+        state.courses.push({ id: newCourseId, code: normCode, title, icon: autoIcon(normCode, icon), grade: grade ?? null, crncr: false, folderId: null });
       }
       save(); render(); addCourseModal.close(); sidebar.classList.remove('show'); overlay.classList.remove('show');
       

@@ -501,6 +501,37 @@
       <button type="button" class="btn-primary" id="bulkImportSave">Import</button>
     </div>
   </dialog>
+  <dialog id="appConfirmModal" class="app-dialog">
+    <div class="modal-head">
+      <ion-icon name="help-circle-outline"></ion-icon>
+      <span id="appConfirmTitle">Confirm action</span>
+    </div>
+    <div class="modal-body">
+      <p class="app-dialog-message" id="appConfirmMessage">Are you sure?</p>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-plain" id="appConfirmCancel">Cancel</button>
+      <button type="button" class="btn-primary" id="appConfirmOk">Confirm</button>
+    </div>
+  </dialog>
+  <dialog id="appInputModal" class="app-dialog">
+    <form id="appInputForm">
+      <div class="modal-head">
+        <ion-icon name="create-outline"></ion-icon>
+        <span id="appInputTitle">Enter value</span>
+      </div>
+      <div class="modal-body">
+        <p class="app-dialog-message" id="appInputMessage">Enter a value below.</p>
+        <input id="appInputField" type="text" autocomplete="off" />
+        <div class="error" id="appInputError"></div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-plain" id="appInputCancel">Cancel</button>
+        <button type="submit" class="btn-primary" id="appInputOk">Save</button>
+      </div>
+    </form>
+  </dialog>
+  <div class="app-toast" id="appToast" role="status" aria-live="polite"></div>
 
 <div class="tour-overlay" id="tourOverlay" aria-hidden="true">
   <div class="tour-card no-arrow" role="dialog" aria-live="polite">

@@ -370,14 +370,25 @@
 
 
 @media (max-width: 700px) {
-  body { padding: 50px 12px 90px; }
-  header { width: 100%; flex-wrap: wrap; gap: 8px; }
+  body { padding: 22px 10px 96px; }
+  header { width: 100%; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
   header h1 { font-size: 24px; }
-  header p { font-size: 15px; }
-  table { display: block; overflow-x: auto; }
-  th, td { padding: 12px 10px; font-size: 14px; }
-  input[type="number"] { width: 92px; font-size: 14px; padding: 8px 10px; }
-  .actions { flex-direction: column; gap: 10px; }
-  .actions button { width: 100%; }
-  .summary { font-size: 16px; }
+  header p { font-size: 14px; margin-top: 0; }
+  table { display: block; overflow-x: auto; border-radius: 14px; }
+  th, td { padding: 11px 8px; font-size: 13.5px; }
+  input[type="number"] { width: 88px; font-size: 14px; padding: 8px 8px; }
+  .actions {
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 18px;
+    width: min(850px, 96%);
+  }
+  .actions button {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 12px;
+  }
+  .summary { font-size: 15px; margin-top: 24px; }
+  .notification { width: min(90vw, 360px); text-align: center; }
+  .undo-toast { width: min(92vw, 360px); justify-content: space-between; }
 }

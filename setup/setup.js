@@ -4,6 +4,7 @@ const nextBtn = document.getElementById('nextBtn');
 const backBtn = document.getElementById('backBtn');
 const pager = document.getElementById('pager');
 const panel = document.getElementById('panel');
+const stepper = document.getElementById('stepper');
 
 (() => {
   function hasCompletedSetup() {
@@ -96,6 +97,24 @@ const steps = [
 let stepIndex = 0;
 const answers = {};
 
+function renderStepper() {
+  if (!stepper) return;
+  stepper.innerHTML = '';
+  steps.forEach((_, i) => {
+    const dot = document.createElement('span');
+    dot.className = 'step-dot';
+    if (i === stepIndex) dot.classList.add('active');
+    if (i < stepIndex) dot.classList.add('done');
+    stepper.appendChild(dot);
+    if (i < steps.length - 1) {
+      const rail = document.createElement('span');
+      rail.className = 'step-rail';
+      if (i < stepIndex) rail.classList.add('done');
+      stepper.appendChild(rail);
+    }
+  });
+}
+
 function renderStep() {
   const step = steps[stepIndex];
   if (panel) {
@@ -105,12 +124,14 @@ function renderStep() {
   }
   stepTitle.textContent = step.title;
   pager.textContent = `${stepIndex + 1} / ${steps.length}`;
+  renderStepper();
   backBtn.style.display = stepIndex === 0 ? 'none' : 'inline-flex';
   optionsEl.innerHTML = '';
-  step.options.forEach(option => {
+  step.options.forEach((option, i) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'option';
+    btn.style.setProperty('--opt-delay', `${Math.min(i * 22, 240)}ms`);
     btn.textContent = option;
     if (answers[step.key] === option) btn.classList.add('active');
     btn.addEventListener('click', () => {

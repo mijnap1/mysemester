@@ -635,6 +635,28 @@ body.tour-restrict .tour-allow * {
       border: 2px solid transparent;
       position: relative;
     }
+    .card.card-enter {
+      animation: cardEnter .42s var(--ease) both;
+      animation-delay: var(--card-enter-delay, 0ms);
+    }
+    .card.card-pop {
+      animation: cardPop .42s var(--ease);
+    }
+    @keyframes cardEnter {
+      from { opacity: 0; transform: translateY(10px) scale(0.985); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes cardPop {
+      0% { transform: scale(0.98); }
+      60% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .card.card-enter,
+      .card.card-pop {
+        animation: none;
+      }
+    }
     .card:hover {
       transform: translateY(-5px);
       box-shadow: var(--shadow-hover);
@@ -801,6 +823,54 @@ dialog {
     dialog::backdrop { background: rgba(0, 0, 0, 0.35); }
     body.dialog-lock {
       overflow: hidden;
+    }
+    .app-dialog {
+      width: min(420px, 92vw);
+    }
+    .app-dialog .modal-head ion-icon {
+      color: var(--blue);
+    }
+    .app-dialog-message {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+    .app-dialog .modal-body {
+      gap: 12px;
+    }
+    .app-dialog .error {
+      margin-top: -2px;
+    }
+    .app-toast {
+      position: fixed;
+      left: 50%;
+      bottom: 20px;
+      transform: translateX(-50%) translateY(16px);
+      background: var(--card);
+      color: var(--text);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-default);
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s var(--ease), transform .22s var(--ease);
+      z-index: 10020;
+    }
+    .app-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    .app-toast.is-success {
+      border-color: #86efac;
+      color: #15803d;
+    }
+    .app-toast.is-error {
+      border-color: #fecaca;
+      color: #b91c1c;
     }
 .modal-head {
       padding: 18px 22px;
@@ -1017,6 +1087,13 @@ dialog {
       color: #fff;
     }
     .btn-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+    .btn-primary.danger {
+      border-color: #dc2626;
+      background: #dc2626;
+    }
+    .btn-primary.danger:hover {
+      background: #b91c1c;
+    }
 
     .error { color: #b91c1c; font-size: 13px; display:none; }
 
@@ -1072,38 +1149,47 @@ dialog {
     }
 
     @media (max-width: 900px) {
-      :root { --header-h: 56px; }
+      :root { --header-h: 58px; }
       header { padding: 0 12px; }
       .brand h1 { font-size: 18px; }
-      .wrap { padding: calc(var(--header-h) + 18px) 14px 90px; }
-      .hero h2 { font-size: 34px; }
-      .hero p { font-size: 16px; }
-      .grid { gap: 16px; margin-top: 24px; }
-      .card { width: min(100%, 560px); padding: 18px; gap: 14px; }
+      .wrap { padding: calc(var(--header-h) + 14px) 14px 88px; }
+      .hero { margin-top: 10px; }
+      .hero h2 { font-size: 32px; line-height: 1.1; margin-bottom: 6px; }
+      .hero p { font-size: 15px; }
+      .grid { gap: 14px; margin-top: 20px; }
+      .card { width: min(100%, 560px); padding: 16px; gap: 12px; border-radius: 16px; }
       ion-icon.course-icon { font-size: 32px; }
       .mark { font-size: 18px; min-width: 52px; }
-      .overview { grid-template-columns: 1fr; }
+      .overview { grid-template-columns: 1fr; margin-top: 28px; gap: 10px; }
+      .ov { padding: 13px 12px; }
       .sidebar { width: 100%; right: -100%; }
       .grid.grid-empty { min-height: auto; }
       .empty-state-card {
         position: static;
         transform: none;
-        margin: 20px auto 0;
+        margin: 14px auto 0;
         width: min(320px, 88vw);
       }
       .grid.grid-empty .empty-state-card {
-        margin: 20px auto 0;
+        margin: 14px auto 0;
       }
+      .modal-actions { padding: 14px; gap: 10px; }
+      .btn-plain, .btn-primary { min-height: 44px; }
     }
 
     @media (max-width: 520px) {
       .iconbtn { width: 36px; height: 36px; }
       .menu-icon { width: 40px; height: 40px; }
-      .hero h2 { font-size: 28px; }
+      .h-controls { gap: 6px; }
+      .hero h2 { font-size: 27px; }
+      .hero p { font-size: 14px; }
       .card { align-items: flex-start; }
       .info .code { font-size: 18px; }
       .info .muted-sm { font-size: 13px; }
       .mark { font-size: 16px; }
+      .empty-state-card { padding: 22px 14px 16px; width: min(320px, 94vw); }
+      .app-dialog { width: min(94vw, 360px); }
+      .app-toast { width: min(94vw, 360px); text-align: center; }
       footer { font-size: 12px; }
     }
   
