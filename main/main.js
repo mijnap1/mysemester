@@ -218,6 +218,7 @@
       miniCalc.setAttribute('aria-hidden', 'true');
       calcFab.setAttribute('aria-expanded', 'false');
     }
+    closeMiniCalc();
 
     calcFab?.addEventListener('click', () => {
       if (!miniCalc) return;
@@ -262,8 +263,65 @@
     });
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && miniCalc?.classList.contains('show')) {
+      if (!miniCalc?.classList.contains('show')) return;
+      if (e.key === 'Escape') {
         closeMiniCalc();
+        return;
+      }
+
+      const target = e.target;
+      const tagName = target && target.tagName ? target.tagName.toLowerCase() : '';
+      const isTypingContext = target && (
+        target.isContentEditable ||
+        tagName === 'input' ||
+        tagName === 'textarea' ||
+        tagName === 'select'
+      );
+      if (isTypingContext) return;
+
+      if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        appendCalcValue(e.key);
+        return;
+      }
+      if (e.key === '.') {
+        e.preventDefault();
+        appendCalcValue('.');
+        return;
+      }
+      if (e.key === '+' || e.key === '-') {
+        e.preventDefault();
+        appendCalcValue(e.key);
+        return;
+      }
+      if (e.key === '*' || e.key.toLowerCase() === 'x') {
+        e.preventDefault();
+        appendCalcValue('×');
+        return;
+      }
+      if (e.key === '/') {
+        e.preventDefault();
+        appendCalcValue('÷');
+        return;
+      }
+      if (e.key === '%') {
+        e.preventDefault();
+        appendCalcValue('%');
+        return;
+      }
+      if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        evaluateCalcExpression();
+        return;
+      }
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        backspaceCalc();
+        return;
+      }
+      if (e.key === 'Delete') {
+        e.preventDefault();
+        clearCalc();
       }
     });
 
@@ -802,11 +860,13 @@
       if (isVisible) {
         cloudOverlay.classList.add('show');
         cloudOverlay.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('sync-active');
         return;
       }
       cloudOverlayTimeout = setTimeout(() => {
         cloudOverlay.classList.remove('show');
         cloudOverlay.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('sync-active');
       }, 250);
     }
 
