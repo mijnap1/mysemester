@@ -10,10 +10,6 @@
 
 <p align="center">
   <a href="https://mysemester.org">Live Site</a>
-  ·
-  <a href="#local-development">Local Setup</a>
-  ·
-  <a href="#supabase-setup-optional">Supabase Setup</a>
 </p>
 
 ---
