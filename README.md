@@ -5,55 +5,89 @@
 <h1 align="center">MySemester</h1>
 
 <p align="center">
-  A clean, minimal, and intelligent grade tracking platform for university students.
+  A browser-first grade tracker for organizing courses, monitoring assessment performance, and understanding GPA impact in real time.
 </p>
 
 <p align="center">
-  <a href="https://mysemester.org">mysemester.org</a>
+  <a href="https://mysemester.org">Live Site</a>
+  ·
+  <a href="#local-development">Local Setup</a>
+  ·
+  <a href="#supabase-setup-optional">Supabase Setup</a>
 </p>
 
 ---
 
+## Table of Contents
+- [Overview](#overview)
+- [Key Features](#key-features)
+- [How It Works](#how-it-works)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Local Development](#local-development)
+- [Supabase Setup (Optional)](#supabase-setup-optional)
+- [Data Export and Import](#data-export-and-import)
+- [Deployment](#deployment)
+- [License](#license)
+
 ## Overview
-MySemester is a lightweight, browser-first web app for organizing courses, tracking assessments, and understanding GPA outcomes at a glance. It focuses on clarity and speed, with a simple workflow that stays out of your way.
+MySemester is a lightweight web app designed for students who want fast, clear insight into course progress and GPA outcomes without heavy setup.
 
-## Highlights
-- Add, edit, and remove courses with auto icons
-- Track assessments, weights, and overall performance per course
-- Live GPA and letter-grade calculations
-- Dark and light themes
-- Data export and import
-- Supabase authentication and cross-device syncing
+It is intentionally browser-first:
+- Manage courses and grades with minimal friction
+- Instantly see GPA and letter-grade impact
+- Keep data local by default
+- Sync across devices when signed in with Supabase
 
-## Live Site
-- https://mysemester.org
+## Key Features
+- Course management: add, edit, and remove courses with automatic course icons
+- Assessment tracking: manage grading items, weights, and performance per course
+- Real-time GPA feedback: live GPA and letter-grade calculations as inputs change
+- Theme support: light and dark modes
+- Portability: export and import course + grade data
+- Cloud sync: Supabase authentication and cross-device synchronization
 
 ## How It Works
-- Courses and assessment details are managed in the browser UI
-- Signed-in users can sync courses across devices via Supabase
-- Grade details per course are saved locally and exported with course data
+1. Create courses in the app dashboard.
+2. Add weighted assessments and grades for each course.
+3. Review calculated overall grades and GPA output instantly.
+4. Optionally sign in to sync your data with Supabase.
+5. Export your data whenever you want a backup or migration file.
 
 ## Tech Stack
 | Layer | Technology |
-|-------|------------|
+| --- | --- |
 | Frontend | HTML, CSS, JavaScript |
 | Auth + Storage | Supabase |
 | Hosting | GitHub Pages (custom domain) |
 
 ## Project Structure
-- /index.html (landing)
-- /index.css, /index.js
-- /login/
-  - index.html, login.css, login.js
-- /signup/
-  - index.html, signup.css, signup.js
-- /main/
-  - index.html, main.css, main.js, main.module.js
-- /grade/
-  - index.html, grade.css, grade.js
+```text
+/
+├── index.html              # Landing page
+├── index.css
+├── index.js
+├── login/
+│   ├── index.html
+│   ├── login.css
+│   └── login.js
+├── signup/
+│   ├── index.html
+│   ├── signup.css
+│   └── signup.js
+├── main/
+│   ├── index.html
+│   ├── main.css
+│   ├── main.js
+│   └── main.module.js
+└── grade/
+    ├── index.html
+    ├── grade.css
+    └── grade.js
+```
 
 ## Local Development
-This is a static site. Use any local server to avoid CORS or module import issues.
+This project is a static website. Run a local server to avoid CORS and module import issues.
 
 ```bash
 git clone https://github.com/<your-username>/MySemester.git
@@ -61,12 +95,12 @@ cd MySemester
 python3 -m http.server 8080
 ```
 
-Open http://localhost:8080 in your browser.
+Then open [http://localhost:8080](http://localhost:8080).
 
-## Supabase Setup
-If you want authentication and cross-device sync, create a Supabase project and add these SQL migrations.
+## Supabase Setup (Optional)
+If you want login + cloud sync, create a Supabase project and apply the SQL below.
 
-### 1) Profiles lookup by username
+### 1) Username to email lookup function
 ```sql
 create or replace function public.get_email_by_username(u text)
 returns text
@@ -79,7 +113,7 @@ $$;
 grant execute on function public.get_email_by_username(text) to anon;
 ```
 
-### 2) Courses table + RLS policies
+### 2) Courses table and row-level security (RLS)
 ```sql
 create table if not exists public.mysemester_courses (
   id uuid primary key default gen_random_uuid(),
@@ -120,17 +154,28 @@ for delete
 using (auth.uid() = user_id);
 ```
 
-## Export and Import
-The export file contains:
+## Data Export and Import
+Export files include:
 - Course metadata
-- Grade breakdowns (weights)
+- Grade breakdowns (`weights`)
 
-You can import the file from the Settings panel in /main/.
+To import:
+1. Open the `/main/` app view.
+2. Go to `Settings`.
+3. Use the import option to restore data from your export file.
 
 ## Deployment
-- Push to GitHub
-- Enable GitHub Pages
-- Use folder-based routes: /login/, /signup/, /main/, /grade/
+1. Push changes to GitHub.
+2. Enable GitHub Pages for the repository.
+3. Ensure folder-based routes are preserved:
+   - `/login/`
+   - `/signup/`
+   - `/main/`
+   - `/grade/`
+4. Point your custom domain (optional), e.g. `mysemester.org`.
+
+## Live Site
+[https://mysemester.org](https://mysemester.org)
 
 ## License
 All rights reserved.
