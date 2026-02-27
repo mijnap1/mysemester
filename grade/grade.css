@@ -367,6 +367,175 @@
   border-radius: 8px;
   cursor: pointer;
 }
+.calc-fab {
+  position: fixed;
+  right: 22px;
+  bottom: 20px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid #e2e8f0;
+  background: var(--card);
+  color: var(--text);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  z-index: 1005;
+  transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), border-color 0.2s var(--ease);
+  box-sizing: border-box;
+}
+.calc-fab ion-icon {
+  font-size: 24px;
+  color: var(--blue);
+}
+.calc-fab:hover,
+.calc-fab:focus-visible {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+  border-color: #dbe3f0;
+}
+.calc-fab:active {
+  transform: translateY(0);
+}
+.mini-calc {
+  position: fixed;
+  right: 22px;
+  bottom: 86px;
+  width: min(92vw, 320px);
+  max-width: 320px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 12px;
+  background: var(--card);
+  box-shadow: 0 20px 46px rgba(2, 6, 23, 0.24);
+  z-index: 1006;
+  opacity: 0;
+  transform: translateY(10px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 0.2s var(--ease), transform 0.2s var(--ease);
+  box-sizing: border-box;
+}
+.mini-calc.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.mini-calc-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.mini-calc-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.mini-calc-title ion-icon {
+  color: var(--blue);
+  font-size: 16px;
+}
+.mini-calc-close {
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: var(--card);
+  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+.mini-calc-close ion-icon {
+  font-size: 16px;
+}
+.mini-calc-display {
+  width: 100%;
+  min-height: 64px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, rgba(37, 99, 235, 0.07), rgba(37, 99, 235, 0.02));
+  color: var(--text);
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+}
+.mini-calc-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.mini-calc-btn {
+  border: 1px solid #e2e8f0;
+  background: var(--card);
+  color: var(--text);
+  border-radius: 12px;
+  height: 42px;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease), border-color 0.15s var(--ease);
+  box-sizing: border-box;
+}
+.mini-calc-btn:hover,
+.mini-calc-btn:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 18px rgba(148, 163, 184, 0.2);
+  border-color: #cbd5e1;
+}
+.mini-calc-btn:active {
+  transform: translateY(0);
+}
+.mini-calc-btn.is-op {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #bfdbfe;
+}
+.mini-calc-btn.is-eq {
+  background: var(--blue);
+  color: #fff;
+  border-color: var(--blue);
+}
+.mini-calc-btn.is-muted {
+  color: var(--muted);
+  font-weight: 600;
+}
+:root[data-theme='dark'] .mini-calc {
+  border-color: #475569;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+}
+:root[data-theme='dark'] .mini-calc-close,
+:root[data-theme='dark'] .mini-calc-display,
+:root[data-theme='dark'] .mini-calc-btn {
+  border-color: #475569;
+}
+:root[data-theme='dark'] .mini-calc-btn.is-op {
+  background: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+  border-color: rgba(147, 197, 253, 0.35);
+}
+:root[data-theme='dark'] .mini-calc-display {
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.06));
+}
 
 
 @media (max-width: 700px) {
@@ -391,4 +560,14 @@
   .summary { font-size: 15px; margin-top: 24px; }
   .notification { width: min(90vw, 360px); text-align: center; }
   .undo-toast { width: min(92vw, 360px); justify-content: space-between; }
+  .calc-fab {
+    right: 14px;
+    bottom: 14px;
+  }
+  .mini-calc {
+    right: 12px;
+    bottom: 78px;
+    width: min(94vw, 340px);
+    max-width: 340px;
+  }
 }

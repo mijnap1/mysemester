@@ -30,6 +30,11 @@ const undoToastEl = document.getElementById('undoToast');
 const undoTextEl = document.getElementById('undoText');
 const undoBtnEl = document.getElementById('undoBtn');
 const weightNotificationEl = document.getElementById('weightNotification');
+const calcFabEl = document.getElementById('calcFab');
+const miniCalcEl = document.getElementById('miniCalc');
+const miniCalcCloseEl = document.getElementById('miniCalcClose');
+const miniCalcDisplayEl = document.getElementById('miniCalcDisplay');
+const miniCalcGridEl = miniCalcEl ? miniCalcEl.querySelector('.mini-calc-grid') : null;
 let hasShownOverweightNotice = false;
 
 function getUniversityRules() {
@@ -741,6 +746,241 @@ document.addEventListener('visibilitychange', () => {
     
     const savedTheme = localStorage.getItem(THEME_KEY) || 'light';
     applyTheme(savedTheme);
+
+    let calcExpression = '0';
+    let calcResultShown = false;
+
+    function formatCalcNumber(value) {
+      if (!Number.isFinite(value)) return 'Error';
+      const rounded = Math.round(value * 1e10) / 1e10;
+      return String(rounded);
+    }
+
+    function updateCalcDisplay() {
+      if (!miniCalcDisplayEl) return;
+      miniCalcDisplayEl.textContent = calcExpression || '0';
+    }
+
+    function isCalcOperator(ch) {
+      return ch === '+' || ch === '-' || ch === '×' || ch === '÷';
+    }
+
+    function appendCalcValue(rawValue) {
+      const value = String(rawValue);
+      const last = calcExpression.slice(-1);
+      const isDigit = /^[0-9]$/.test(value);
+
+      if (calcExpression === 'Error') {
+        calcExpression = isDigit ? value : '0';
+      }
+      if (calcResultShown && (isDigit || value === '.')) {
+        calcExpression = '0';
+      }
+      calcResultShown = false;
+
+      if (isDigit) {
+        calcExpression = calcExpression === '0' ? value : calcExpression + value;
+        updateCalcDisplay();
+        return;
+      }
+
+      if (value === '.') {
+        const currentNumber = calcExpression.split(/[+\-×÷]/).pop() || '';
+        if (!currentNumber.includes('.')) {
+          calcExpression += '.';
+        }
+        updateCalcDisplay();
+        return;
+      }
+
+      if (value === '%') {
+        const match = calcExpression.match(/(\d*\.?\d+)(?!.*\d)/);
+        if (match) {
+          const percentValue = Number(match[1]) / 100;
+          calcExpression = calcExpression.replace(/(\d*\.?\d+)(?!.*\d)/, formatCalcNumber(percentValue));
+        }
+        updateCalcDisplay();
+        return;
+      }
+
+      if (!isCalcOperator(value)) return;
+      if (isCalcOperator(last)) {
+        calcExpression = calcExpression.slice(0, -1) + value;
+      } else {
+        calcExpression += value;
+      }
+      updateCalcDisplay();
+    }
+
+    function evaluateCalcExpression() {
+      if (!calcExpression || calcExpression === 'Error') return;
+      let normalized = calcExpression.replace(/×/g, '*').replace(/÷/g, '/');
+      normalized = normalized.replace(/(\d*\.?\d+)%/g, '($1/100)');
+      if (!/^[0-9+\-*/.() ]+$/.test(normalized)) {
+        calcExpression = 'Error';
+        calcResultShown = true;
+        updateCalcDisplay();
+        return;
+      }
+      try {
+        const result = Function(`"use strict"; return (${normalized})`)();
+        calcExpression = formatCalcNumber(Number(result));
+        calcResultShown = true;
+      } catch (_) {
+        calcExpression = 'Error';
+        calcResultShown = true;
+      }
+      updateCalcDisplay();
+    }
+
+    function clearCalc() {
+      calcExpression = '0';
+      calcResultShown = false;
+      updateCalcDisplay();
+    }
+
+    function backspaceCalc() {
+      if (calcExpression === 'Error') {
+        clearCalc();
+        return;
+      }
+      if (calcExpression.length <= 1) {
+        calcExpression = '0';
+      } else {
+        calcExpression = calcExpression.slice(0, -1);
+      }
+      updateCalcDisplay();
+    }
+
+    function toggleCalcSign() {
+      const match = calcExpression.match(/(-?\d*\.?\d+)(?!.*\d)/);
+      if (!match) return;
+      const current = match[1];
+      const toggled = current.startsWith('-') ? current.slice(1) : `-${current}`;
+      calcExpression = calcExpression.replace(/(-?\d*\.?\d+)(?!.*\d)/, toggled);
+      updateCalcDisplay();
+    }
+
+    function openMiniCalc() {
+      if (!miniCalcEl || !calcFabEl) return;
+      miniCalcEl.classList.add('show');
+      miniCalcEl.setAttribute('aria-hidden', 'false');
+      calcFabEl.setAttribute('aria-expanded', 'true');
+      updateCalcDisplay();
+    }
+
+    function closeMiniCalc() {
+      if (!miniCalcEl || !calcFabEl) return;
+      miniCalcEl.classList.remove('show');
+      miniCalcEl.setAttribute('aria-hidden', 'true');
+      calcFabEl.setAttribute('aria-expanded', 'false');
+    }
+    closeMiniCalc();
+
+    calcFabEl?.addEventListener('click', () => {
+      if (!miniCalcEl) return;
+      if (miniCalcEl.classList.contains('show')) {
+        closeMiniCalc();
+      } else {
+        openMiniCalc();
+      }
+    });
+
+    miniCalcCloseEl?.addEventListener('click', closeMiniCalc);
+
+    miniCalcGridEl?.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const action = btn.dataset.calcAction;
+      if (action === 'clear') {
+        clearCalc();
+        return;
+      }
+      if (action === 'backspace') {
+        backspaceCalc();
+        return;
+      }
+      if (action === 'sign') {
+        toggleCalcSign();
+        return;
+      }
+      if (action === 'equals') {
+        evaluateCalcExpression();
+        return;
+      }
+      const value = btn.dataset.calcValue;
+      if (value) appendCalcValue(value);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!miniCalcEl || !calcFabEl || !miniCalcEl.classList.contains('show')) return;
+      const target = e.target;
+      if (miniCalcEl.contains(target) || calcFabEl.contains(target)) return;
+      closeMiniCalc();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (!miniCalcEl?.classList.contains('show')) return;
+      if (e.key === 'Escape') {
+        closeMiniCalc();
+        return;
+      }
+
+      const target = e.target;
+      const tagName = target && target.tagName ? target.tagName.toLowerCase() : '';
+      const isTypingContext = target && (
+        target.isContentEditable ||
+        tagName === 'input' ||
+        tagName === 'textarea' ||
+        tagName === 'select'
+      );
+      if (isTypingContext) return;
+
+      if (/^[0-9]$/.test(e.key)) {
+        e.preventDefault();
+        appendCalcValue(e.key);
+        return;
+      }
+      if (e.key === '.') {
+        e.preventDefault();
+        appendCalcValue('.');
+        return;
+      }
+      if (e.key === '+' || e.key === '-') {
+        e.preventDefault();
+        appendCalcValue(e.key);
+        return;
+      }
+      if (e.key === '*' || e.key.toLowerCase() === 'x') {
+        e.preventDefault();
+        appendCalcValue('×');
+        return;
+      }
+      if (e.key === '/') {
+        e.preventDefault();
+        appendCalcValue('÷');
+        return;
+      }
+      if (e.key === '%') {
+        e.preventDefault();
+        appendCalcValue('%');
+        return;
+      }
+      if (e.key === 'Enter' || e.key === '=') {
+        e.preventDefault();
+        evaluateCalcExpression();
+        return;
+      }
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        backspaceCalc();
+        return;
+      }
+      if (e.key === 'Delete') {
+        e.preventDefault();
+        clearCalc();
+      }
+    });
 
     
     window.addEventListener('storage', (e) => {
