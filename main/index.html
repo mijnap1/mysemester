@@ -556,5 +556,48 @@
   <button type="button" id="undoBtn">Undo</button>
 </div>
 
+<button type="button" class="calc-fab" id="calcFab" aria-label="Open calculator" title="Calculator">
+  <ion-icon name="calculator-outline"></ion-icon>
+</button>
+
+<section class="mini-calc" id="miniCalc" aria-hidden="true">
+  <div class="mini-calc-head">
+    <div class="mini-calc-title">
+      <ion-icon name="calculator-outline"></ion-icon>
+      <span>Calculator</span>
+    </div>
+    <button type="button" class="mini-calc-close" id="miniCalcClose" aria-label="Close calculator">
+      <ion-icon name="close-outline"></ion-icon>
+    </button>
+  </div>
+  <div class="mini-calc-display" id="miniCalcDisplay">0</div>
+  <div class="mini-calc-grid">
+    <button type="button" class="mini-calc-btn is-muted" data-calc-action="clear">C</button>
+    <button type="button" class="mini-calc-btn is-muted" data-calc-action="backspace">⌫</button>
+    <button type="button" class="mini-calc-btn is-muted" data-calc-action="sign">+/-</button>
+    <button type="button" class="mini-calc-btn is-op" data-calc-value="÷">÷</button>
+
+    <button type="button" class="mini-calc-btn" data-calc-value="7">7</button>
+    <button type="button" class="mini-calc-btn" data-calc-value="8">8</button>
+    <button type="button" class="mini-calc-btn" data-calc-value="9">9</button>
+    <button type="button" class="mini-calc-btn is-op" data-calc-value="×">×</button>
+
+    <button type="button" class="mini-calc-btn" data-calc-value="4">4</button>
+    <button type="button" class="mini-calc-btn" data-calc-value="5">5</button>
+    <button type="button" class="mini-calc-btn" data-calc-value="6">6</button>
+    <button type="button" class="mini-calc-btn is-op" data-calc-value="-">-</button>
+
+    <button type="button" class="mini-calc-btn" data-calc-value="1">1</button>
+    <button type="button" class="mini-calc-btn" data-calc-value="2">2</button>
+    <button type="button" class="mini-calc-btn" data-calc-value="3">3</button>
+    <button type="button" class="mini-calc-btn is-op" data-calc-value="+">+</button>
+
+    <button type="button" class="mini-calc-btn is-muted" data-calc-value="%">%</button>
+    <button type="button" class="mini-calc-btn" data-calc-value="0">0</button>
+    <button type="button" class="mini-calc-btn" data-calc-value=".">.</button>
+    <button type="button" class="mini-calc-btn is-eq" data-calc-action="equals">=</button>
+  </div>
+</section>
+
 </body>
 </html>

@@ -84,6 +84,188 @@
     const appInputCancel = document.getElementById('appInputCancel');
     const appInputOk = document.getElementById('appInputOk');
     const appToast = document.getElementById('appToast');
+    const calcFab = document.getElementById('calcFab');
+    const miniCalc = document.getElementById('miniCalc');
+    const miniCalcClose = document.getElementById('miniCalcClose');
+    const miniCalcDisplay = document.getElementById('miniCalcDisplay');
+    const miniCalcGrid = miniCalc ? miniCalc.querySelector('.mini-calc-grid') : null;
+
+    let calcExpression = '0';
+    let calcResultShown = false;
+
+    function formatCalcNumber(value) {
+      if (!Number.isFinite(value)) return 'Error';
+      const rounded = Math.round(value * 1e10) / 1e10;
+      return Number.isInteger(rounded) ? String(rounded) : String(rounded);
+    }
+
+    function updateCalcDisplay() {
+      if (!miniCalcDisplay) return;
+      miniCalcDisplay.textContent = calcExpression || '0';
+    }
+
+    function isCalcOperator(ch) {
+      return ch === '+' || ch === '-' || ch === '×' || ch === '÷';
+    }
+
+    function appendCalcValue(rawValue) {
+      const value = String(rawValue);
+      const last = calcExpression.slice(-1);
+      const isDigit = /^[0-9]$/.test(value);
+
+      if (calcExpression === 'Error') {
+        calcExpression = isDigit ? value : '0';
+      }
+      if (calcResultShown && (isDigit || value === '.')) {
+        calcExpression = '0';
+      }
+      calcResultShown = false;
+
+      if (isDigit) {
+        calcExpression = calcExpression === '0' ? value : calcExpression + value;
+        updateCalcDisplay();
+        return;
+      }
+
+      if (value === '.') {
+        const currentNumber = calcExpression.split(/[+\-×÷]/).pop() || '';
+        if (!currentNumber.includes('.')) {
+          calcExpression += '.';
+        }
+        updateCalcDisplay();
+        return;
+      }
+
+      if (value === '%') {
+        const match = calcExpression.match(/(\d*\.?\d+)(?!.*\d)/);
+        if (match) {
+          const percentValue = Number(match[1]) / 100;
+          calcExpression = calcExpression.replace(/(\d*\.?\d+)(?!.*\d)/, formatCalcNumber(percentValue));
+        }
+        updateCalcDisplay();
+        return;
+      }
+
+      if (!isCalcOperator(value)) return;
+      if (isCalcOperator(last)) {
+        calcExpression = calcExpression.slice(0, -1) + value;
+      } else {
+        calcExpression += value;
+      }
+      updateCalcDisplay();
+    }
+
+    function evaluateCalcExpression() {
+      if (!calcExpression || calcExpression === 'Error') return;
+      let normalized = calcExpression.replace(/×/g, '*').replace(/÷/g, '/');
+      normalized = normalized.replace(/(\d*\.?\d+)%/g, '($1/100)');
+      if (!/^[0-9+\-*/.() ]+$/.test(normalized)) {
+        calcExpression = 'Error';
+        calcResultShown = true;
+        updateCalcDisplay();
+        return;
+      }
+      try {
+        const result = Function(`"use strict"; return (${normalized})`)();
+        calcExpression = formatCalcNumber(Number(result));
+        calcResultShown = true;
+      } catch (_) {
+        calcExpression = 'Error';
+        calcResultShown = true;
+      }
+      updateCalcDisplay();
+    }
+
+    function clearCalc() {
+      calcExpression = '0';
+      calcResultShown = false;
+      updateCalcDisplay();
+    }
+
+    function backspaceCalc() {
+      if (calcExpression === 'Error') {
+        clearCalc();
+        return;
+      }
+      if (calcExpression.length <= 1) {
+        calcExpression = '0';
+      } else {
+        calcExpression = calcExpression.slice(0, -1);
+      }
+      updateCalcDisplay();
+    }
+
+    function toggleCalcSign() {
+      const match = calcExpression.match(/(-?\d*\.?\d+)(?!.*\d)/);
+      if (!match) return;
+      const current = match[1];
+      const toggled = current.startsWith('-') ? current.slice(1) : `-${current}`;
+      calcExpression = calcExpression.replace(/(-?\d*\.?\d+)(?!.*\d)/, toggled);
+      updateCalcDisplay();
+    }
+
+    function openMiniCalc() {
+      if (!miniCalc || !calcFab) return;
+      miniCalc.classList.add('show');
+      miniCalc.setAttribute('aria-hidden', 'false');
+      calcFab.setAttribute('aria-expanded', 'true');
+      updateCalcDisplay();
+    }
+
+    function closeMiniCalc() {
+      if (!miniCalc || !calcFab) return;
+      miniCalc.classList.remove('show');
+      miniCalc.setAttribute('aria-hidden', 'true');
+      calcFab.setAttribute('aria-expanded', 'false');
+    }
+
+    calcFab?.addEventListener('click', () => {
+      if (!miniCalc) return;
+      if (miniCalc.classList.contains('show')) {
+        closeMiniCalc();
+      } else {
+        openMiniCalc();
+      }
+    });
+
+    miniCalcClose?.addEventListener('click', closeMiniCalc);
+
+    miniCalcGrid?.addEventListener('click', (e) => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      const action = btn.dataset.calcAction;
+      if (action === 'clear') {
+        clearCalc();
+        return;
+      }
+      if (action === 'backspace') {
+        backspaceCalc();
+        return;
+      }
+      if (action === 'sign') {
+        toggleCalcSign();
+        return;
+      }
+      if (action === 'equals') {
+        evaluateCalcExpression();
+        return;
+      }
+      const value = btn.dataset.calcValue;
+      if (value) appendCalcValue(value);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!miniCalc || !calcFab || !miniCalc.classList.contains('show')) return;
+      const target = e.target;
+      if (miniCalc.contains(target) || calcFab.contains(target)) return;
+      closeMiniCalc();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && miniCalc?.classList.contains('show')) {
+        closeMiniCalc();
+      }
+    });
 
     function showToast(message, type = 'info', duration = 2600) {
       if (!appToast) return;
@@ -637,6 +819,7 @@
 
     
     let state = { courses: [], folders: [], currentFolderId: null };
+    const DRAG_TYPE = 'application/x-mysemester-item';
 
     const uid = () => Math.random().toString(36).slice(2,9);
     let highlightedCardId = null;
@@ -676,6 +859,43 @@
       if (!Array.isArray(state.courses)) state.courses = [];
       if (!Array.isArray(state.folders)) state.folders = [];
       if (state.currentFolderId === undefined) state.currentFolderId = null;
+      const folderIds = new Set(state.folders.map((folder) => folder.id));
+      state.folders.forEach((folder) => {
+        folder.parentFolderId = folder.parentFolderId || null;
+        if (folder.parentFolderId && !folderIds.has(folder.parentFolderId)) {
+          folder.parentFolderId = null;
+        }
+      });
+      if (state.currentFolderId && !folderIds.has(state.currentFolderId)) {
+        state.currentFolderId = null;
+      }
+    }
+
+    function getFolderById(id) {
+      return state.folders.find((folder) => folder.id === id) || null;
+    }
+
+    function isFolderInSubtree(folderId, rootId) {
+      let cursor = getFolderById(folderId);
+      while (cursor) {
+        if (cursor.id === rootId) return true;
+        cursor = cursor.parentFolderId ? getFolderById(cursor.parentFolderId) : null;
+      }
+      return false;
+    }
+
+    function getDragPayload(e) {
+      const raw = e.dataTransfer?.getData(DRAG_TYPE);
+      if (!raw) return null;
+      try {
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object') return null;
+        if (parsed.kind !== 'course' && parsed.kind !== 'folder') return null;
+        if (!parsed.id) return null;
+        return parsed;
+      } catch (_) {
+        return null;
+      }
     }
 
     function save(){
@@ -1049,6 +1269,9 @@
     if (gpaLetterWrap) gpaLetterWrap.style.display = universityRules.showLetter ? '' : 'none';
 
     function render(){
+      if (state.currentFolderId && !getFolderById(state.currentFolderId)) {
+        state.currentFolderId = null;
+      }
       grid.innerHTML = '';
       grid.classList.remove('grid-empty');
       document.body.classList.remove('no-scroll-empty');
@@ -1057,8 +1280,14 @@
       const folderBackBtn = document.getElementById('folderBackBtn');
       if (folderBackBtn) {
         folderBackBtn.style.display = inFolderView ? 'inline-flex' : 'none';
+        const currentFolder = inFolderView ? getFolderById(state.currentFolderId) : null;
+        folderBackBtn.innerHTML = currentFolder && currentFolder.parentFolderId
+          ? '<ion-icon name="arrow-back-outline"></ion-icon> Back to parent folder'
+          : '<ion-icon name="arrow-back-outline"></ion-icon> Back to all courses';
         folderBackBtn.onclick = () => {
-          state.currentFolderId = null;
+          state.currentFolderId = currentFolder && currentFolder.parentFolderId
+            ? currentFolder.parentFolderId
+            : null;
           save();
           render();
         };
@@ -1136,6 +1365,7 @@
         });
         card.addEventListener('dragstart', (e) => {
           e.dataTransfer.setData('text/plain', c.id);
+          e.dataTransfer.setData(DRAG_TYPE, JSON.stringify({ kind: 'course', id: c.id }));
           e.dataTransfer.effectAllowed = 'move';
         });
         if (hasGrade) {
@@ -1152,16 +1382,64 @@
         }
         card.dataset.folderId = folder.id;
         const count = state.courses.filter(c => c.folderId === folder.id).length;
+        let dragArmedUntil = 0;
+        let armTimer = null;
+        let pressX = 0;
+        let pressY = 0;
+        let lastLongPress = 0;
+        const armDelay = 520;
+        const moveThreshold = 10;
         card.innerHTML = `
           <ion-icon class="course-icon" name="folder-outline"></ion-icon>
           <div class="info">
             <div class="code">${folder.name}</div>
             <div class="muted-sm">${count} course${count === 1 ? '' : 's'}</div>
-            <div class="folder-hint">Click to open · Drag courses here</div>
+            <div class="folder-hint">Click to open · Drag courses/folders here</div>
           </div>
           <span class="folder-badge">${count}</span>
         `;
+        const armFolderDrag = () => {
+          dragArmedUntil = Date.now() + 1200;
+          lastLongPress = Date.now();
+          card.classList.add('folder-drag-armed');
+          card.draggable = true;
+          setTimeout(() => {
+            if (Date.now() >= dragArmedUntil) {
+              card.classList.remove('folder-drag-armed');
+              card.draggable = false;
+            }
+          }, 1300);
+        };
+        const clearArmTimer = () => {
+          if (armTimer) {
+            clearTimeout(armTimer);
+            armTimer = null;
+          }
+        };
+        card.draggable = false;
+        card.addEventListener('pointerdown', (e) => {
+          if (e.button !== 0) return;
+          pressX = e.clientX;
+          pressY = e.clientY;
+          clearArmTimer();
+          armTimer = setTimeout(() => {
+            armTimer = null;
+            armFolderDrag();
+          }, armDelay);
+        });
+        card.addEventListener('pointermove', (e) => {
+          if (!armTimer) return;
+          const dx = Math.abs(e.clientX - pressX);
+          const dy = Math.abs(e.clientY - pressY);
+          if (dx > moveThreshold || dy > moveThreshold) {
+            clearArmTimer();
+          }
+        });
+        card.addEventListener('pointerup', clearArmTimer);
+        card.addEventListener('pointercancel', clearArmTimer);
+        card.addEventListener('pointerleave', clearArmTimer);
         card.addEventListener('click', () => {
+          if (Date.now() - lastLongPress < 700) return;
           state.currentFolderId = folder.id;
           save();
           render();
@@ -1188,6 +1466,21 @@
           render();
         });
         card.addEventListener('contextmenu', (e) => openFolderCtx(e, folder.id));
+        card.addEventListener('dragstart', (e) => {
+          if (Date.now() > dragArmedUntil) {
+            e.preventDefault();
+            return;
+          }
+          e.dataTransfer.setData('text/plain', folder.id);
+          e.dataTransfer.setData(DRAG_TYPE, JSON.stringify({ kind: 'folder', id: folder.id }));
+          e.dataTransfer.effectAllowed = 'move';
+          card.classList.remove('folder-drag-armed');
+          card.draggable = false;
+        });
+        card.addEventListener('dragend', () => {
+          card.classList.remove('folder-drag-armed');
+          card.draggable = false;
+        });
         card.addEventListener('dragover', (e) => {
           e.preventDefault();
           card.classList.add('drag-over');
@@ -1196,10 +1489,19 @@
         card.addEventListener('drop', (e) => {
           e.preventDefault();
           card.classList.remove('drag-over');
-          const id = e.dataTransfer.getData('text/plain');
-          const course = state.courses.find(c => c.id === id);
-          if (!course) return;
-          course.folderId = folder.id;
+          const payload = getDragPayload(e);
+          if (!payload) return;
+          if (payload.kind === 'course') {
+            const course = state.courses.find(c => c.id === payload.id);
+            if (!course) return;
+            course.folderId = folder.id;
+          } else {
+            const draggedFolder = getFolderById(payload.id);
+            if (!draggedFolder) return;
+            if (draggedFolder.id === folder.id) return;
+            if (isFolderInSubtree(folder.id, draggedFolder.id)) return;
+            draggedFolder.parentFolderId = folder.id;
+          }
           save();
           render();
         });
@@ -1232,15 +1534,15 @@
       }
 
       let entranceIndex = 0;
-      const sortedFolders = [...state.folders].sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-      if (!inFolderView) {
-        sortedFolders.forEach((folder) => {
-          const folderCard = buildFolderCard(folder);
-          grid.appendChild(folderCard);
-          applyCardEntrance(folderCard, entranceIndex);
-          entranceIndex += 1;
-        });
-      }
+      const sortedFolders = state.folders
+        .filter((folder) => (folder.parentFolderId || null) === (state.currentFolderId || null))
+        .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+      sortedFolders.forEach((folder) => {
+        const folderCard = buildFolderCard(folder);
+        grid.appendChild(folderCard);
+        applyCardEntrance(folderCard, entranceIndex);
+        entranceIndex += 1;
+      });
 
       const visibleCourses = inFolderView
         ? state.courses.filter(c => c.folderId === state.currentFolderId)
@@ -1252,7 +1554,7 @@
         applyCardEntrance(courseCard, entranceIndex);
         entranceIndex += 1;
       });
-      if (inFolderView && visibleCourses.length === 0) {
+      if (inFolderView && visibleCourses.length === 0 && sortedFolders.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'empty-state-card';
         empty.innerHTML = `
@@ -1293,10 +1595,17 @@
       };
       grid.ondrop = (e) => {
         if (!inFolderView) return;
-        const id = e.dataTransfer.getData('text/plain');
-        const course = state.courses.find(c => c.id === id);
-        if (!course) return;
-        course.folderId = null;
+        const payload = getDragPayload(e);
+        if (!payload) return;
+        if (payload.kind === 'course') {
+          const course = state.courses.find(c => c.id === payload.id);
+          if (!course) return;
+          course.folderId = null;
+        } else {
+          const folder = getFolderById(payload.id);
+          if (!folder) return;
+          folder.parentFolderId = state.currentFolderId;
+        }
         save();
         render();
       };
@@ -1469,9 +1778,15 @@
           confirmTone: 'danger'
         });
         if (!shouldDelete) return;
+        const deletedParentId = folder.parentFolderId || null;
         state.folders = state.folders.filter(f => f.id !== ctxFolderId);
+        state.folders.forEach((f) => {
+          if (f.parentFolderId === ctxFolderId) {
+            f.parentFolderId = deletedParentId;
+          }
+        });
         state.courses.forEach(c => { if (c.folderId === ctxFolderId) c.folderId = null; });
-        if (state.currentFolderId === ctxFolderId) state.currentFolderId = null;
+        if (state.currentFolderId === ctxFolderId) state.currentFolderId = deletedParentId;
         save();
         render();
       }
@@ -1624,7 +1939,7 @@
       }
       const newFolderId = uid();
       highlightedFolderId = newFolderId;
-      state.folders.push({ id: newFolderId, name: trimmed, collapsed: false });
+      state.folders.push({ id: newFolderId, name: trimmed, collapsed: false, parentFolderId: state.currentFolderId || null });
       save();
       render();
     });
@@ -1719,7 +2034,7 @@
           folderId = folderMap.get(key) || null;
           if (!folderId) {
             folderId = uid();
-            state.folders.push({ id: folderId, name: folderName, collapsed: false });
+            state.folders.push({ id: folderId, name: folderName, collapsed: false, parentFolderId: null });
             folderMap.set(key, folderId);
             if (!firstCreatedFolderId) firstCreatedFolderId = folderId;
           }
@@ -1868,6 +2183,16 @@
         state.courses = Array.isArray(updatedState.courses) ? updatedState.courses : [];
         state.folders = Array.isArray(updatedState.folders) ? updatedState.folders : [];
         state.currentFolderId = updatedState.currentFolderId || null;
+        const folderIds = new Set(state.folders.map((folder) => folder.id));
+        state.folders.forEach((folder) => {
+          folder.parentFolderId = folder.parentFolderId || null;
+          if (folder.parentFolderId && !folderIds.has(folder.parentFolderId)) {
+            folder.parentFolderId = null;
+          }
+        });
+        if (state.currentFolderId && !folderIds.has(state.currentFolderId)) {
+          state.currentFolderId = null;
+        }
         render();
         console.log("Synced latest grades across tabs/pages");
       }
