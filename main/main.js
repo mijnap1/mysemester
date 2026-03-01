@@ -1700,6 +1700,7 @@
     
     const ctx = document.getElementById('ctxMenu');
     const folderCtx = document.getElementById('folderCtxMenu');
+    const folderCtxDetachBtn = folderCtx ? folderCtx.querySelector('button[data-act="detach"]') : null;
     const ctxCrncrLabelEl = document.getElementById('ctxCrncrLabel');
     const ctxCrncrBtn = ctx ? ctx.querySelector('button[data-act="crncr"]') : null;
     let ctxCourseId = null;
@@ -1782,7 +1783,7 @@
     function onDocClickClose(){ ctx.classList.remove('show'); }
     function positionFolderCtx(x,y){
       if (!folderCtx) return;
-      const pad = 8; const w = folderCtx.offsetWidth || 200; const h = folderCtx.offsetHeight || 120;
+      const pad = 8; const w = folderCtx.offsetWidth || 200; const h = folderCtx.offsetHeight || 160;
       const vw = window.innerWidth, vh = window.innerHeight; let left = x, top = y;
       if(left + w + pad > vw) left = vw - w - pad; if(top + h + pad > vh) top = vh - h - pad;
       folderCtx.style.left = left + 'px'; folderCtx.style.top = top + 'px';
@@ -1791,6 +1792,10 @@
       if (!folderCtx) return;
       e.preventDefault();
       ctxFolderId = id;
+      const folder = state.folders.find((f) => f.id === id);
+      if (folderCtxDetachBtn) {
+        folderCtxDetachBtn.style.display = folder?.parentFolderId ? '' : 'none';
+      }
       positionFolderCtx(e.clientX, e.clientY);
       folderCtx.classList.add('show');
       document.addEventListener('click', () => folderCtx.classList.remove('show'), { once: true });
@@ -1827,6 +1832,12 @@
         });
         if (!next) return;
         folder.name = next;
+        save();
+        render();
+      }
+      if (act === 'detach') {
+        if (!folder.parentFolderId) return;
+        folder.parentFolderId = null;
         save();
         render();
       }
