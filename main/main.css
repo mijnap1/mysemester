@@ -500,6 +500,21 @@ body.tour-restrict .tour-allow * {
       opacity: 1;
       transform: translateY(0);
     }
+    :root[data-theme="dark"] .folder-card {
+      border-color: #334155;
+      background: #111b2f;
+    }
+    :root[data-theme="dark"] .folder-card:hover {
+      border-color: #60a5fa;
+      background: #15233c;
+    }
+    :root[data-theme="dark"] .folder-badge {
+      background: rgba(59, 130, 246, 0.2);
+      color: #bfdbfe;
+    }
+    :root[data-theme="dark"] .folder-hint {
+      color: #93c5fd;
+    }
     .hero-back {
       margin-top: 12px;
       display: inline-flex;
@@ -1008,6 +1023,7 @@ dialog {
       .empty-state-card .empty-desc {
         color: #cbd5e1;
       }
+
       .empty-state-card .btn-empty-pill {
         background: rgba(37,99,235,0.15);
         border-color: #3b82f6;
