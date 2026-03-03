@@ -815,7 +815,7 @@
     const quickTipEl = document.querySelector('.sidebar-help-text');
     if (quickTipEl) {
       const tips = [
-        'Right-click a course card for edit, duplicate, and more options.',
+        'Right-click a course card to edit, duplicate, remove from folder, and more.',
         'Double-click an assessment name or weight to edit it.',
         'Use the target estimate to see what you need on remaining work.',
         'Switch between compact and spacious layouts in Settings.'
@@ -1701,6 +1701,7 @@
     const ctx = document.getElementById('ctxMenu');
     const folderCtx = document.getElementById('folderCtxMenu');
     const folderCtxDetachBtn = folderCtx ? folderCtx.querySelector('button[data-act="detach"]') : null;
+    const ctxDetachBtn = ctx ? ctx.querySelector('button[data-act="detach"]') : null;
     const ctxCrncrLabelEl = document.getElementById('ctxCrncrLabel');
     const ctxCrncrBtn = ctx ? ctx.querySelector('button[data-act="crncr"]') : null;
     let ctxCourseId = null;
@@ -1758,6 +1759,9 @@
 
       
       const course = state.courses.find(c => c.id === id);
+      if (ctxDetachBtn) {
+        ctxDetachBtn.style.display = course?.folderId ? 'flex' : 'none';
+      }
       if (ctxCrncrBtn && !universityRules.creditAllowed) {
         ctxCrncrBtn.style.display = 'none';
       } else if (ctxCrncrBtn) {
@@ -1806,6 +1810,7 @@
       if(act==='del') void removeCourse(ctxCourseId);
       if(act==='dup') duplicateCourse(ctxCourseId);
       if(act==='edit') editCourse(ctxCourseId);
+      if(act==='detach') detachCourseFromFolder(ctxCourseId);
       if(act==='crncr') toggleCrncr(ctxCourseId);
     });
     folderCtx?.addEventListener('click', async (e) => {
@@ -1919,6 +1924,14 @@
       const copy = { ...c, id: uid(), code: c.code+" (copy)" };
       highlightedCardId = copy.id;
       state.courses.push(copy); save(); render();
+    }
+    function detachCourseFromFolder(id){
+      const c = state.courses.find(x=>x.id===id);
+      if(!c || !c.folderId) return;
+      c.folderId = null;
+      highlightedCardId = c.id;
+      save();
+      render();
     }
     function editCourse(id){
       const c = state.courses.find(x=>x.id===id); if(!c) return; editingId = id;
