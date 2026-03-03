@@ -35,13 +35,37 @@ It is intentionally browser-first:
 - Keep data local by default
 - Sync across devices when signed in with Supabase
 
+![Landing Page Intro](images/5.png)
+
 ## Key Features
 - Course management: add, edit, and remove courses with automatic course icons
 - Assessment tracking: manage grading items, weights, and performance per course
 - Real-time GPA feedback: live GPA and letter-grade calculations as inputs change
+- Built-in calculator: quick calculations while entering grades
 - Theme support: light and dark modes
 - Portability: export and import course + grade data
 - Cloud sync: Supabase authentication and cross-device synchronization
+
+### Dashboard and Semester Overview
+![Dashboard Overview](images/1.png)
+
+### Add Courses
+![Add Course Modal](images/2.png)
+
+### Manage Semester Folders
+![Folder Actions Menu](images/4.png)
+
+### Grade Entry and Assessment Tracking
+![Course Grade Table](images/6.png)
+
+### In-App Calculator
+![Calculator Popup](images/7.png)
+
+### Estimate Target Outcomes
+![Estimate Goal Input](images/8.png)
+
+### Profile and Account Settings
+![Profile Settings Modal](images/3.png)
 
 ## How It Works
 1. Create courses in the app dashboard.
