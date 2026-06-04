@@ -2374,9 +2374,6 @@
     const profileNameInput = document.getElementById('profileNameInput');
     const profileNickInput = document.getElementById('profileNickInput');
     const profileEmailInput = document.getElementById('profileEmailInput');
-    const profilePasswordInput = document.getElementById('profilePasswordInput');
-    const profileCurrentPwInput = document.getElementById('profileCurrentPw');
-    const profileNewPwInput = document.getElementById('profileNewPw');
     const profileCancelBtn = document.getElementById('profileCancelBtn');
     const profileUniversityInput = document.getElementById('profileUniversityInput');
     const profileYearSelect = document.getElementById('profileYearSelect');
@@ -2392,7 +2389,6 @@
     const sidebarProgramEl = document.getElementById('sidebarProgram');
     const profileNameError = document.getElementById('profileNameError');
     const profileEmailError = document.getElementById('profileEmailError');
-    const profilePasswordError = document.getElementById('profilePasswordError');
     const profileStatus = document.getElementById('profileStatus');
     const profileLastUpdated = document.getElementById('profileLastUpdated');
     const undoToast = document.getElementById('undoToast');
@@ -2495,13 +2491,9 @@
       profileNameInput.value = profile.name || "";
       profileNickInput.value = profile.nickname || "";
       profileEmailInput.value = profile.email || "";
-      profilePasswordInput.value = "";
-      if (profileCurrentPwInput) profileCurrentPwInput.value = "";
-      if (profileNewPwInput) profileNewPwInput.value = "";
       profilePicInput.value = "";
       if (profileNameError) profileNameError.textContent = "";
       if (profileEmailError) profileEmailError.textContent = "";
-      if (profilePasswordError) profilePasswordError.textContent = "";
       if (profileStatus) {
         profileStatus.textContent = "";
         profileStatus.classList.remove('is-success', 'is-error');
@@ -2539,9 +2531,6 @@
       let valid = true;
       const nameVal = profileNameInput?.value.trim() || "";
       const emailVal = profileEmailInput?.value.trim() || "";
-      const currentPw = profileCurrentPwInput?.value || "";
-      const newPw = profileNewPwInput?.value || "";
-      const confirmPw = profilePasswordInput?.value || "";
 
       if (nameVal && nameVal.length < 2) {
         setInlineError(profileNameError, profileNameInput, "Name should be at least 2 characters.");
@@ -2557,32 +2546,11 @@
         setInlineError(profileEmailError, profileEmailInput, "");
       }
 
-      const pwTouched = currentPw || newPw || confirmPw;
-      if (pwTouched) {
-        if (!newPw || newPw.length < 6) {
-          setInlineError(profilePasswordError, profilePasswordInput, "New password must be at least 6 characters.");
-          valid = false;
-        } else if (newPw !== confirmPw) {
-          setInlineError(profilePasswordError, profilePasswordInput, "Passwords do not match.");
-          valid = false;
-        } else if (!currentPw) {
-          setInlineError(profilePasswordError, profilePasswordInput, "Enter your current password.");
-          valid = false;
-        } else {
-          setInlineError(profilePasswordError, profilePasswordInput, "");
-        }
-      } else {
-        setInlineError(profilePasswordError, profilePasswordInput, "");
-      }
-
       return valid;
     }
 
     profileNameInput?.addEventListener('blur', validateProfileInputs);
     profileEmailInput?.addEventListener('blur', validateProfileInputs);
-    profileCurrentPwInput?.addEventListener('blur', validateProfileInputs);
-    profileNewPwInput?.addEventListener('blur', validateProfileInputs);
-    profilePasswordInput?.addEventListener('blur', validateProfileInputs);
 
     if (profileForm) {
       profileForm.addEventListener('submit', (e) => {
@@ -2597,16 +2565,13 @@
         }
 
         const prevProfile = loadProfile() || {};
-        const nextPassword = profileNewPwInput?.value
-          ? profileNewPwInput.value
-          : (prevProfile.password || "");
         const newProfile = {
           picture: profilePicPreview.src || prevProfile.picture || "",
           
           name: (profileNameInput.value.trim()) || prevProfile.name || (getAuth().fullName || "") || (getAuth().username || ""),
           nickname: (profileNickInput.value.trim()) || prevProfile.nickname || "",
           email: (profileEmailInput.value.trim()) || prevProfile.email || (getAuth().email || ""),
-          password: nextPassword,
+          password: prevProfile.password || "",
           updatedAt: new Date().toISOString()
         };
 

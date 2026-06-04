@@ -310,12 +310,12 @@
           </div>
           <div class="profile-academic">
             <div class="profile-academic-title">Academic Profile</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-              <div>
+            <div class="profile-form-grid">
+              <div class="profile-field">
                 <label style="font-size:13px;font-weight:600;color:var(--muted);">University</label>
                 <input id="profileUniversityInput" class="profile-input readonly-field" placeholder="University" readonly aria-readonly="true" />
               </div>
-              <div>
+              <div class="profile-field">
                 <label style="font-size:13px;font-weight:600;color:var(--muted);">Year</label>
                 <div class="profile-select-wrap" id="profileYearWrap">
                   <button type="button" class="profile-select-button" id="profileYearButton">Select year</button>
@@ -328,9 +328,7 @@
                   </div>
                 </div>
               </div>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-              <div>
+              <div class="profile-field profile-field-full">
                 <label style="font-size:13px;font-weight:600;color:var(--muted);">Program</label>
                 <div class="profile-select-wrap" id="profileProgramWrap">
                   <button type="button" class="profile-select-button" id="profileProgramButton">Select program</button>
@@ -373,54 +371,25 @@
                   </div>
                 </div>
               </div>
-              <div></div>
             </div>
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-            <div>
+          <div class="profile-form-grid">
+            <div class="profile-field">
               <label style="font-size:13px;font-weight:600;color:var(--muted);">Full Name</label>
               <input id="profileNameInput" type="text" placeholder="Full Name" />
               <div class="profile-inline" id="profileNameError"></div>
             </div>
-            <div>
+            <div class="profile-field">
               <label style="font-size:13px;font-weight:600;color:var(--muted);">Nickname</label>
               <input id="profileNickInput" type="text" placeholder="Preferred Nickname" />
             </div>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-            <div>
+          <div class="profile-form-grid profile-form-grid-tight">
+            <div class="profile-field profile-field-full">
               <label style="font-size:13px;font-weight:600;color:var(--muted);">Email</label>
               <input id="profileEmailInput" type="email" placeholder="you@example.com" />
               <div class="profile-inline" id="profileEmailError"></div>
-            </div>
-            <div>
-              <label style="font-size:13px;font-weight:600;color:var(--muted);">Current Password</label>
-              <div class="pw-field" style="position:relative;">
-                <input id="profileCurrentPw" type="password" placeholder="Current password" style="width:100%;" />
-                <ion-icon name="eye-outline" class="pw-eye" data-target="profileCurrentPw"
-                          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--muted);cursor:pointer;"></ion-icon>
-              </div>
-            </div>
-          </div>
-
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
-            <div>
-              <label style="font-size:13px;font-weight:600;color:var(--muted);">New Password</label>
-              <div class="pw-field" style="position:relative;">
-                <input id="profileNewPw" type="password" placeholder="New password" style="width:100%;" />
-                <ion-icon name="eye-outline" class="pw-eye" data-target="profileNewPw"
-                          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--muted);cursor:pointer;"></ion-icon>
-              </div>
-            </div>
-            <div>
-              <label style="font-size:13px;font-weight:600;color:var(--muted);">Confirm New Password</label>
-              <div class="pw-field" style="position:relative;">
-                <input id="profilePasswordInput" type="password" placeholder="Confirm new password" style="width:100%;" />
-                <ion-icon name="eye-outline" class="pw-eye" data-target="profilePasswordInput"
-                          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--muted);cursor:pointer;"></ion-icon>
-              </div>
-              <div class="profile-inline" id="profilePasswordError"></div>
             </div>
           </div>
         </div>

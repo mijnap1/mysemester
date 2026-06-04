@@ -319,7 +319,7 @@ body.tour-restrict .tour-allow * {
 
   .profile-academic {
     display: grid;
-    gap: 12px;
+    gap: 14px;
   }
   .profile-academic-title {
     font-size: 12px;
@@ -327,6 +327,22 @@ body.tour-restrict .tour-allow * {
     text-transform: uppercase;
     color: var(--muted);
     font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .profile-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    align-items: start;
+  }
+  .profile-form-grid-tight {
+    margin-top: -8px;
+  }
+  .profile-field {
+    min-width: 0;
+  }
+  .profile-field-full {
+    grid-column: 1 / -1;
   }
   .profile-input,
   .profile-select,
@@ -1201,6 +1217,33 @@ dialog {
       .iconbtn { width: 36px; height: 36px; }
       .menu-icon { width: 40px; height: 40px; }
       .h-controls { gap: 6px; }
+      .account-dd {
+        position: fixed;
+        top: calc(var(--header-h) + 10px);
+        left: 12px;
+        right: 12px;
+        width: auto;
+        max-width: none;
+        padding: 12px;
+      }
+      .acc-row {
+        align-items: flex-start;
+      }
+      .acc-meta {
+        min-width: 0;
+      }
+      .acc-name,
+      .acc-user {
+        overflow-wrap: anywhere;
+      }
+      .acc-actions button,
+      .acc-actions a {
+        min-height: 48px;
+      }
+      .account-dd > div[style*="justify-content:space-between"] {
+        flex-wrap: wrap;
+        gap: 8px;
+      }
       .hero h2 { font-size: 27px; }
       .hero p { font-size: 14px; }
       .card { align-items: flex-start; }
@@ -1938,6 +1981,18 @@ dialog {
     min-height: 16px;
     margin-top: 6px;
     line-height: 1.2;
+  }
+  @media (max-width: 720px) {
+    .profile-form-grid {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    .profile-form-grid-tight {
+      margin-top: -4px;
+    }
+    .profile-field-full {
+      grid-column: auto;
+    }
   }
   #profileModal .profile-status-wrap {
     display: flex;
