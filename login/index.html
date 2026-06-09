@@ -23,7 +23,12 @@
 
     <h1>Welcome Back</h1>
     <input type="text" id="username" placeholder="Username" />
-    <input type="password" id="password" placeholder="Password" />
+    <div class="input-wrapper">
+      <input type="password" id="password" placeholder="Password" />
+      <button type="button" class="toggle-password" aria-label="Toggle password visibility" tabindex="-1">
+        <ion-icon name="eye-off-outline"></ion-icon>
+      </button>
+    </div>
     <div class="error" id="loginError">⚠ Please enter both username and password.</div>
     <div class="success" id="resetSuccess">Check your email for a reset link.</div>
     <button id="loginBtn">Login</button>

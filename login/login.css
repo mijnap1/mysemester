@@ -79,6 +79,54 @@
       margin: 0 auto;
       display: block;
       background: transparent;
+      box-sizing: border-box;
+    }
+    .input-wrapper {
+      position: relative;
+      width: 90%;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
+    .input-wrapper input {
+      width: 100%;
+      margin: 0;
+      padding-right: 44px;
+      box-sizing: border-box;
+    }
+    .toggle-password {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      padding: 0;
+      transition: color 0.22s var(--ease), transform 0.2s var(--ease);
+      outline: none;
+      height: 32px;
+      width: 32px;
+      margin: 0;
+    }
+    .toggle-password:hover,
+    .toggle-password:focus {
+      transform: translateY(-50%) scale(1.1);
+      background: transparent;
+    }
+    .toggle-password[aria-pressed="true"] {
+      color: var(--text);
+    }
+    .toggle-password ion-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+      display: block;
     }
     input:focus { border-color: var(--blue); outline: none; }
 
