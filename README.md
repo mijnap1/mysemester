@@ -42,6 +42,7 @@ It is intentionally browser-first:
 - Assessment tracking: manage grading items, weights, and performance per course
 - Real-time GPA feedback: live GPA and letter-grade calculations as inputs change
 - Built-in calculator: quick calculations while entering grades
+- AI Planner: unofficial first-year UofT Arts & Science course planning help with local mock responses
 - Theme support: light and dark modes
 - Portability: export and import course + grade data
 - Cloud sync: Supabase authentication and cross-device synchronization
@@ -78,6 +79,7 @@ It is intentionally browser-first:
 | Layer | Technology |
 | --- | --- |
 | Frontend | HTML, CSS, JavaScript |
+| Local API | Node.js HTTP server for AI Planner routes |
 | Auth + Storage | Supabase |
 | Hosting | GitHub Pages (custom domain) |
 
@@ -100,6 +102,13 @@ It is intentionally browser-first:
 │   ├── main.css
 │   ├── main.js
 │   └── main.module.js
+├── ai-planner/
+│   ├── index.html
+│   ├── ai-planner.css
+│   └── ai-planner.js
+├── data/
+│   └── ai-planner-courses.json
+├── server.js               # Optional local server with /api/ai-planner routes
 └── grade/
     ├── index.html
     ├── grade.css
@@ -116,6 +125,31 @@ python3 -m http.server 8080
 ```
 
 Then open [http://localhost:8080](http://localhost:8080).
+
+### AI Planner API (Optional)
+The AI Planner page works as a static page with useful local mock responses if API routes are unavailable.
+
+To run the server-side API routes locally:
+
+```bash
+node server.js
+```
+
+Then open [http://localhost:3000/ai-planner/](http://localhost:3000/ai-planner/).
+
+Set `OPENAI_API_KEY` to enable OpenAI-backed responses:
+
+```bash
+OPENAI_API_KEY=your_api_key_here node server.js
+```
+
+If `OPENAI_API_KEY` is not set, these routes return deterministic mock responses:
+- `/api/ai-planner/plan`
+- `/api/ai-planner/ask`
+- `/api/ai-planner/explain`
+- `/api/ai-planner/semester-check`
+
+AI Planner is an unofficial advising helper. Students should verify important decisions with the UofT Calendar, department pages, registrar, or an academic advisor.
 
 ## Supabase Setup (Optional)
 If you want login + cloud sync, create a Supabase project and apply the SQL below.

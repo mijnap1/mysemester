@@ -238,10 +238,13 @@ body.tour-restrict .tour-allow * {
       transition: all 0.25s var(--ease);
     }
     .navbtn ion-icon { font-size: 22px; }
+    .navbtn[hidden] { display: none !important; }
     .navbtn.green { border-color: var(--green); color: var(--green); }
     .navbtn.green:hover { background: var(--green); color: #fff; }
     .navbtn.blue { border-color: var(--blue); color: var(--blue); }
     .navbtn.blue:hover { background: var(--blue); color: #fff; }
+    .navbtn.purple { border-color: var(--purple); color: var(--purple); text-decoration: none; }
+    .navbtn.purple:hover { background: var(--purple); color: #fff; }
     .navbtn.gray { border-color: #94a3b8; color: #475569; }
     .navbtn.gray:hover { background: #94a3b8; color: #fff; }
 

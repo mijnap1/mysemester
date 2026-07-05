@@ -1,0 +1,110 @@
+[
+  {
+    "code": "CSC108",
+    "title": "Introduction to Computer Programming",
+    "commonPaths": ["CS", "Stats", "Math", "Data Science", "Unsure"],
+    "roughDifficulty": "Medium",
+    "notes": "A common first programming course. It is usually the starting point for students with little or no coding background.",
+    "warnings": ["Do not assume it is easy just because it is introductory.", "Check current prerequisites, exclusions, and program rules officially."],
+    "confidenceLevel": "General planning advice"
+  },
+  {
+    "code": "CSC148",
+    "title": "Introduction to Computer Science",
+    "commonPaths": ["CS", "Stats", "Math", "Data Science"],
+    "roughDifficulty": "High",
+    "notes": "Often treated as a key next programming course after CSC108 or equivalent background.",
+    "warnings": ["This can be a heavy course if your programming foundation is shaky.", "Verify current POSt and prerequisite rules before planning around it."],
+    "confidenceLevel": "Verify officially"
+  },
+  {
+    "code": "CSC165",
+    "title": "Mathematical Expression and Reasoning for Computer Science",
+    "commonPaths": ["CS", "Math", "Stats"],
+    "roughDifficulty": "High",
+    "notes": "Proofs, logic, and mathematical reasoning are central. The workload can feel different from programming-heavy CS courses.",
+    "warnings": ["Students sometimes underestimate the proof-writing adjustment.", "Verify whether CSC165, CSC240, or another option fits your target program."],
+    "confidenceLevel": "Student experience"
+  },
+  {
+    "code": "MAT135",
+    "title": "Calculus I",
+    "commonPaths": ["Life Sci", "Econ", "Stats", "Math", "CS"],
+    "roughDifficulty": "Medium",
+    "notes": "A common first calculus option. Pace and assessment style can still be a jump from high school.",
+    "warnings": ["Check whether your intended program requires MAT135/136, MAT137, or a different calculus stream."],
+    "confidenceLevel": "Verify officially"
+  },
+  {
+    "code": "MAT136",
+    "title": "Calculus II",
+    "commonPaths": ["Life Sci", "Econ", "Stats", "Math", "CS"],
+    "roughDifficulty": "Medium",
+    "notes": "Common continuation after MAT135, with integration and series-style topics depending on the offering.",
+    "warnings": ["Confirm prerequisites and whether the MAT135/136 stream satisfies your program requirements."],
+    "confidenceLevel": "Verify officially"
+  },
+  {
+    "code": "MAT137",
+    "title": "Calculus with Proofs",
+    "commonPaths": ["Math", "CS", "Stats"],
+    "roughDifficulty": "High",
+    "notes": "A proof-oriented calculus course. It can be rewarding, but it is a major workload commitment for many first-year students.",
+    "warnings": ["Do not choose it only because it sounds stronger; check fit, background, and program needs.", "Difficulty is highly subjective and instructor-dependent."],
+    "confidenceLevel": "Student experience"
+  },
+  {
+    "code": "MAT223",
+    "title": "Linear Algebra I",
+    "commonPaths": ["Math", "Stats", "CS", "Econ"],
+    "roughDifficulty": "Medium",
+    "notes": "Introduces linear algebra ideas used across math, stats, economics, CS, and data-heavy paths.",
+    "warnings": ["Check whether your program expects MAT223, MAT240, or another linear algebra option."],
+    "confidenceLevel": "Verify officially"
+  },
+  {
+    "code": "STA130",
+    "title": "Introduction to Statistical Reasoning and Data Science",
+    "commonPaths": ["Stats", "CS", "Econ", "Life Sci"],
+    "roughDifficulty": "Medium",
+    "notes": "A common first statistics course for students exploring data, statistics, or quantitative programs.",
+    "warnings": ["Verify current statistics program requirements and exclusions before relying on it."],
+    "confidenceLevel": "Verify officially"
+  },
+  {
+    "code": "PHL245",
+    "title": "Modern Symbolic Logic",
+    "commonPaths": ["CS", "Math", "Philosophy", "Breadth"],
+    "roughDifficulty": "Medium",
+    "notes": "Logic-focused course that may appeal to students who like formal reasoning.",
+    "warnings": ["It is not a replacement for CS or math requirements unless official sources say so."],
+    "confidenceLevel": "General planning advice"
+  },
+  {
+    "code": "AST101",
+    "title": "The Sun and Its Neighbours",
+    "commonPaths": ["Breadth", "Life Sci", "Unsure"],
+    "roughDifficulty": "Low",
+    "notes": "Often considered an accessible science breadth option, but workload depends on the offering.",
+    "warnings": ["Check breadth category, assessment format, and exclusions in the current Calendar."],
+    "confidenceLevel": "Student experience"
+  },
+  {
+    "code": "ECO101",
+    "title": "Principles of Microeconomics",
+    "commonPaths": ["Econ", "Stats", "Math", "Commerce"],
+    "roughDifficulty": "Medium",
+    "notes": "A standard first economics course and common starting point for economics paths.",
+    "warnings": ["Program entry rules can be specific; verify grades, combinations, and exclusions officially."],
+    "confidenceLevel": "Verify officially"
+  },
+  {
+    "code": "ECO102",
+    "title": "Principles of Macroeconomics",
+    "commonPaths": ["Econ", "Stats", "Math", "Commerce"],
+    "roughDifficulty": "Medium",
+    "notes": "Common companion to ECO101 for students considering economics or related programs.",
+    "warnings": ["Check whether ECO101 and ECO102 are both needed for your intended program."],
+    "confidenceLevel": "Verify officially"
+  }
+]

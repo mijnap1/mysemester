@@ -2387,6 +2387,7 @@
     const sidebarUniversityEl = document.getElementById('sidebarUniversity');
     const sidebarYearEl = document.getElementById('sidebarYear');
     const sidebarProgramEl = document.getElementById('sidebarProgram');
+    const aiPlannerNavEl = document.getElementById('openAiPlanner');
     const profileNameError = document.getElementById('profileNameError');
     const profileEmailError = document.getElementById('profileEmailError');
     const profileStatus = document.getElementById('profileStatus');
@@ -2441,6 +2442,9 @@
       }
       if (sidebarProgramEl) {
         sidebarProgramEl.textContent = setup?.program || 'Not set';
+      }
+      if (aiPlannerNavEl) {
+        aiPlannerNavEl.hidden = setup?.university !== 'University of Toronto';
       }
     }
 

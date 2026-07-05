@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Planner | MySemester</title>
+  <link rel="icon" type="image/png" href="/mysemesterlogo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <link rel="stylesheet" href="ai-planner.css">
+</head>
+<body>
+  <header class="planner-header">
+    <a class="brand" href="/main/" aria-label="Back to dashboard">
+      <ion-icon name="school-outline"></ion-icon>
+      <span>MySemester</span>
+    </a>
+    <nav class="planner-nav" aria-label="AI Planner sections">
+      <button class="tab-btn active" data-tab="planner">Course Planner</button>
+      <button class="tab-btn" data-tab="explainer">Course Explainer</button>
+      <button class="tab-btn" data-tab="semester">Semester Check</button>
+      <button class="tab-btn" data-tab="enrolment">Enrolment Prep</button>
+      <button class="tab-btn" data-tab="ask">Ask AI Planner</button>
+    </nav>
+  </header>
+
+  <main class="planner-wrap">
+    <section class="planner-hero">
+      <div>
+        <p class="eyebrow">Unofficial UofT Arts & Science planning helper</p>
+        <h1>AI Planner</h1>
+        <p>Plan first-year courses, spot workload risks, and prepare better questions before enrolment.</p>
+      </div>
+      <div class="official-note">
+        <ion-icon name="alert-circle-outline"></ion-icon>
+        <span>This is not official advising. Verify important decisions with the UofT Calendar, department pages, your registrar, or an academic advisor.</span>
+      </div>
+    </section>
+
+    <section class="panel tab-panel active" id="plannerPanel">
+      <div class="panel-head">
+        <div>
+          <h2>Course Planner</h2>
+          <p>Compare a possible first-year schedule against your path, workload, and concerns.</p>
+        </div>
+      </div>
+      <form class="planner-form" id="planForm">
+        <label class="field-label">Intended path
+          <div class="planner-select-wrap" data-select>
+            <button type="button" class="planner-select-button" data-select-button>Unsure</button>
+            <input type="hidden" name="path" value="Unsure" data-select-input>
+            <div class="planner-select-menu" role="listbox">
+              <button type="button" class="planner-select-option" data-value="CS">CS</button>
+              <button type="button" class="planner-select-option" data-value="Stats">Stats</button>
+              <button type="button" class="planner-select-option" data-value="Math">Math</button>
+              <button type="button" class="planner-select-option" data-value="Econ">Econ</button>
+              <button type="button" class="planner-select-option" data-value="Life Sci">Life Sci</button>
+              <button type="button" class="planner-select-option is-selected" data-value="Unsure">Unsure</button>
+              <button type="button" class="planner-select-option" data-value="Other">Other</button>
+            </div>
+          </div>
+        </label>
+        <label class="field-label">Courses being considered
+          <input name="courses" placeholder="CSC108, MAT137, STA130">
+        </label>
+        <label class="field-label">Preferred workload
+          <div class="planner-select-wrap" data-select>
+            <button type="button" class="planner-select-button" data-select-button>Balanced</button>
+            <input type="hidden" name="workload" value="Balanced" data-select-input>
+            <div class="planner-select-menu" role="listbox">
+              <button type="button" class="planner-select-option" data-value="Light">Light</button>
+              <button type="button" class="planner-select-option is-selected" data-value="Balanced">Balanced</button>
+              <button type="button" class="planner-select-option" data-value="Ambitious">Ambitious</button>
+            </div>
+          </div>
+        </label>
+        <fieldset>
+          <legend>Concerns</legend>
+          <div class="check-grid">
+            <label><input type="checkbox" name="concerns" value="difficulty"> difficulty</label>
+            <label><input type="checkbox" name="concerns" value="timetable"> timetable</label>
+            <label><input type="checkbox" name="concerns" value="POSt"> POSt</label>
+            <label><input type="checkbox" name="concerns" value="breadth"> breadth</label>
+            <label><input type="checkbox" name="concerns" value="CR/NCR"> CR/NCR</label>
+            <label><input type="checkbox" name="concerns" value="tutorials"> tutorials</label>
+            <label><input type="checkbox" name="concerns" value="enrolment"> enrolment</label>
+          </div>
+        </fieldset>
+        <button class="btn-primary" type="submit"><ion-icon name="sparkles-outline"></ion-icon> Build plan</button>
+      </form>
+      <div class="result-grid" id="planResult"></div>
+    </section>
+
+    <section class="panel tab-panel" id="explainerPanel">
+      <div class="panel-head">
+        <div>
+          <h2>Course Explainer</h2>
+          <p>Get a plain-English snapshot of common first-year courses.</p>
+        </div>
+      </div>
+      <form class="inline-form" id="explainForm">
+        <label>Course code
+          <input name="courseCode" placeholder="CSC108" autocomplete="off">
+        </label>
+        <button class="btn-primary" type="submit"><ion-icon name="search-outline"></ion-icon> Explain</button>
+      </form>
+      <div class="result-grid" id="explainResult"></div>
+    </section>
+
+    <section class="panel tab-panel" id="semesterPanel">
+      <div class="panel-head">
+        <div>
+          <h2>Semester Check</h2>
+          <p>Uses your MySemester course and assessment data where available.</p>
+        </div>
+        <button class="btn-plain" id="semesterRefresh" type="button"><ion-icon name="refresh-outline"></ion-icon> Refresh</button>
+      </div>
+      <div class="result-grid" id="semesterResult"></div>
+    </section>
+
+    <section class="panel tab-panel" id="enrolmentPanel">
+      <div class="panel-head">
+        <div>
+          <h2>Enrolment Prep</h2>
+          <p>A compact checklist for the days before your enrolment time.</p>
+        </div>
+      </div>
+      <div class="result-grid" id="enrolmentResult"></div>
+    </section>
+
+    <section class="panel tab-panel" id="askPanel">
+      <div class="panel-head">
+        <div>
+          <h2>Ask AI Planner</h2>
+          <p>Ask in simple language. Answers stay short, practical, and unofficial.</p>
+        </div>
+      </div>
+      <form class="ask-form" id="askForm">
+        <textarea name="question" placeholder="Example: Is CSC108, MAT137, and ECO101 too much for my first term?"></textarea>
+        <button class="btn-primary" type="submit"><ion-icon name="chatbubble-ellipses-outline"></ion-icon> Ask</button>
+      </form>
+      <div class="result-grid" id="askResult"></div>
+    </section>
+  </main>
+
+  <script src="ai-planner.js" defer></script>
+</body>
+</html>
