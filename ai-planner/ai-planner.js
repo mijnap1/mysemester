@@ -1,12 +1,20 @@
 (function () {
   const OFFICIAL_NOTE = 'Unofficial planning help only. Verify important decisions with the UofT Calendar, department pages, your registrar, or an academic advisor.';
+  const COURSE_PLACEHOLDERS = [
+    'CSC108, MAT137, STA130',
+    'ECO101, MAT135, PHL245',
+    'BIO120, CHM135, MAT136',
+    'PSY100, SOC100, AST101',
+    'CSC148, CSC165, MAT223',
+    'POL101, HIS102, ENG100'
+  ];
   let seedCourses = [];
 
   const storedTheme = localStorage.getItem('uoft_theme') || 'light';
   document.documentElement.dataset.theme = storedTheme === 'dark' ? 'dark' : 'light';
 
   const els = {
-    tabs: Array.from(document.querySelectorAll('.tab-btn')),
+    tabs: Array.from(document.querySelectorAll('.tab-btn[data-tab]')),
     panels: {
       planner: document.getElementById('plannerPanel'),
       explainer: document.getElementById('explainerPanel'),
@@ -15,6 +23,7 @@
       ask: document.getElementById('askPanel')
     },
     planForm: document.getElementById('planForm'),
+    coursesInput: document.querySelector('#planForm input[name="courses"]'),
     explainForm: document.getElementById('explainForm'),
     askForm: document.getElementById('askForm'),
     planResult: document.getElementById('planResult'),
@@ -65,6 +74,17 @@
     return `<div class="badge-row">${(items || []).filter(Boolean).map((item) => `<span class="badge">${escapeHtml(item)}</span>`).join('')}</div>`;
   }
 
+  function initRotatingCoursePlaceholder() {
+    if (!els.coursesInput) return;
+    let index = 0;
+    els.coursesInput.placeholder = COURSE_PLACEHOLDERS[index];
+    setInterval(() => {
+      if (document.activeElement === els.coursesInput || els.coursesInput.value.trim()) return;
+      index = (index + 1) % COURSE_PLACEHOLDERS.length;
+      els.coursesInput.placeholder = COURSE_PLACEHOLDERS[index];
+    }, 2600);
+  }
+
   function courseBadge(course) {
     return `<div class="badge-row">
       <span class="badge">${escapeHtml(course.code)}</span>
@@ -78,7 +98,13 @@
   }
 
   function setError(target, message) {
-    target.innerHTML = card('Could not finish that request', `<p>${escapeHtml(message)}</p><p>${escapeHtml(OFFICIAL_NOTE)}</p>`, { full: true, warning: true });
+    target.innerHTML = `<article class="ai-card full validation-card">
+      <span class="validation-dot" aria-hidden="true"></span>
+      <div class="validation-copy">
+        <h3>${escapeHtml(message)}</h3>
+        <p>Try <strong>CSC108, MAT137, STA130</strong> or choose courses from the catalog.</p>
+      </div>
+    </article>`;
   }
 
   function closePlannerSelects(exceptWrap) {
@@ -401,14 +427,21 @@
     renderSemester(data);
   }
 
+  function activateTab(tab) {
+    if (!els.panels[tab]) return;
+    els.tabs.forEach((item) => item.classList.toggle('active', item.dataset.tab === tab));
+    Object.entries(els.panels).forEach(([key, panel]) => panel.classList.toggle('active', key === tab));
+    if (tab === 'semester' && !els.semesterResult.innerHTML.trim()) runSemesterCheck();
+  }
+
   els.tabs.forEach((btn) => {
     btn.addEventListener('click', () => {
-      const tab = btn.dataset.tab;
-      els.tabs.forEach((item) => item.classList.toggle('active', item === btn));
-      Object.entries(els.panels).forEach(([key, panel]) => panel.classList.toggle('active', key === tab));
-      if (tab === 'semester' && !els.semesterResult.innerHTML.trim()) runSemesterCheck();
+      activateTab(btn.dataset.tab);
+      history.replaceState(null, '', `#${btn.dataset.tab}`);
     });
   });
+
+  activateTab((location.hash || '#planner').slice(1));
 
   els.planForm.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -459,6 +492,7 @@
 
   els.semesterRefresh.addEventListener('click', runSemesterCheck);
   initPlannerSelects();
+  initRotatingCoursePlaceholder();
 
   fetch('/data/ai-planner-courses.json')
     .then((res) => res.json())

@@ -34,6 +34,32 @@ function findCourse(code) {
   return seedCourses.find((course) => course.code === normalizeCode(code));
 }
 
+function relevantSeedCourses(route, payload) {
+  const codes = new Set();
+  if (Array.isArray(payload.courses)) {
+    payload.courses.forEach((item) => {
+      const code = typeof item === 'string' ? item : item?.code;
+      if (code) codes.add(normalizeCode(code));
+    });
+  }
+  if (payload.courseCode) {
+    codes.add(normalizeCode(payload.courseCode));
+  }
+  const text = JSON.stringify(payload || {});
+  const codeMatches = text.match(/\b[A-Z]{3}\s*[0-9]{3}\b/gi) || [];
+  codeMatches.forEach((code) => codes.add(normalizeCode(code)));
+
+  const directMatches = Array.from(codes)
+    .map((code) => findCourse(code))
+    .filter(Boolean);
+  if (directMatches.length) return directMatches;
+
+  if (route.endsWith('/ask')) {
+    return seedCourses.slice(0, 80);
+  }
+  return seedCourses.slice(0, 40);
+}
+
 function fallbackCourse(code) {
   return {
     code: normalizeCode(code),
@@ -168,7 +194,7 @@ async function callOpenAI(route, payload, fallback) {
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: system },
-        { role: 'user', content: JSON.stringify({ payload, seedCourses }) }
+        { role: 'user', content: JSON.stringify({ payload, seedCourses: relevantSeedCourses(route, payload) }) }
       ],
     })
   });

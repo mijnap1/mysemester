@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Planner Course Catalog | MySemester</title>
+  <link rel="icon" type="image/png" href="/mysemesterlogo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <link rel="stylesheet" href="/ai-planner/ai-planner.css">
+</head>
+<body>
+  <header class="planner-header">
+    <a class="brand" href="/main/" aria-label="Back to dashboard">
+      <ion-icon name="school-outline"></ion-icon>
+      <span>MySemester</span>
+    </a>
+    <nav class="planner-nav" aria-label="AI Planner sections">
+      <a class="tab-btn" href="/ai-planner/#planner">Course Planner</a>
+      <a class="tab-btn" href="/ai-planner/#explainer">Course Explainer</a>
+      <a class="tab-btn tab-premium" href="/ai-planner/#ask">
+        <ion-icon name="sparkles-outline"></ion-icon>
+        Ask AI Planner
+      </a>
+      <a class="tab-btn active" href="/ai-planner/courses/">Course Catalog</a>
+    </nav>
+  </header>
+
+  <main class="planner-wrap catalog-wrap">
+    <section class="planner-hero catalog-hero">
+      <div>
+        <p class="eyebrow">AI Planner Dataset</p>
+        <h1>Course Catalog</h1>
+        <p>Browse the 400 UofT Arts & Science course records currently used by AI Planner.</p>
+      </div>
+      <div class="catalog-stats" aria-live="polite">
+        <div>
+          <span class="catalog-stat-value" id="catalogTotal">400</span>
+          <span class="catalog-stat-label">courses loaded</span>
+        </div>
+        <div>
+          <span class="catalog-stat-value" id="catalogVisible">0</span>
+          <span class="catalog-stat-label">showing</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel catalog-panel">
+      <div class="panel-head catalog-panel-head">
+        <div>
+          <h2>Added Courses</h2>
+          <p>Search by course code, title, path, or difficulty. This is a planning dataset, not official advising.</p>
+        </div>
+      </div>
+
+      <div class="catalog-toolbar">
+        <label class="field-label catalog-search">Search
+          <input id="catalogSearch" type="search" placeholder="Try CSC108, psychology, Life Sci, high">
+        </label>
+        <label class="field-label">Department
+          <div class="planner-select-wrap" data-catalog-select>
+            <button type="button" class="planner-select-button" id="deptButton">All departments</button>
+            <input type="hidden" id="deptFilter" value="">
+            <div class="planner-select-menu" id="deptMenu" role="listbox"></div>
+          </div>
+        </label>
+        <label class="field-label">Difficulty
+          <div class="planner-select-wrap" data-catalog-select>
+            <button type="button" class="planner-select-button" id="difficultyButton">All difficulties</button>
+            <input type="hidden" id="difficultyFilter" value="">
+            <div class="planner-select-menu" role="listbox">
+              <button type="button" class="planner-select-option is-selected" data-value="">All difficulties</button>
+              <button type="button" class="planner-select-option" data-value="Low">Low</button>
+              <button type="button" class="planner-select-option" data-value="Medium">Medium</button>
+              <button type="button" class="planner-select-option" data-value="High">High</button>
+            </div>
+          </div>
+        </label>
+      </div>
+
+      <div class="catalog-summary" id="catalogSummary">Loading courses...</div>
+      <div class="course-catalog-grid" id="courseCatalogGrid"></div>
+      <div class="catalog-actions">
+        <button class="btn-primary catalog-load-more" id="catalogLoadMore" type="button" hidden>
+          <ion-icon name="add-circle-outline"></ion-icon>
+          Load more courses
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <script src="courses.js" defer></script>
+</body>
+</html>
