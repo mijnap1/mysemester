@@ -1,12 +1,29 @@
 (function () {
   const OFFICIAL_NOTE = 'Unofficial planning help only. Verify important decisions with the UofT Calendar, department pages, your registrar, or an academic advisor.';
-  const COURSE_PLACEHOLDERS = [
-    'CSC108, MAT137, STA130',
-    'ECO101, MAT135, PHL245',
-    'BIO120, CHM135, MAT136',
-    'PSY100, SOC100, AST101',
-    'CSC148, CSC165, MAT223',
-    'POL101, HIS102, ENG100'
+  const COURSE_PLACEHOLDER_CODES = [
+    'CSC108',
+    'MAT137',
+    'STA130',
+    'ECO101',
+    'MAT135',
+    'PHL245',
+    'BIO120',
+    'CHM135',
+    'MAT136',
+    'PSY100',
+    'SOC100',
+    'AST101',
+    'CSC148',
+    'CSC165',
+    'MAT223',
+    'POL101',
+    'HIS102',
+    'ENG100',
+    'ECO102',
+    'ANT100',
+    'LIN101',
+    'VIC100',
+    'TRN125'
   ];
   let seedCourses = [];
 
@@ -76,13 +93,28 @@
 
   function initRotatingCoursePlaceholder() {
     if (!els.coursesInput) return;
-    let index = 0;
-    els.coursesInput.placeholder = COURSE_PLACEHOLDERS[index];
-    setInterval(() => {
+    let lastPlaceholder = '';
+
+    function nextPlaceholder() {
+      const groupSize = [1, 1, 2, 2, 3][Math.floor(Math.random() * 5)];
+      const shuffled = COURSE_PLACEHOLDER_CODES.slice().sort(() => Math.random() - 0.5);
+      const next = shuffled.slice(0, groupSize).join(', ');
+      return next === lastPlaceholder ? shuffled.slice(groupSize, groupSize + Math.max(1, groupSize)).join(', ') : next;
+    }
+
+    function rotate() {
       if (document.activeElement === els.coursesInput || els.coursesInput.value.trim()) return;
-      index = (index + 1) % COURSE_PLACEHOLDERS.length;
-      els.coursesInput.placeholder = COURSE_PLACEHOLDERS[index];
-    }, 2600);
+      const next = nextPlaceholder();
+      lastPlaceholder = next;
+      els.coursesInput.classList.add('placeholder-swapping');
+      window.setTimeout(() => {
+        els.coursesInput.placeholder = next;
+        els.coursesInput.classList.remove('placeholder-swapping');
+      }, 160);
+    }
+
+    els.coursesInput.placeholder = 'CSC108';
+    window.setInterval(rotate, 2300);
   }
 
   function courseBadge(course) {
@@ -474,7 +506,7 @@
     renderExplain(data);
   });
 
-  els.askForm.addEventListener('submit', async (event) => {
+  els.askForm?.addEventListener('submit', async (event) => {
     event.preventDefault();
     const form = new FormData(els.askForm);
     const payload = {

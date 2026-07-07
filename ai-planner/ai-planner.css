@@ -256,6 +256,14 @@ textarea:focus {
   border-color: var(--blue);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
 }
+input::placeholder,
+textarea::placeholder {
+  opacity: 0.78;
+  transition: opacity .18s var(--ease);
+}
+input.placeholder-swapping::placeholder {
+  opacity: 0.18;
+}
 
 .planner-select-wrap {
   position: relative;
@@ -414,6 +422,30 @@ textarea:focus {
   align-items: end;
 }
 .ask-form { grid-template-columns: 1fr auto; align-items: end; }
+
+.coming-soon-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  max-width: 680px;
+  padding: 22px;
+  border: 1px solid rgba(124, 58, 237, 0.22);
+  border-radius: 16px;
+  background: var(--card);
+}
+.coming-soon-card ion-icon {
+  flex: 0 0 auto;
+  margin-top: 2px;
+  color: #7c3aed;
+  font-size: 24px;
+}
+.coming-soon-card h3 {
+  margin: 0 0 8px;
+  font-size: 22px;
+}
+.coming-soon-card p {
+  margin: 0;
+}
 
 .btn-primary,
 .btn-plain {
