@@ -459,6 +459,22 @@
     renderSemester(data);
   }
 
+  const TAB_PATHS = {
+    planner: '/ai-planner/',
+    explainer: '/ai-planner/explainer/',
+    semester: '/ai-planner/semester/',
+    enrolment: '/ai-planner/enrolment/',
+    ask: '/ai-planner/ask/'
+  };
+
+  function tabFromLocation() {
+    const path = location.pathname.replace(/\/+$/, '/') || '/';
+    const match = Object.entries(TAB_PATHS).find(([, tabPath]) => tabPath === path);
+    if (match) return match[0];
+    if (location.hash) return location.hash.slice(1);
+    return 'planner';
+  }
+
   function activateTab(tab) {
     if (!els.panels[tab]) return;
     els.tabs.forEach((item) => item.classList.toggle('active', item.dataset.tab === tab));
@@ -467,13 +483,16 @@
   }
 
   els.tabs.forEach((btn) => {
-    btn.addEventListener('click', () => {
+    btn.addEventListener('click', (event) => {
+      event.preventDefault();
       activateTab(btn.dataset.tab);
-      history.replaceState(null, '', `#${btn.dataset.tab}`);
+      history.pushState(null, '', TAB_PATHS[btn.dataset.tab] || '/ai-planner/');
     });
   });
 
-  activateTab((location.hash || '#planner').slice(1));
+  window.addEventListener('popstate', () => activateTab(tabFromLocation()));
+
+  activateTab(tabFromLocation());
 
   els.planForm.addEventListener('submit', async (event) => {
     event.preventDefault();
