@@ -1976,6 +1976,12 @@
     let editingId = null;
 
     menuToggle.addEventListener('click', () => {
+      const willOpenSidebar = !sidebar.classList.contains('show');
+      if (willOpenSidebar) {
+        localStorage.setItem('mysemester_ai_planner_hint_seen', '1');
+        const hint = document.getElementById('aiPlannerMenuCallout');
+        if (hint) hint.hidden = true;
+      }
       sidebar.classList.toggle('show');
       overlay.classList.toggle('show');
     });
@@ -2388,6 +2394,7 @@
     const sidebarYearEl = document.getElementById('sidebarYear');
     const sidebarProgramEl = document.getElementById('sidebarProgram');
     const aiPlannerNavEl = document.getElementById('openAiPlanner');
+    const aiPlannerMenuCalloutEl = document.getElementById('aiPlannerMenuCallout');
     const profileNameError = document.getElementById('profileNameError');
     const profileEmailError = document.getElementById('profileEmailError');
     const profileStatus = document.getElementById('profileStatus');
@@ -2443,8 +2450,12 @@
       if (sidebarProgramEl) {
         sidebarProgramEl.textContent = setup?.program || 'Not set';
       }
+      const showAiPlanner = setup?.university === 'University of Toronto';
       if (aiPlannerNavEl) {
-        aiPlannerNavEl.hidden = setup?.university !== 'University of Toronto';
+        aiPlannerNavEl.hidden = !showAiPlanner;
+      }
+      if (aiPlannerMenuCalloutEl) {
+        aiPlannerMenuCalloutEl.hidden = !showAiPlanner || localStorage.getItem('mysemester_ai_planner_hint_seen') === '1';
       }
     }
 
