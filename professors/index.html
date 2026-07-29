@@ -12,11 +12,10 @@
 </head>
 <body>
   <header class="page-header">
-    <a class="brand" href="/main/" aria-label="Back to dashboard">
+    <a class="brand" href="/main/" aria-label="MySemester home">
       <ion-icon name="school-outline"></ion-icon>
       <span>MySemester</span>
     </a>
-    <a class="ghost-btn" href="/main/">Back to dashboard</a>
   </header>
 
   <main class="page">
@@ -28,7 +27,7 @@
       </div>
       <div class="hero-note">
         <ion-icon name="flask-outline"></ion-icon>
-        <span>Test dataset only. Current instructors and ratings should be verified before enrolment.</span>
+        <span>Expanded 2025-2026 test cache. Verify instructors in UofT Timetable Builder and ratings on RMP before enrolment.</span>
       </div>
     </section>
 
@@ -37,10 +36,10 @@
         <label for="courseSearch">Course code</label>
         <div class="search-box">
           <ion-icon name="search-outline"></ion-icon>
-          <input id="courseSearch" type="search" placeholder="Try STA130, CSC108, MAT137..." autocomplete="off">
+          <input id="courseSearch" type="search" placeholder="Try AST101, BIO120, BIO130..." autocomplete="off" aria-controls="courseSuggestions" aria-expanded="false">
         </div>
+        <div class="course-suggestions" id="courseSuggestions" role="listbox" aria-label="Course suggestions" hidden></div>
       </div>
-      <div class="quick-picks" id="quickPicks" aria-label="Quick course picks"></div>
     </section>
 
     <section class="results-head">
@@ -50,7 +49,7 @@
       </div>
       <div class="source-pill">
         <ion-icon name="shield-checkmark-outline"></ion-icon>
-        <span>RMP profiles</span>
+        <span>2025-2026 cache</span>
       </div>
     </section>
 

@@ -27,33 +27,26 @@ body {
 .page-header {
   position: sticky;
   top: 0;
-  z-index: 10;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 18px 24px;
-  background: rgba(248, 250, 252, 0.88);
+  padding: 16px 22px;
+  background: var(--card);
   border-bottom: 1px solid var(--line);
-  backdrop-filter: blur(12px);
+  box-shadow: 0 2px 8px rgba(2, 6, 23, 0.04);
 }
-.brand,
-.ghost-btn {
+.brand {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   color: var(--text);
   text-decoration: none;
+  font-size: 20px;
   font-weight: 700;
 }
-.brand ion-icon { color: var(--blue); font-size: 22px; }
-.ghost-btn {
-  min-height: 40px;
-  padding: 9px 14px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--card);
-}
+.brand ion-icon { color: var(--blue); font-size: 23px; }
 
 .page {
   width: min(1120px, 100% - 40px);
@@ -119,17 +112,18 @@ body {
 }
 
 .finder-panel {
-  padding: 20px;
+  padding: 18px;
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 .search-row {
+  position: relative;
   display: grid;
-  gap: 9px;
+  gap: 8px;
 }
 .search-row label {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -139,10 +133,10 @@ body {
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: 10px;
-  min-height: 54px;
-  padding: 0 14px;
+  min-height: 46px;
+  padding: 0 12px;
   border: 2px solid var(--line);
-  border-radius: 15px;
+  border-radius: 13px;
   background: #fff;
 }
 .search-box:focus-within {
@@ -151,7 +145,7 @@ body {
 }
 .search-box ion-icon {
   color: var(--blue);
-  font-size: 22px;
+  font-size: 20px;
 }
 .search-box input {
   width: 100%;
@@ -160,29 +154,62 @@ body {
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
 }
-.quick-picks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 9px;
-}
-.quick-pick {
-  min-height: 38px;
+.course-suggestions {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: grid;
+  gap: 8px;
+  max-height: 330px;
+  padding: 8px;
+  overflow-y: auto;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 8px 12px;
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: var(--shadow);
+}
+.course-suggestions[hidden] {
+  display: none;
+}
+.course-suggestion {
+  width: 100%;
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: minmax(78px, auto) 1fr;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
   background: #f8fafc;
   color: var(--text);
   font: inherit;
-  font-weight: 700;
+  text-align: left;
   cursor: pointer;
 }
-.quick-pick.active {
-  color: var(--blue);
+.course-suggestion:hover,
+.course-suggestion:focus {
   border-color: rgba(37, 99, 235, 0.35);
-  background: rgba(37, 99, 235, 0.08);
+  background: rgba(37, 99, 235, 0.07);
+  outline: 0;
+}
+.suggestion-code {
+  color: var(--blue);
+  font-size: 15px;
+  font-weight: 800;
+}
+.suggestion-title {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .results-head {
@@ -217,46 +244,51 @@ body {
 }
 .prof-card {
   min-height: 330px;
-  padding: 18px;
+  padding: 20px;
   display: grid;
-  gap: 16px;
+  gap: 14px;
   align-content: start;
 }
 .prof-top {
   display: flex;
   justify-content: space-between;
-  gap: 14px;
+  gap: 16px;
 }
 .prof-name h3 {
   margin: 0;
-  font-size: 22px;
-  line-height: 1.1;
+  font-size: 21px;
+  line-height: 1.16;
 }
 .prof-name span {
   display: block;
-  margin-top: 6px;
+  margin-top: 7px;
   color: var(--muted);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
 }
 .rank {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
+  width: 38px;
+  height: 38px;
   flex: 0 0 auto;
-  border-radius: 14px;
+  border-radius: 13px;
   background: #eef2ff;
   color: var(--blue);
+  font-size: 15px;
   font-weight: 800;
+}
+.rating-block {
+  padding: 2px 0 4px;
 }
 .stars {
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   color: var(--amber);
-  font-size: 21px;
+  font-size: 20px;
   line-height: 1;
 }
 .stars ion-icon {
@@ -266,16 +298,17 @@ body {
 .score-row {
   display: flex;
   align-items: baseline;
-  gap: 9px;
-  margin-top: 12px;
+  gap: 10px;
+  margin-top: 9px;
 }
 .score {
-  font-size: 42px;
+  font-size: 38px;
   font-weight: 800;
   line-height: 1;
 }
 .score-meta {
   color: var(--muted);
+  font-size: 15px;
   font-weight: 700;
 }
 .metric-row {
@@ -284,23 +317,24 @@ body {
   gap: 10px;
 }
 .metric {
-  padding: 12px;
-  border-radius: 14px;
+  padding: 11px 12px;
+  border-radius: 13px;
   background: #f8fafc;
   border: 1px solid var(--line);
 }
 .metric span {
   display: block;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
 }
 .metric strong {
   display: block;
-  margin-top: 4px;
-  font-size: 18px;
+  margin-top: 6px;
+  font-size: 19px;
+  line-height: 1;
 }
 .tag-row {
   display: flex;
@@ -309,7 +343,7 @@ body {
 }
 .tag {
   display: inline-flex;
-  padding: 6px 9px;
+  padding: 6px 10px;
   border-radius: 999px;
   background: #f1f5f9;
   color: #334155;
@@ -318,20 +352,31 @@ body {
 }
 .summary {
   margin: 0;
-  padding-left: 12px;
+  padding: 12px 14px;
   border-left: 3px solid #bfdbfe;
-  color: var(--text);
+  border-radius: 0 12px 12px 0;
+  background: #f8fafc;
+  color: #1e293b;
+  font-size: 15px;
   font-weight: 600;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 .source-link {
   align-self: end;
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  width: fit-content;
+  min-height: 34px;
+  padding: 6px 0;
   color: var(--blue);
+  font-size: 15px;
   font-weight: 800;
   text-decoration: none;
+}
+.source-link-disabled {
+  color: var(--muted);
+  cursor: not-allowed;
 }
 
 .empty-state {

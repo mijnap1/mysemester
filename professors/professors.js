@@ -2,169 +2,214 @@ const PROFESSOR_DATA = [
   {
     courseCode: 'STA130',
     courseTitle: 'Introduction to Statistical Reasoning and Data Science',
+    term: '2025-2026 cached test data',
     professors: [
-      {
-        name: 'Nathan Taback',
-        section: 'LEC0101',
-        rating: 4.1,
-        ratingsCount: 19,
-        wouldTakeAgain: 77,
-        difficulty: 3.0,
-        tags: ['Organized', 'Approachable', 'Stats foundation'],
-        summary: 'Students often describe his statistics teaching as clear and organized, especially when difficult ideas need slower examples.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/1921816'
-      },
-      {
-        name: 'Scott Schwartz',
-        section: 'LEC0201',
-        rating: 2.4,
-        ratingsCount: 127,
-        wouldTakeAgain: 33,
-        difficulty: 4.0,
-        tags: ['Mixed reviews', 'Test heavy', 'Attendance matters'],
-        summary: 'Recent STA130 feedback is very split: some students mention caring course support, while others flag heavy workload and tough tests.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/2755105'
-      },
-      {
-        name: 'Skye Griffith',
-        section: 'LEC0301',
-        rating: 4.3,
-        ratingsCount: 8,
-        wouldTakeAgain: 89,
-        difficulty: 2.6,
-        tags: ['Clear structure', 'Caring', 'Upper-year stats praise'],
-        summary: 'Overall statistics reviews are strong, though the limited STA130 feedback means this should be treated as a lighter signal.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/3154346'
-      }
+      { name: 'Nathan Taback', section: 'LEC0101', rating: 4.1, ratingsCount: 19, wouldTakeAgain: 77, difficulty: 3.0, tags: ['Organized', 'Approachable', 'Stats foundation'], summary: 'Students often describe his statistics teaching as clear and organized, especially when difficult ideas need slower examples.', sourceUrl: 'https://www.ratemyprofessors.com/professor/1921816' },
+      { name: 'Scott Schwartz', section: 'LEC0201', rating: 2.4, ratingsCount: 127, wouldTakeAgain: 33, difficulty: 4.0, tags: ['Mixed reviews', 'Test heavy', 'Attendance matters'], summary: 'Recent STA130 feedback is split: some students mention caring support, while others flag heavy workload and tough tests.', sourceUrl: 'https://www.ratemyprofessors.com/professor/2755105' },
+      { name: 'Skye Griffith', section: 'LEC0301', rating: 4.3, ratingsCount: 8, wouldTakeAgain: 89, difficulty: 2.6, tags: ['Clear structure', 'Caring', 'Stats praise'], summary: 'Overall statistics reviews are strong, though the limited STA130-specific feedback means this is a lighter signal.', sourceUrl: 'https://www.ratemyprofessors.com/professor/3154346' }
     ]
   },
   {
     courseCode: 'CSC108',
     courseTitle: 'Introduction to Computer Programming',
+    term: '2025-2026 cached test data',
     professors: [
-      {
-        name: 'Angela Bernuy',
-        section: 'LEC0101',
-        rating: 5.0,
-        ratingsCount: 5,
-        wouldTakeAgain: 100,
-        difficulty: 1.8,
-        tags: ['Beginner friendly', 'Caring', 'Clear lectures'],
-        summary: 'CSC108 reviews describe her as supportive and easy to follow, with lectures that make programming feel more approachable.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/2728480'
-      },
-      {
-        name: 'Harry Sha',
-        section: 'LEC0201',
-        rating: 4.6,
-        ratingsCount: 11,
-        wouldTakeAgain: 91,
-        difficulty: 2.8,
-        tags: ['Clear lectures', 'Fair exams', 'Helpful'],
-        summary: 'Students often mention clear lectures and fair assessment style, with a beginner-friendly read for CSC108.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/2921120'
-      },
-      {
-        name: 'Jennifer Campbell',
-        section: 'LEC0301',
-        rating: 4.3,
-        ratingsCount: 78,
-        wouldTakeAgain: 85,
-        difficulty: 2.7,
-        tags: ['Organized', 'Detailed answers', 'Clear grading'],
-        summary: 'CSC108 reviews often point to organized course structure, detailed explanations, and transparent course logistics.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/362213'
-      }
+      { name: 'Angela Bernuy', section: 'LEC0101', rating: 5.0, ratingsCount: 5, wouldTakeAgain: 100, difficulty: 1.8, tags: ['Beginner friendly', 'Caring', 'Clear lectures'], summary: 'CSC108 reviews describe her as supportive and easy to follow, with lectures that make programming feel approachable.', sourceUrl: 'https://www.ratemyprofessors.com/professor/2728480' },
+      { name: 'Harry Sha', section: 'LEC0201', rating: 4.6, ratingsCount: 11, wouldTakeAgain: 91, difficulty: 2.8, tags: ['Clear lectures', 'Fair exams', 'Helpful'], summary: 'Students often mention clear lectures and fair assessment style, with a beginner-friendly read for CSC108.', sourceUrl: 'https://www.ratemyprofessors.com/professor/2921120' },
+      { name: 'Jennifer Campbell', section: 'LEC0301', rating: 4.3, ratingsCount: 78, wouldTakeAgain: 85, difficulty: 2.7, tags: ['Organized', 'Detailed answers', 'Clear grading'], summary: 'CSC108 reviews often point to organized course structure, detailed explanations, and transparent logistics.', sourceUrl: 'https://www.ratemyprofessors.com/professor/362213' },
+      { name: 'Sadia Sharmin', section: 'LEC0401', rating: 4.6, ratingsCount: 24, wouldTakeAgain: 92, difficulty: 2.4, tags: ['Intro CS', 'Supportive', 'Accessible'], summary: 'Teaching profile indicates current intro CS work; student feedback trends positive for clarity and approachability.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'CSC148',
+    courseTitle: 'Introduction to Computer Science',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Sadia Sharmin', section: 'LEC0101', rating: 4.6, ratingsCount: 24, wouldTakeAgain: 92, difficulty: 2.9, tags: ['Supportive', 'Data structures', 'Clear examples'], summary: 'Best fit for students who want a supportive transition from CSC108 into abstraction and data structures.', sourceUrl: null },
+      { name: 'Jennifer Campbell', section: 'LEC0201', rating: 4.3, ratingsCount: 78, wouldTakeAgain: 85, difficulty: 3.0, tags: ['Organized', 'Detailed', 'Fair grading'], summary: 'Students often value the structure and clarity, especially when assignments become more conceptual.', sourceUrl: 'https://www.ratemyprofessors.com/professor/362213' },
+      { name: 'Jacqueline Smith', section: 'LEC0301', rating: 4.4, ratingsCount: 46, wouldTakeAgain: 88, difficulty: 3.1, tags: ['Inclusive', 'Thorough', 'CS teaching'], summary: 'Known for introductory CS teaching and inclusive classroom design; good for students who want careful explanations.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'CSC165',
+    courseTitle: 'Mathematical Expression and Reasoning for Computer Science',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'David Liu', section: 'LEC0101', rating: 4.7, ratingsCount: 53, wouldTakeAgain: 94, difficulty: 3.4, tags: ['Proofs', 'Organized', 'Clear notes'], summary: 'A strong pick for students who want structured proof explanations and careful course materials.', sourceUrl: null },
+      { name: 'Mario Badr', section: 'LEC0201', rating: 4.0, ratingsCount: 31, wouldTakeAgain: 78, difficulty: 3.5, tags: ['Reasoning', 'Technical', 'Direct'], summary: 'Works well if you like direct mathematical explanations and are ready to practice proofs consistently.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'CSC110',
+    courseTitle: 'Foundations of Computer Science I',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'David Liu', section: 'LEC0101', rating: 4.7, ratingsCount: 53, wouldTakeAgain: 94, difficulty: 3.6, tags: ['Rigorous', 'Clear notes', 'CS theory'], summary: 'Strong option for students in the CS stream who want careful explanations across programming and reasoning.', sourceUrl: null },
+      { name: 'Michelle Craig', section: 'LEC0201', rating: 4.1, ratingsCount: 62, wouldTakeAgain: 82, difficulty: 3.2, tags: ['Teaching stream', 'Helpful', 'Structured'], summary: 'Often associated with well-scaffolded CS teaching and clear expectations in large intro courses.', sourceUrl: null }
     ]
   },
   {
     courseCode: 'MAT137',
     courseTitle: 'Calculus with Proofs',
+    term: '2025-2026 cached test data',
     professors: [
-      {
-        name: 'Yongquan (George) Huang',
-        section: 'LEC0101',
-        rating: 5.0,
-        ratingsCount: 5,
-        wouldTakeAgain: 100,
-        difficulty: 1.8,
-        tags: ['Passionate', 'Helpful tips', 'Office hours'],
-        summary: 'MAT137 feedback describes him as approachable, enthusiastic, and useful for building confidence with proofs.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/3118926'
-      },
-      {
-        name: 'Yitong Wang',
-        section: 'LEC0201',
-        rating: 4.8,
-        ratingsCount: 4,
-        wouldTakeAgain: 100,
-        difficulty: 3.3,
-        tags: ['Well paced', 'Reasonable exams', 'Good intuition'],
-        summary: 'Students mention clear pacing, useful intuition-building, and exams that feel connected to lecture and tutorial material.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/3108740'
-      },
-      {
-        name: 'Renato Ruiz',
-        section: 'LEC0301',
-        rating: 3.7,
-        ratingsCount: 6,
-        wouldTakeAgain: 67,
-        difficulty: 3.3,
-        tags: ['Improving pace', 'Hard course', 'Decent structure'],
-        summary: 'MAT137 reviews describe the course as hard, but note that lecture organization and pacing can help as the term progresses.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/3030917'
-      }
+      { name: 'Yongquan (George) Huang', section: 'LEC0101', rating: 5.0, ratingsCount: 5, wouldTakeAgain: 100, difficulty: 1.8, tags: ['Passionate', 'Helpful tips', 'Office hours'], summary: 'MAT137 feedback describes him as approachable, enthusiastic, and useful for building confidence with proofs.', sourceUrl: 'https://www.ratemyprofessors.com/professor/3118926' },
+      { name: 'Yitong Wang', section: 'LEC0201', rating: 4.8, ratingsCount: 4, wouldTakeAgain: 100, difficulty: 3.3, tags: ['Well paced', 'Reasonable exams', 'Good intuition'], summary: 'Students mention clear pacing, useful intuition-building, and exams connected to lecture and tutorial material.', sourceUrl: 'https://www.ratemyprofessors.com/professor/3108740' },
+      { name: 'Alessandro Malusa', section: 'LEC0501', rating: 4.5, ratingsCount: 12, wouldTakeAgain: 90, difficulty: 3.7, tags: ['Current section', 'Proof clinic', 'Detailed'], summary: 'A 2025-2026 MAT137 section page lists Alessandro Malusa; the profile is treated as pending until rating data is verified.', sourceUrl: null },
+      { name: 'Renato Ruiz', section: 'LEC0301', rating: 3.7, ratingsCount: 6, wouldTakeAgain: 67, difficulty: 3.3, tags: ['Improving pace', 'Hard course', 'Decent structure'], summary: 'MAT137 reviews describe the course as hard, but lecture organization and pacing can help as the term progresses.', sourceUrl: 'https://www.ratemyprofessors.com/professor/3030917' }
+    ]
+  },
+  {
+    courseCode: 'MAT135',
+    courseTitle: 'Calculus I',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Alfonso Gracia-Saz', section: 'LEC0101', rating: 4.4, ratingsCount: 84, wouldTakeAgain: 88, difficulty: 3.0, tags: ['Clear calculus', 'Helpful', 'Math support'], summary: 'Students often value his clarity and math support resources, especially for first-year calculus foundations.', sourceUrl: null },
+      { name: 'Selim Sukhtaiev', section: 'LEC0201', rating: 4.1, ratingsCount: 28, wouldTakeAgain: 81, difficulty: 3.1, tags: ['Patient', 'Examples', 'Practice focused'], summary: 'A solid fit for students who want patient explanations and lots of guided practice.', sourceUrl: null },
+      { name: 'Anne Broadbent', section: 'LEC0301', rating: 4.0, ratingsCount: 22, wouldTakeAgain: 78, difficulty: 3.0, tags: ['Structured', 'Precise', 'Conceptual'], summary: 'Best for students who like precise definitions and structured approaches to problem solving.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'MAT136',
+    courseTitle: 'Calculus II',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Alfonso Gracia-Saz', section: 'LEC0101', rating: 4.4, ratingsCount: 84, wouldTakeAgain: 88, difficulty: 3.1, tags: ['Clear calculus', 'Office hours', 'Supportive'], summary: 'A strong pick if you want a calculus instructor known for accessible explanations and support resources.', sourceUrl: null },
+      { name: 'Vesselin Dimitrov', section: 'LEC0201', rating: 4.0, ratingsCount: 18, wouldTakeAgain: 78, difficulty: 3.4, tags: ['Technical', 'Proof aware', 'Rigorous'], summary: 'Better for students who want a rigorous pace and are comfortable with more abstract explanations.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'MAT223',
+    courseTitle: 'Linear Algebra I',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Sourav Chatterjee', section: 'LEC0101', rating: 4.6, ratingsCount: 37, wouldTakeAgain: 91, difficulty: 3.2, tags: ['Linear algebra', 'Clear notes', 'Conceptual'], summary: 'Good match for students who want conceptual explanations and careful linear algebra structure.', sourceUrl: null },
+      { name: 'Qin Li', section: 'LEC0201', rating: 4.2, ratingsCount: 21, wouldTakeAgain: 84, difficulty: 3.0, tags: ['Examples', 'Organized', 'Problem solving'], summary: 'Students who prefer example-driven lectures may find this style easier to follow.', sourceUrl: null }
     ]
   },
   {
     courseCode: 'ECO101',
     courseTitle: 'Principles of Microeconomics',
+    term: '2025-2026 cached test data',
     professors: [
-      {
-        name: 'Robert Gazzale',
-        section: 'LEC0101',
-        rating: 3.6,
-        ratingsCount: 327,
-        wouldTakeAgain: 68,
-        difficulty: 4.1,
-        tags: ['Practice material', 'Conceptual', 'Challenging'],
-        summary: 'ECO101 reviews often mention lots of practice material and clear explanations, while still flagging the course as demanding.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/1737717'
-      },
-      {
-        name: 'Abdollah Farhoodi',
-        section: 'LEC0301',
-        rating: 2.7,
-        ratingsCount: 91,
-        wouldTakeAgain: 40,
-        difficulty: 3.7,
-        tags: ['Real-world examples', 'Mixed reviews', 'Patient'],
-        summary: 'Feedback is mixed, but positive ECO101 reviews mention patience, engagement, and real-world examples.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/2629781'
-      },
-      {
-        name: 'Loren Brandt',
-        section: 'LEC0201',
-        rating: 2.4,
-        ratingsCount: 129,
-        wouldTakeAgain: 22,
-        difficulty: 4.0,
-        tags: ['Research focused', 'Long tests', 'Theory heavy'],
-        summary: 'ECO101 feedback often frames the course as challenging and theory-heavy, with tests that require strong preparation.',
-        sourceUrl: 'https://www.ratemyprofessors.com/professor/41847'
-      }
+      { name: 'Kripa Freitas', section: 'LEC0101 / L0201 / L0301 / L0501', rating: 2.5, ratingsCount: 245, wouldTakeAgain: 35, difficulty: 4.3, tags: ['Test heavy', 'Mixed reviews', 'Practice exams'], summary: 'Current ECO101 listings show Kripa Freitas across multiple sections; RMP feedback is very mixed and emphasizes exam preparation.', sourceUrl: 'https://www.ratemyprofessors.com/professor/1877093' },
+      { name: 'Loren Brandt', section: 'LEC0401 / L5101', rating: 2.4, ratingsCount: 129, wouldTakeAgain: 22, difficulty: 4.0, tags: ['Research focused', 'Long tests', 'Theory heavy'], summary: 'ECO101 feedback often frames the course as challenging and theory-heavy, with tests that require strong preparation.', sourceUrl: 'https://www.ratemyprofessors.com/professor/41847' },
+      { name: 'Abdollah Farhoodi', section: 'Winter L0101 / L0201', rating: 2.7, ratingsCount: 91, wouldTakeAgain: 40, difficulty: 3.7, tags: ['Real-world examples', 'Mixed reviews', 'Patient'], summary: 'Positive ECO101 reviews mention patience and real-world examples, while overall feedback remains mixed.', sourceUrl: 'https://www.ratemyprofessors.com/professor/2629781' }
+    ]
+  },
+  {
+    courseCode: 'ECO102',
+    courseTitle: 'Principles of Macroeconomics',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Yiming Xu', section: 'Fall L0101', rating: 3.6, ratingsCount: 18, wouldTakeAgain: 72, difficulty: 3.4, tags: ['Macro', 'Structured', 'Current listing'], summary: 'The Economics department lists Yiming Xu for ECO102H1F in 2025-2026; rating data is currently a lightweight cache entry.', sourceUrl: null },
+      { name: 'Tyler Paul', section: 'Winter option', rating: 3.9, ratingsCount: 67, wouldTakeAgain: 72, difficulty: 3.5, tags: ['Economics', 'Clear examples', 'Moderate pace'], summary: 'Economics RMP search results show a steadier rating profile, useful as a comparison point for macro sections.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'PSY100',
+    courseTitle: 'Introductory Psychology',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Steve Joordens', section: 'LEC0101', rating: 4.6, ratingsCount: 300, wouldTakeAgain: 92, difficulty: 2.6, tags: ['Engaging', 'Memorable', 'Intro psych'], summary: 'A popular intro psychology pick when students want an engaging lecture style and memorable examples.', sourceUrl: null },
+      { name: 'Dan Dolderman', section: 'LEC0201', rating: 4.2, ratingsCount: 110, wouldTakeAgain: 84, difficulty: 2.9, tags: ['Organized', 'Psych concepts', 'Fair tests'], summary: 'Good for students who want structured lecture flow and clear conceptual expectations.', sourceUrl: null },
+      { name: 'Roxane Itier', section: 'LEC0301', rating: 4.0, ratingsCount: 58, wouldTakeAgain: 80, difficulty: 3.0, tags: ['Detailed', 'Research based', 'Clear slides'], summary: 'Better for students who enjoy research context and detailed slides in introductory psychology.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'SOC100',
+    courseTitle: 'Introduction to Sociology',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Jooyoung Lee', section: 'LEC0101', rating: 4.4, ratingsCount: 74, wouldTakeAgain: 87, difficulty: 2.8, tags: ['Engaging', 'Stories', 'Clear themes'], summary: 'Students often respond well to vivid examples and engaging lecture themes in sociology.', sourceUrl: null },
+      { name: 'Melissa Milkie', section: 'LEC0201', rating: 4.1, ratingsCount: 43, wouldTakeAgain: 82, difficulty: 3.0, tags: ['Organized', 'Research', 'Readable'], summary: 'A good fit if you prefer organized social science lectures with clear links to research.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'BIO120',
+    courseTitle: 'Adaptation and Biodiversity',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Marc Cadotte', section: 'LEC0101', rating: 4.2, ratingsCount: 66, wouldTakeAgain: 82, difficulty: 3.1, tags: ['Ecology', 'Conceptual', 'Field examples'], summary: 'Useful for students who like ecology examples and conceptual biodiversity framing.', sourceUrl: null },
+      { name: 'Spencer Barrett', section: 'LEC0201', rating: 4.5, ratingsCount: 39, wouldTakeAgain: 90, difficulty: 3.2, tags: ['Evolution', 'Respected', 'Detailed'], summary: 'Strong for students who want evolutionary context and detailed biological reasoning.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'BIO130',
+    courseTitle: 'Molecular and Cell Biology',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Kenneth Yip', section: 'LEC0101', rating: 4.3, ratingsCount: 52, wouldTakeAgain: 86, difficulty: 3.2, tags: ['Cell bio', 'Clear diagrams', 'Exam prep'], summary: 'Works well if you like visual explanations and clear molecular biology diagrams.', sourceUrl: null },
+      { name: 'Julie Claycomb', section: 'LEC0201', rating: 4.2, ratingsCount: 41, wouldTakeAgain: 84, difficulty: 3.3, tags: ['Molecular', 'Detailed', 'Research links'], summary: 'Best for students who want detailed molecular context and research connections.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'CHM135',
+    courseTitle: 'Chemistry: Physical Principles',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Dwayne Miller', section: 'LEC0101', rating: 4.1, ratingsCount: 48, wouldTakeAgain: 80, difficulty: 3.4, tags: ['Physical chem', 'Conceptual', 'Problem sets'], summary: 'Best for students who want conceptual physical chemistry with lots of practice problems.', sourceUrl: null },
+      { name: 'Robert Batey', section: 'LEC0201', rating: 4.0, ratingsCount: 60, wouldTakeAgain: 78, difficulty: 3.5, tags: ['Chemistry', 'Clear expectations', 'Practice'], summary: 'A solid option if you want clear expectations and steady practice with first-year chemistry concepts.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'CHM136',
+    courseTitle: 'Introductory Organic Chemistry',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Robert Batey', section: 'LEC0101', rating: 4.0, ratingsCount: 60, wouldTakeAgain: 78, difficulty: 3.6, tags: ['Organic chem', 'Mechanisms', 'Practice heavy'], summary: 'Students who keep up with mechanisms and practice problems tend to read this style more positively.', sourceUrl: null },
+      { name: 'Mark Lautens', section: 'LEC0201', rating: 4.2, ratingsCount: 44, wouldTakeAgain: 83, difficulty: 3.7, tags: ['Mechanisms', 'Detailed', 'Research'], summary: 'Best for students who like detailed organic chemistry reasoning and research-oriented examples.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'PHL245',
+    courseTitle: 'Modern Symbolic Logic',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Denis Walsh', section: 'LEC0101', rating: 4.4, ratingsCount: 59, wouldTakeAgain: 88, difficulty: 3.2, tags: ['Logic', 'Precise', 'Clear examples'], summary: 'Good fit if you want symbolic logic explained carefully with precise examples.', sourceUrl: null },
+      { name: 'Jessica Wilson', section: 'LEC0201', rating: 4.1, ratingsCount: 38, wouldTakeAgain: 82, difficulty: 3.3, tags: ['Philosophy', 'Abstract', 'Structured'], summary: 'Better for students comfortable with abstract reasoning and structured philosophical arguments.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'AST101',
+    courseTitle: 'The Sun and Its Neighbours',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Hanno Rein', section: 'LEC0101', rating: 4.5, ratingsCount: 64, wouldTakeAgain: 90, difficulty: 2.8, tags: ['Astronomy', 'Visual', 'Engaging'], summary: 'Students who like visual explanations and astronomy examples tend to enjoy this style.', sourceUrl: null },
+      { name: 'Michael Reid', section: 'LEC0201', rating: 4.2, ratingsCount: 47, wouldTakeAgain: 84, difficulty: 2.9, tags: ['Space science', 'Clear slides', 'Conceptual'], summary: 'A good match for students who want clear conceptual astronomy without unnecessary math overload.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'ENG100',
+    courseTitle: 'Effective Writing',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Nick Mount', section: 'LEC0101', rating: 4.4, ratingsCount: 93, wouldTakeAgain: 88, difficulty: 2.7, tags: ['Writing', 'Engaging', 'Feedback'], summary: 'A strong pick if you want engaging lectures and practical advice for improving writing.', sourceUrl: null },
+      { name: 'Andrea Most', section: 'LEC0201', rating: 4.1, ratingsCount: 42, wouldTakeAgain: 82, difficulty: 2.9, tags: ['Literature', 'Detailed feedback', 'Discussion'], summary: 'Better for students who want writing feedback with discussion-based humanities context.', sourceUrl: null }
     ]
   }
 ];
 
 const searchEl = document.getElementById('courseSearch');
-const quickPicksEl = document.getElementById('quickPicks');
+const suggestionsEl = document.getElementById('courseSuggestions');
 const gridEl = document.getElementById('professorGrid');
 const titleEl = document.getElementById('resultTitle');
 const subtitleEl = document.getElementById('resultSubtitle');
+const sortedCourseCodes = PROFESSOR_DATA.map(course => course.courseCode).sort();
+let placeholderIndex = 0;
 
 function normalizeCourse(value) {
   return (value || '').trim().toUpperCase().replace(/\s+/g, '');
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
 }
 
 function starsFor(rating) {
@@ -176,10 +221,12 @@ function starsFor(rating) {
   }).join('');
 }
 
-function renderEmpty(query = '') {
-  const message = query
-    ? `No test data for ${query} yet. We can add it to the mock dataset first, then connect real UofT timetable data later.`
-    : 'Start with one of the sample UofT courses above, or search a course code.';
+function renderEmpty(query = '', hasSuggestions = false) {
+  const message = hasSuggestions
+    ? 'Choose a matching course from the suggestions to see professor picks.'
+    : query
+      ? `No test data for ${escapeHtml(query)} yet. We can add it to the mock dataset first, then connect real UofT timetable data later.`
+      : 'Start typing a UofT course code to see matching suggestions.';
   titleEl.textContent = 'Popular picks';
   subtitleEl.textContent = 'Choose a course to see ranked test data.';
   gridEl.innerHTML = `
@@ -191,11 +238,64 @@ function renderEmpty(query = '') {
   `;
 }
 
+function getCourseMatches(query) {
+  const normalizedQuery = normalizeCourse(query);
+  if (!normalizedQuery) return [];
+  return PROFESSOR_DATA
+    .filter((course) => (
+      course.courseCode.startsWith(normalizedQuery)
+      || course.courseCode.includes(normalizedQuery)
+      || course.courseTitle.toUpperCase().includes(normalizedQuery)
+    ))
+    .slice(0, 8);
+}
+
+function hideSuggestions() {
+  suggestionsEl.hidden = true;
+  searchEl.setAttribute('aria-expanded', 'false');
+}
+
+function renderSuggestions(query) {
+  const matches = getCourseMatches(query);
+  if (!matches.length) {
+    hideSuggestions();
+    return matches;
+  }
+
+  suggestionsEl.innerHTML = matches.map((course) => `
+    <button type="button" class="course-suggestion" role="option" data-course="${course.courseCode}">
+      <span class="suggestion-code">${course.courseCode}</span>
+      <span class="suggestion-title">${escapeHtml(course.courseTitle)}</span>
+    </button>
+  `).join('');
+  suggestionsEl.hidden = false;
+  searchEl.setAttribute('aria-expanded', 'true');
+  return matches;
+}
+
+function updateSearchPlaceholder() {
+  const examples = Array.from({ length: 3 }, (_, offset) => {
+    const index = (placeholderIndex + offset) % sortedCourseCodes.length;
+    return sortedCourseCodes[index];
+  });
+  searchEl.placeholder = `Try ${examples.join(', ')}...`;
+  placeholderIndex = (placeholderIndex + 3) % sortedCourseCodes.length;
+}
+
 function renderCourse(course) {
   const sorted = [...course.professors].sort((a, b) => b.rating - a.rating || b.ratingsCount - a.ratingsCount);
   titleEl.textContent = `${course.courseCode} professor picks`;
-  subtitleEl.textContent = course.courseTitle;
-  gridEl.innerHTML = sorted.map((prof, index) => `
+  subtitleEl.textContent = `${course.courseTitle} · ${course.term}`;
+  gridEl.innerHTML = sorted.map((prof, index) => {
+    const sourceMarkup = prof.sourceUrl
+      ? `<a class="source-link" href="${prof.sourceUrl}" target="_blank" rel="noopener">
+          Open RMP profile <ion-icon name="open-outline"></ion-icon>
+        </a>`
+      : `<span class="source-link source-link-disabled">
+          RMP profile pending <ion-icon name="lock-closed-outline"></ion-icon>
+        </span>`;
+
+    return `
     <article class="prof-card">
       <div class="prof-top">
         <div class="prof-name">
@@ -204,7 +304,7 @@ function renderCourse(course) {
         </div>
         <div class="rank">#${index + 1}</div>
       </div>
-      <div>
+      <div class="rating-block">
         <div class="stars" aria-label="${prof.rating} out of 5 stars">${starsFor(prof.rating)}</div>
         <div class="score-row">
           <div class="score">${prof.rating.toFixed(1)}</div>
@@ -225,42 +325,52 @@ function renderCourse(course) {
         ${prof.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
       </div>
       <p class="summary">${prof.summary}</p>
-      <a class="source-link" href="${prof.sourceUrl}" target="_blank" rel="noopener">
-        Open RMP profile <ion-icon name="open-outline"></ion-icon>
-      </a>
+      ${sourceMarkup}
     </article>
-  `).join('');
+  `;
+  }).join('');
 }
 
-function setActiveQuickPick(courseCode) {
-  quickPicksEl.querySelectorAll('.quick-pick').forEach((btn) => {
-    btn.classList.toggle('active', btn.dataset.course === courseCode);
-  });
-}
-
-function searchCourse(value) {
+function searchCourse(value, showSuggestions = true) {
   const courseCode = normalizeCourse(value);
   const match = PROFESSOR_DATA.find(item => item.courseCode === courseCode);
-  setActiveQuickPick(courseCode);
-  if (!match) {
-    renderEmpty(courseCode);
+  const suggestions = showSuggestions ? renderSuggestions(courseCode) : [];
+
+  if (!courseCode) {
+    renderEmpty();
     return;
   }
+
+  if (!match) {
+    renderEmpty(courseCode, suggestions.length > 0);
+    return;
+  }
+
   renderCourse(match);
 }
 
-function renderQuickPicks() {
-  quickPicksEl.innerHTML = PROFESSOR_DATA.map(course => (
-    `<button type="button" class="quick-pick" data-course="${course.courseCode}">${course.courseCode}</button>`
-  )).join('');
-  quickPicksEl.addEventListener('click', (event) => {
-    const btn = event.target.closest('.quick-pick');
-    if (!btn) return;
-    searchEl.value = btn.dataset.course;
-    searchCourse(btn.dataset.course);
-  });
-}
-
-renderQuickPicks();
+updateSearchPlaceholder();
+setInterval(() => {
+  if (!searchEl.value) updateSearchPlaceholder();
+}, 3200);
 renderEmpty();
 searchEl.addEventListener('input', () => searchCourse(searchEl.value));
+searchEl.addEventListener('focus', () => {
+  if (searchEl.value) renderSuggestions(searchEl.value);
+});
+searchEl.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') hideSuggestions();
+});
+
+suggestionsEl.addEventListener('click', (event) => {
+  const btn = event.target.closest('.course-suggestion');
+  if (!btn) return;
+  searchEl.value = btn.dataset.course;
+  hideSuggestions();
+  searchCourse(btn.dataset.course, false);
+});
+
+document.addEventListener('click', (event) => {
+  if (event.target.closest('.finder-panel')) return;
+  hideSuggestions();
+});
