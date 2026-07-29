@@ -93,6 +93,39 @@ body {
 .planner-nav a.tab-btn {
   text-decoration: none;
 }
+.tab-btn.tab-disabled {
+  position: relative;
+  cursor: not-allowed;
+  opacity: 0.68;
+}
+.tab-btn.tab-disabled:hover {
+  transform: none;
+  box-shadow: none;
+}
+.tab-btn.tab-disabled::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 10px);
+  transform: translateX(-50%) translateY(-4px);
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s var(--ease), transform .18s var(--ease);
+  z-index: 20;
+}
+.tab-btn.tab-disabled:hover::after,
+.tab-btn.tab-disabled:focus-visible::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
 .tab-premium {
   position: relative;
   isolation: isolate;

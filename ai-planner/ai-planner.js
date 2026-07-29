@@ -763,6 +763,10 @@
 
   els.tabs.forEach((btn) => {
     btn.addEventListener('click', (event) => {
+      if (btn.classList.contains('tab-disabled') || btn.getAttribute('aria-disabled') === 'true') {
+        event.preventDefault();
+        return;
+      }
       event.preventDefault();
       activateTab(btn.dataset.tab);
       history.pushState(null, '', TAB_PATHS[btn.dataset.tab] || '/ai-planner/');
