@@ -2402,6 +2402,7 @@
     const sidebarYearEl = document.getElementById('sidebarYear');
     const sidebarProgramEl = document.getElementById('sidebarProgram');
     const aiPlannerNavEl = document.getElementById('openAiPlanner');
+    const professorPicksNavEl = document.getElementById('openProfessorPicks');
     const aiPlannerMenuCalloutEl = document.getElementById('aiPlannerMenuCallout');
     const profileNameError = document.getElementById('profileNameError');
     const profileEmailError = document.getElementById('profileEmailError');
@@ -2461,6 +2462,9 @@
       const showAiPlanner = setup?.university === 'University of Toronto';
       if (aiPlannerNavEl) {
         aiPlannerNavEl.hidden = !showAiPlanner;
+      }
+      if (professorPicksNavEl) {
+        professorPicksNavEl.hidden = !showAiPlanner;
       }
       if (aiPlannerMenuCalloutEl) {
         aiPlannerMenuCalloutEl.hidden = !showAiPlanner || localStorage.getItem('mysemester_ai_planner_hint_seen') === '1';

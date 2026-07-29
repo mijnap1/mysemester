@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+  <title>Professor Picks — MySemester</title>
+  <link rel="icon" type="image/png" href="/mysemesterlogo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <link rel="stylesheet" href="professors.css">
+</head>
+<body>
+  <header class="page-header">
+    <a class="brand" href="/main/" aria-label="Back to dashboard">
+      <ion-icon name="school-outline"></ion-icon>
+      <span>MySemester</span>
+    </a>
+    <a class="ghost-btn" href="/main/">Back to dashboard</a>
+  </header>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <span class="kicker">UofT test feature</span>
+        <h1>Professor Picks</h1>
+        <p>Search a UofT course and compare instructor options with clean rating cards, star scores, difficulty, and short student-vibe summaries.</p>
+      </div>
+      <div class="hero-note">
+        <ion-icon name="flask-outline"></ion-icon>
+        <span>Test dataset only. Current instructors and ratings should be verified before enrolment.</span>
+      </div>
+    </section>
+
+    <section class="finder-panel" aria-label="Find professors by course">
+      <div class="search-row">
+        <label for="courseSearch">Course code</label>
+        <div class="search-box">
+          <ion-icon name="search-outline"></ion-icon>
+          <input id="courseSearch" type="search" placeholder="Try STA130, CSC108, MAT137..." autocomplete="off">
+        </div>
+      </div>
+      <div class="quick-picks" id="quickPicks" aria-label="Quick course picks"></div>
+    </section>
+
+    <section class="results-head">
+      <div>
+        <h2 id="resultTitle">Popular picks</h2>
+        <p id="resultSubtitle">Choose a course to see ranked test data.</p>
+      </div>
+      <div class="source-pill">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+        <span>RMP profiles</span>
+      </div>
+    </section>
+
+    <section class="professor-grid" id="professorGrid" aria-live="polite"></section>
+  </main>
+
+  <script src="professors.js" defer></script>
+</body>
+</html>
