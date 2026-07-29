@@ -1441,7 +1441,12 @@
           card.classList.add('card-pop');
         }
         card.dataset.folderId = folder.id;
-        const count = state.courses.filter(c => c.folderId === folder.id).length;
+        const courseCount = state.courses.filter(c => c.folderId === folder.id).length;
+        const folderCount = state.folders.filter(f => f.parentFolderId === folder.id).length;
+        const itemCount = courseCount + folderCount;
+        const courseText = `${courseCount} course${courseCount === 1 ? '' : 's'}`;
+        const folderText = `${folderCount} folder${folderCount === 1 ? '' : 's'}`;
+        const detailText = folderCount > 0 ? `${courseText} · ${folderText}` : courseText;
         let dragArmedUntil = 0;
         let armTimer = null;
         let pressX = 0;
@@ -1453,10 +1458,10 @@
           <ion-icon class="course-icon" name="folder-outline"></ion-icon>
           <div class="info">
             <div class="code">${folder.name}</div>
-            <div class="muted-sm">${count} course${count === 1 ? '' : 's'}</div>
+            <div class="muted-sm">${detailText}</div>
             <div class="folder-hint">Click to open · Drag courses/folders here</div>
           </div>
-          <span class="folder-badge">${count}</span>
+          <span class="folder-badge">${itemCount}</span>
         `;
         const armFolderDrag = () => {
           dragArmedUntil = Date.now() + 1200;
@@ -2382,6 +2387,9 @@
     const profileEmailInput = document.getElementById('profileEmailInput');
     const profileCancelBtn = document.getElementById('profileCancelBtn');
     const profileUniversityInput = document.getElementById('profileUniversityInput');
+    const profileUniversityWrap = document.getElementById('profileUniversityWrap');
+    const profileUniversityButton = document.getElementById('profileUniversityButton');
+    const profileUniversityMenu = document.getElementById('profileUniversityMenu');
     const profileYearSelect = document.getElementById('profileYearSelect');
     const profileYearWrap = document.getElementById('profileYearWrap');
     const profileYearButton = document.getElementById('profileYearButton');
@@ -2480,6 +2488,14 @@
       if (profileUniversityInput) {
         profileUniversityInput.value = setup?.university || '';
       }
+      if (profileUniversityButton) {
+        profileUniversityButton.textContent = profileUniversityInput?.value || 'Select university';
+      }
+      if (profileUniversityMenu) {
+        profileUniversityMenu.querySelectorAll('.profile-select-option').forEach(btn => {
+          btn.classList.toggle('is-selected', btn.dataset.value === profileUniversityInput?.value);
+        });
+      }
       if (profileYearSelect) {
         profileYearSelect.value = setup?.year || '';
       }
@@ -2518,6 +2534,7 @@
           ? `Last updated ${new Date(profile.updatedAt).toLocaleString()}`
           : "Not updated yet";
       }
+      document.body.classList.add('profile-modal-open');
       profileModal.showModal();
     }
 
@@ -2591,14 +2608,17 @@
         };
 
         saveProfile(newProfile);
+        let shouldReloadForUniversity = false;
         try {
           const setup = JSON.parse(localStorage.getItem('uoft_onboarding_v1') || 'null') || {};
+          const nextUniversity = profileUniversityInput?.value?.trim() || setup.university || '';
           const nextSetup = {
             ...setup,
-            university: profileUniversityInput?.value?.trim() || setup.university || '',
+            university: nextUniversity,
             year: profileYearSelect?.value || setup.year || '',
             program: profileProgramInput?.value?.trim() || setup.program || ''
           };
+          shouldReloadForUniversity = !!setup.university && !!nextUniversity && nextUniversity !== setup.university;
           localStorage.setItem('uoft_onboarding_v1', JSON.stringify(nextSetup));
         } catch (err) {}
         syncSidebarProfile();
@@ -2642,21 +2662,54 @@
           profileLastUpdated.textContent = `Last updated ${new Date(newProfile.updatedAt).toLocaleString()}`;
         }
         setTimeout(() => {
+          if (shouldReloadForUniversity) {
+            window.location.reload();
+            return;
+          }
           profileModal.close();
         }, 550);
       });
     }
+    profileModal?.addEventListener('close', () => {
+      document.body.classList.remove('profile-modal-open');
+      closeUniversityMenu();
+      closeYearMenu();
+      closeProgramMenu();
+    });
     syncSidebarProfile();
 
+    function closeUniversityMenu() {
+      if (profileUniversityWrap) profileUniversityWrap.classList.remove('open');
+    }
     function closeProgramMenu() {
       if (profileProgramWrap) profileProgramWrap.classList.remove('open');
     }
     function closeYearMenu() {
       if (profileYearWrap) profileYearWrap.classList.remove('open');
     }
+    profileUniversityButton?.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (!profileUniversityWrap) return;
+      closeYearMenu();
+      closeProgramMenu();
+      profileUniversityWrap.classList.toggle('open');
+    });
+    profileUniversityMenu?.addEventListener('click', (e) => {
+      const option = e.target.closest('.profile-select-option');
+      if (!option) return;
+      const value = option.dataset.value || '';
+      if (profileUniversityInput) profileUniversityInput.value = value;
+      if (profileUniversityButton) profileUniversityButton.textContent = value;
+      profileUniversityMenu.querySelectorAll('.profile-select-option').forEach(btn => {
+        btn.classList.toggle('is-selected', btn === option);
+      });
+      closeUniversityMenu();
+    });
     profileYearButton?.addEventListener('click', (e) => {
       e.preventDefault();
       if (!profileYearWrap) return;
+      closeUniversityMenu();
+      closeProgramMenu();
       profileYearWrap.classList.toggle('open');
     });
     profileYearMenu?.addEventListener('click', (e) => {
@@ -2673,6 +2726,8 @@
     profileProgramButton?.addEventListener('click', (e) => {
       e.preventDefault();
       if (!profileProgramWrap) return;
+      closeUniversityMenu();
+      closeYearMenu();
       profileProgramWrap.classList.toggle('open');
     });
     profileProgramMenu?.addEventListener('click', (e) => {
@@ -2687,6 +2742,9 @@
       closeProgramMenu();
     });
     document.addEventListener('click', (e) => {
+      if (profileUniversityWrap && profileUniversityWrap.classList.contains('open') && !profileUniversityWrap.contains(e.target)) {
+        closeUniversityMenu();
+      }
       if (profileYearWrap && profileYearWrap.classList.contains('open') && !profileYearWrap.contains(e.target)) {
         closeYearMenu();
       }

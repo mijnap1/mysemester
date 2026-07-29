@@ -104,33 +104,55 @@
     .empty-msg {
       text-align: center;
       color: var(--muted);
+      padding: 42px 20px 38px;
+    }
+    .empty-state {
+      width: min(360px, 100%);
+      margin: 0 auto;
+      display: grid;
+      justify-items: center;
+      gap: 12px;
+      color: var(--muted);
       font-weight: 600;
-      padding: 36px 16px 32px;
+      line-height: 1.4;
+    }
+    .empty-state ion-icon {
+      width: 44px;
+      height: 44px;
+      padding: 12px;
+      border-radius: 16px;
+      color: var(--blue);
+      background: #eff6ff;
+    }
+    .empty-state strong {
+      color: var(--text);
+      font-size: 20px;
+      line-height: 1.15;
+    }
+    .empty-state span {
+      max-width: 260px;
+      font-size: 15px;
     }
     .empty-msg .empty-cta {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      padding: 4px 10px;
-      border-radius: 8px;
-      background: #f1f5f9;
-      color: #334155;
-      border: 1px solid #e2e8f0;
+      min-height: 44px;
+      padding: 10px 16px;
+      border-radius: 12px;
+      background: var(--blue);
+      color: #fff;
+      border: 2px solid var(--blue);
+      font-family: inherit;
+      font-size: 15px;
       font-weight: 700;
-      margin: 0 4px;
-      box-shadow: 0 6px 14px rgba(148, 163, 184, 0.18);
+      cursor: pointer;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
+      transition: transform 0.2s var(--ease), background 0.2s var(--ease);
     }
-    @media (max-width: 700px) {
-      .empty-msg {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 10px;
-      }
-      .empty-msg .empty-cta {
-        margin: 0;
-        align-self: center;
-      }
+    .empty-msg .empty-cta:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
     }
     th .help-tip {
       margin-left: 6px;
@@ -202,6 +224,10 @@
     input[type="number"]:focus {
       outline: none;
       border-color: var(--blue);
+    }
+
+    @media (pointer: coarse) {
+      input { font-size: 16px !important; }
     }
     
     input::-webkit-outer-spin-button,
@@ -310,6 +336,9 @@
     color: var(--blue);
     border-color: var(--blue);
     background: rgba(96,165,250,0.1);
+  }
+  :root[data-theme='dark'] .empty-state ion-icon {
+    background: rgba(96, 165, 250, 0.14);
   }
   .notification {
   position: fixed;
@@ -543,9 +572,41 @@
   header { width: 100%; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
   header h1 { font-size: 24px; }
   header p { font-size: 14px; margin-top: 0; }
-  table { display: block; overflow-x: auto; border-radius: 14px; }
+  table {
+    display: block;
+    overflow-x: auto;
+    border-radius: 14px;
+  }
+  table.empty {
+    width: 100%;
+    overflow: hidden;
+    background: var(--card);
+    box-shadow: var(--shadow);
+  }
+  table.empty thead {
+    display: none;
+  }
+  table.empty tr {
+    display: block;
+    padding: 0;
+  }
+  table.empty tbody {
+    display: block;
+  }
   th, td { padding: 11px 8px; font-size: 13.5px; }
-  input[type="number"] { width: 88px; font-size: 14px; padding: 8px 8px; }
+  .empty-msg {
+    display: block;
+    width: 100%;
+    padding: 40px 20px;
+  }
+  .empty-state strong {
+    font-size: 19px;
+  }
+  .empty-state span {
+    font-size: 14px;
+  }
+  input { font-size: 16px !important; }
+  input[type="number"] { width: 88px; font-size: 16px; padding: 8px 8px; }
   .actions {
     flex-direction: column;
     gap: 8px;
@@ -558,7 +619,22 @@
     border-radius: 12px;
   }
   .summary { font-size: 15px; margin-top: 24px; }
-  .notification { width: min(90vw, 360px); text-align: center; }
+  .notification {
+    top: max(12px, env(safe-area-inset-top));
+    left: 14px;
+    right: 14px;
+    width: auto;
+    transform: translateY(-12px);
+    padding: 12px 16px;
+    border-radius: 14px;
+    text-align: center;
+    font-size: 15px;
+    line-height: 1.25;
+    box-shadow: 0 14px 34px rgba(34, 197, 94, 0.24);
+  }
+  .notification.show {
+    transform: translateY(0);
+  }
   .undo-toast { width: min(92vw, 360px); justify-content: space-between; }
   .calc-fab {
     right: 14px;

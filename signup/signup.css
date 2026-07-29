@@ -105,6 +105,10 @@
       border-color: var(--blue);
     }
 
+    @media (pointer: coarse) {
+      input { font-size: 16px; }
+    }
+
     .toggle-password {
       position: absolute;
       right: 10px;
@@ -274,6 +278,7 @@
       .title { font-size: 38px; margin-bottom: 22px; line-height: 1.1; }
       .card { width: min(380px, 90vw); padding: 26px 20px; }
       h1 { font-size: 24px; margin-bottom: 16px; }
+      input { font-size: 16px; }
       form { gap: 14px; }
       .theme-toggle { top: 12px; right: 12px; }
       button[type="submit"] { width: 100%; }

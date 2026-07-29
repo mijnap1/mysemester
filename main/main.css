@@ -216,6 +216,12 @@ body.tour-restrict .tour-allow * {
     .sidebar.show { right: 0; }
 
     @media (max-width: 600px) {
+      input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"]),
+      textarea,
+      select {
+        font-size: 16px !important;
+      }
+
       html, body { height: auto; }
       body:not(.tour-lock) { overflow-y: auto; -webkit-overflow-scrolling: touch; }
       body.no-scroll-empty { overflow-y: auto; }
@@ -446,6 +452,10 @@ body.tour-restrict .tour-allow * {
     text-align: left;
     cursor: pointer;
     position: relative;
+    padding-right: 36px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .profile-select-button::after {
     content: "";
@@ -493,6 +503,11 @@ body.tour-restrict .tour-allow * {
     border-color: var(--blue);
     background: #eef2ff;
     color: #1e3a8a;
+  }
+  @media (min-width: 701px) {
+    body.profile-modal-open {
+      overflow: hidden;
+    }
   }
 
     
@@ -1147,6 +1162,14 @@ dialog {
       box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.25);
     }
     input::placeholder { color: #9ca3af; }
+
+    @media (pointer: coarse) {
+      input:not([type="hidden"]):not([type="radio"]):not([type="checkbox"]),
+      textarea,
+      select {
+        font-size: 16px !important;
+      }
+    }
 
     .hint { font-size: 12px; color: var(--muted); margin-top: 4px; }
 

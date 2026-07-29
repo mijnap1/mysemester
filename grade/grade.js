@@ -290,7 +290,12 @@ document.addEventListener('visibilitychange', () => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="empty-msg" colspan="5">
-            No assessments yet. Click <span class="empty-cta">+ Add Assessment</span> to get started.
+            <div class="empty-state">
+              <ion-icon name="clipboard-outline" aria-hidden="true"></ion-icon>
+              <strong>No assessments yet</strong>
+              <span>Add your first assessment to start calculating this course.</span>
+              <button type="button" class="empty-cta" onclick="addAssessment()">+ Add Assessment</button>
+            </div>
           </td>
         `;
         tbody.appendChild(tr);
@@ -538,7 +543,7 @@ document.addEventListener('visibilitychange', () => {
       input.style.border = '2px solid var(--blue)';
       input.style.borderRadius = '6px';
       input.style.fontFamily = 'Outfit';
-      input.style.fontSize = '15px';
+      input.style.fontSize = '16px';
       input.style.padding = '6px 8px';
     }
 

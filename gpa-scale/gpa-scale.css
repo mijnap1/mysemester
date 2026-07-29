@@ -139,6 +139,9 @@ body {
   font-size: 14px;
   background: #fff;
 }
+@media (pointer: coarse) {
+  #scaleSearch { font-size: 16px; }
+}
 .scale-legend {
   display: flex;
   flex-wrap: wrap;
@@ -282,5 +285,6 @@ body {
   .hero h1 { font-size: 26px; }
   .panel { padding: 18px; }
   .page-header { padding: 14px 16px; }
+  #scaleSearch { font-size: 16px; }
   .scale-table { grid-template-columns: 1fr; }
 }

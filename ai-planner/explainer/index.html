@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
   <title>AI Planner | MySemester</title>
   <link rel="icon" type="image/png" href="/mysemesterlogo.png">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -168,16 +168,55 @@
       <div class="panel-head">
         <div>
           <h2>Ask AI Planner</h2>
-          <p>This feature is being prepared as a premium version for a later update.</p>
+          <p>Analyze your saved MySemester grades, get a tier, and ask questions against your actual course data.</p>
         </div>
       </div>
-      <div class="coming-soon-card">
-        <ion-icon name="sparkles-outline"></ion-icon>
+
+      <div class="ask-premium-intro">
         <div>
-          <h3>Premium version coming soon</h3>
-          <p>Ask AI Planner will answer planning questions once the premium version is ready. For now, use Course Planner, Course Explainer, and Course Catalog.</p>
+          <span class="premium-kicker"><ion-icon name="sparkles-outline"></ion-icon> Premium MVP</span>
+          <h3>Analyze your semester instantly</h3>
+          <p>No setup form. Ask AI Planner pulls your saved MySemester courses, grades, and assessment rows, then builds your tier and next moves.</p>
         </div>
+        <button class="btn-primary ask-analyze-btn" id="askAnalyzeBtn" type="button">
+          <ion-icon name="analytics-outline"></ion-icon>
+          Analyze now
+        </button>
       </div>
+
+      <div class="ask-loading" id="askLoading" hidden aria-live="polite">
+        <div class="analysis-orbit" aria-hidden="true">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div>
+          <h3>Analyzing your semester</h3>
+          <p id="askLoadingText">Collecting saved MySemester grade data...</p>
+        </div>
+        <div class="analysis-progress" aria-hidden="true"><span></span></div>
+      </div>
+
+      <div class="ask-dashboard ask-reveal" id="askDashboard" hidden>
+        <div class="tier-hero" id="askTierHero"></div>
+        <div class="ask-section-grid" id="askSections"></div>
+      </div>
+
+      <section class="ask-chat-panel ask-reveal" id="askChatPanel" hidden>
+        <div class="panel-head">
+          <div>
+            <h3>Chat With Ask AI Planner</h3>
+            <p>Ask about your tier, course risks, weekly focus, or how to push toward A+.</p>
+          </div>
+        </div>
+        <div class="ask-chat-log" id="askChatLog" aria-live="polite"></div>
+        <form class="ask-form" id="askChatForm">
+          <label>Question
+            <textarea name="question" placeholder="What is hurting my tier the most?"></textarea>
+          </label>
+          <button class="btn-primary" type="submit"><ion-icon name="send-outline"></ion-icon> Ask</button>
+        </form>
+      </section>
     </section>
   </main>
 

@@ -130,6 +130,10 @@
     }
     input:focus { border-color: var(--blue); outline: none; }
 
+    @media (pointer: coarse) {
+      input { font-size: 16px; }
+    }
+
     button {
       border: none;
       border-radius: 14px;
@@ -200,8 +204,11 @@
       font-size: 14px;
       cursor: pointer;
       padding: 0;
-      margin-top: -6px;
+      margin: -6px auto 0;
       display: none;
+      width: auto;
+      align-self: center;
+      text-align: center;
     }
     .link-btn:hover { text-decoration: underline; transform: translateY(-1px); background: transparent; }
     .link-btn:focus { outline: none; background: transparent; }
@@ -273,7 +280,7 @@
     body.dark .theme-toggle {
       color: var(--muted);
     }
-    .reset-mode #password,
+    .reset-mode .input-wrapper,
     .reset-mode #loginBtn {
       display: none;
     }
@@ -311,6 +318,7 @@
       .title { font-size: 38px; margin-bottom: 22px; line-height: 1.1; }
       .card { width: min(380px, 90vw); padding: 26px 20px; }
       h1 { font-size: 24px; margin-bottom: 6px; }
+      input { font-size: 16px; }
       input, button { width: 100%; }
       .input-wrapper { width: 100%; }
       .theme-toggle { top: 12px; right: 12px; }
