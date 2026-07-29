@@ -41,8 +41,15 @@
       ask: document.getElementById('askPanel')
     },
     planForm: document.getElementById('planForm'),
-    coursesInput: document.querySelector('#planForm input[name="courses"]'),
+    coursesInput: document.getElementById('plannerCoursesValue'),
+    courseSearchInput: document.getElementById('plannerCourseSearch'),
+    courseChips: document.getElementById('plannerCourseChips'),
+    courseSuggestions: document.getElementById('plannerCourseSuggestions'),
     explainForm: document.getElementById('explainForm'),
+    explainCourseInput: document.getElementById('explainCourseValue'),
+    explainCourseSearchInput: document.getElementById('explainCourseSearch'),
+    explainCourseClear: document.getElementById('explainCourseClear'),
+    explainCourseSuggestions: document.getElementById('explainCourseSuggestions'),
     askAnalyzeBtn: document.getElementById('askAnalyzeBtn'),
     askLoading: document.getElementById('askLoading'),
     askLoadingText: document.getElementById('askLoadingText'),
@@ -62,6 +69,9 @@
   function normalizeCode(value) {
     return String(value || '').trim().toUpperCase().replace(/\s+/g, '');
   }
+
+  const selectedPlannerCourses = [];
+  let selectedExplainCourse = '';
 
   function parseCourses(value) {
     return String(value || '')
@@ -100,7 +110,7 @@
   }
 
   function initRotatingCoursePlaceholder() {
-    if (!els.coursesInput) return;
+    if (!els.courseSearchInput) return;
     let lastPlaceholder = '';
 
     function nextPlaceholder() {
@@ -111,18 +121,238 @@
     }
 
     function rotate() {
-      if (document.activeElement === els.coursesInput || els.coursesInput.value.trim()) return;
+      if (document.activeElement === els.courseSearchInput || els.courseSearchInput.value.trim()) return;
       const next = nextPlaceholder();
       lastPlaceholder = next;
-      els.coursesInput.classList.add('placeholder-swapping');
+      els.courseSearchInput.classList.add('placeholder-swapping');
       window.setTimeout(() => {
-        els.coursesInput.placeholder = next;
-        els.coursesInput.classList.remove('placeholder-swapping');
+        els.courseSearchInput.placeholder = next;
+        els.courseSearchInput.classList.remove('placeholder-swapping');
       }, 160);
     }
 
-    els.coursesInput.placeholder = 'CSC108';
+    els.courseSearchInput.placeholder = 'CSC108';
     window.setInterval(rotate, 2300);
+  }
+
+  function getCourseSuggestionPool() {
+    if (seedCourses.length) return seedCourses;
+    return COURSE_PLACEHOLDER_CODES.map((code) => ({ code, title: '' }));
+  }
+
+  function courseMatches(query, excludedCodes = []) {
+    const normalizedQuery = normalizeCode(query);
+    if (!normalizedQuery) return [];
+    return getCourseSuggestionPool()
+      .filter((course) => {
+        const code = normalizeCode(course.code);
+        return !excludedCodes.includes(code)
+          && (code.startsWith(normalizedQuery) || code.includes(normalizedQuery));
+      })
+      .slice(0, 8);
+  }
+
+  function hideCourseSuggestions() {
+    if (!els.courseSuggestions || !els.courseSearchInput) return;
+    els.courseSuggestions.hidden = true;
+    els.courseSearchInput.setAttribute('aria-expanded', 'false');
+  }
+
+  function renderCourseSuggestions(query) {
+    if (!els.courseSuggestions || !els.courseSearchInput) return [];
+    const matches = courseMatches(query, selectedPlannerCourses);
+    if (!matches.length) {
+      hideCourseSuggestions();
+      return matches;
+    }
+
+    els.courseSuggestions.innerHTML = matches.map((course) => `
+      <button type="button" class="course-picker-option" role="option" data-course="${escapeHtml(course.code)}">
+        <span class="course-picker-code">${escapeHtml(course.code)}</span>
+        <span class="course-picker-title">${escapeHtml(course.title || 'Course details pending')}</span>
+      </button>
+    `).join('');
+    els.courseSuggestions.hidden = false;
+    els.courseSearchInput.setAttribute('aria-expanded', 'true');
+    return matches;
+  }
+
+  function syncSelectedCourses() {
+    if (els.coursesInput) {
+      els.coursesInput.value = selectedPlannerCourses.join(', ');
+    }
+    if (!els.courseChips) return;
+    els.courseChips.innerHTML = selectedPlannerCourses.map((code) => `
+      <span class="course-chip">
+        ${escapeHtml(code)}
+        <button type="button" data-remove-course="${escapeHtml(code)}" aria-label="Remove ${escapeHtml(code)}">
+          <ion-icon name="close-outline"></ion-icon>
+        </button>
+      </span>
+    `).join('');
+  }
+
+  function addPlannerCourse(value) {
+    const code = normalizeCode(value);
+    if (!code || selectedPlannerCourses.includes(code)) return false;
+    selectedPlannerCourses.push(code);
+    syncSelectedCourses();
+    return true;
+  }
+
+  function initCoursePicker() {
+    if (!els.courseSearchInput || !els.courseSuggestions || !els.courseChips) return;
+
+    els.courseSearchInput.addEventListener('input', () => {
+      renderCourseSuggestions(els.courseSearchInput.value);
+    });
+
+    els.courseSearchInput.addEventListener('focus', () => {
+      if (els.courseSearchInput.value) renderCourseSuggestions(els.courseSearchInput.value);
+    });
+
+    els.courseSearchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        hideCourseSuggestions();
+        return;
+      }
+      if (event.key !== 'Enter') return;
+      const matches = courseMatches(els.courseSearchInput.value, selectedPlannerCourses);
+      const code = matches[0]?.code || els.courseSearchInput.value;
+      if (!normalizeCode(code)) return;
+      event.preventDefault();
+      if (addPlannerCourse(code)) {
+        els.courseSearchInput.value = '';
+        hideCourseSuggestions();
+      }
+    });
+
+    els.courseSuggestions.addEventListener('click', (event) => {
+      const option = event.target.closest('.course-picker-option');
+      if (!option) return;
+      if (addPlannerCourse(option.dataset.course)) {
+        els.courseSearchInput.value = '';
+        hideCourseSuggestions();
+        els.courseSearchInput.focus();
+      }
+    });
+
+    els.courseChips.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-remove-course]');
+      if (!button) return;
+      const code = normalizeCode(button.dataset.removeCourse);
+      const index = selectedPlannerCourses.indexOf(code);
+      if (index >= 0) selectedPlannerCourses.splice(index, 1);
+      syncSelectedCourses();
+      renderCourseSuggestions(els.courseSearchInput.value);
+    });
+
+    document.addEventListener('click', (event) => {
+      if (event.target.closest('[data-course-picker]')) return;
+      hideCourseSuggestions();
+    });
+
+    syncSelectedCourses();
+  }
+
+  function hideExplainCourseSuggestions() {
+    if (!els.explainCourseSuggestions || !els.explainCourseSearchInput) return;
+    els.explainCourseSuggestions.hidden = true;
+    els.explainCourseSearchInput.setAttribute('aria-expanded', 'false');
+  }
+
+  function renderExplainCourseSuggestions(query) {
+    if (!els.explainCourseSuggestions || !els.explainCourseSearchInput) return [];
+    const excluded = selectedExplainCourse ? [selectedExplainCourse] : [];
+    const matches = courseMatches(query, excluded);
+    if (!matches.length) {
+      hideExplainCourseSuggestions();
+      return matches;
+    }
+
+    els.explainCourseSuggestions.innerHTML = matches.map((course) => `
+      <button type="button" class="course-picker-option" role="option" data-course="${escapeHtml(course.code)}">
+        <span class="course-picker-code">${escapeHtml(course.code)}</span>
+        <span class="course-picker-title">${escapeHtml(course.title || 'Course details pending')}</span>
+      </button>
+    `).join('');
+    els.explainCourseSuggestions.hidden = false;
+    els.explainCourseSearchInput.setAttribute('aria-expanded', 'true');
+    return matches;
+  }
+
+  function syncExplainCourse(updateSearchInput = false) {
+    if (els.explainCourseInput) {
+      els.explainCourseInput.value = selectedExplainCourse;
+    }
+    if (updateSearchInput && els.explainCourseSearchInput && els.explainCourseSearchInput.value !== selectedExplainCourse) {
+      els.explainCourseSearchInput.value = selectedExplainCourse;
+    }
+    if (els.explainCourseClear) {
+      els.explainCourseClear.hidden = !selectedExplainCourse;
+    }
+  }
+
+  function setExplainCourse(value) {
+    const code = normalizeCode(value);
+    if (!code) return false;
+    selectedExplainCourse = code;
+    syncExplainCourse(true);
+    return true;
+  }
+
+  function initExplainCoursePicker() {
+    if (!els.explainCourseSearchInput || !els.explainCourseSuggestions) return;
+
+    els.explainCourseSearchInput.addEventListener('input', () => {
+      selectedExplainCourse = '';
+      syncExplainCourse();
+      renderExplainCourseSuggestions(els.explainCourseSearchInput.value);
+    });
+
+    els.explainCourseSearchInput.addEventListener('focus', () => {
+      if (els.explainCourseSearchInput.value) renderExplainCourseSuggestions(els.explainCourseSearchInput.value);
+    });
+
+    els.explainCourseSearchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') {
+        hideExplainCourseSuggestions();
+        return;
+      }
+      if (event.key !== 'Enter') return;
+      const excluded = selectedExplainCourse ? [selectedExplainCourse] : [];
+      const matches = courseMatches(els.explainCourseSearchInput.value, excluded);
+      const code = matches[0]?.code || els.explainCourseSearchInput.value;
+      if (!normalizeCode(code)) return;
+      event.preventDefault();
+      if (setExplainCourse(code)) {
+        hideExplainCourseSuggestions();
+      }
+    });
+
+    els.explainCourseSuggestions.addEventListener('click', (event) => {
+      const option = event.target.closest('.course-picker-option');
+      if (!option) return;
+      if (setExplainCourse(option.dataset.course)) {
+        hideExplainCourseSuggestions();
+        els.explainCourseSearchInput.focus();
+      }
+    });
+
+    els.explainCourseClear?.addEventListener('click', () => {
+      selectedExplainCourse = '';
+      els.explainCourseSearchInput.value = '';
+      syncExplainCourse();
+      hideExplainCourseSuggestions();
+      els.explainCourseSearchInput.focus();
+    });
+
+    document.addEventListener('click', (event) => {
+      if (event.target.closest('[data-explain-course-picker]')) return;
+      hideExplainCourseSuggestions();
+    });
+
+    syncExplainCourse();
   }
 
   function courseBadge(course) {
@@ -779,6 +1009,12 @@
 
   els.planForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    const pendingCourse = normalizeCode(els.courseSearchInput?.value);
+    if (pendingCourse && /^[A-Z]{3,4}\d{3}[A-Z0-9]*$/.test(pendingCourse)) {
+      addPlannerCourse(pendingCourse);
+      els.courseSearchInput.value = '';
+      hideCourseSuggestions();
+    }
     const form = new FormData(els.planForm);
     const payload = {
       path: form.get('path'),
@@ -797,6 +1033,11 @@
 
   els.explainForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    const pendingCourse = normalizeCode(els.explainCourseSearchInput?.value);
+    if (pendingCourse && /^[A-Z]{3,4}\d{3}[A-Z0-9]*$/.test(pendingCourse)) {
+      setExplainCourse(pendingCourse);
+      hideExplainCourseSuggestions();
+    }
     const form = new FormData(els.explainForm);
     const payload = { courseCode: normalizeCode(form.get('courseCode')) };
     if (!payload.courseCode) {
@@ -834,12 +1075,16 @@
 
   els.semesterRefresh.addEventListener('click', runSemesterCheck);
   initPlannerSelects();
+  initCoursePicker();
+  initExplainCoursePicker();
   initRotatingCoursePlaceholder();
 
   fetch('/data/ai-planner-courses.json')
     .then((res) => res.json())
     .then((courseData) => {
       seedCourses = Array.isArray(courseData) ? courseData : [];
+      if (els.courseSearchInput?.value) renderCourseSuggestions(els.courseSearchInput.value);
+      if (els.explainCourseSearchInput?.value) renderExplainCourseSuggestions(els.explainCourseSearchInput.value);
       renderEnrolment();
     })
     .catch(() => {

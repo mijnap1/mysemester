@@ -1337,9 +1337,9 @@ dialog {
     
     #aboutModal {
       padding: 0;
-      border-radius: 22px;
+      border-radius: 20px;
       border: none;
-      width: min(920px, 96vw);
+      width: min(880px, 96vw);
       background: var(--card);
       box-shadow: 0 28px 90px rgba(2, 6, 23, 0.24);
       animation: modalIn 0.22s var(--ease);
@@ -1351,7 +1351,7 @@ dialog {
       backdrop-filter: blur(4px);
     }
     .about-modal-head {
-      padding: 22px 28px 18px;
+      padding: 18px 22px 16px;
       border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
@@ -1363,36 +1363,36 @@ dialog {
     }
     .about-modal-head ion-icon { font-size: 24px; color: var(--blue); }
     .about-modal-body {
-      background: var(--bg);
+      background: #f8fafc;
       max-height: calc(86vh - 132px);
       overflow-y: auto;
       padding: 0;
     }
     .about-content {
       margin: 0 auto;
-      padding: 28px;
+      padding: 22px;
       display: grid;
-      gap: 18px;
-      max-width: 920px;
+      gap: 16px;
+      max-width: 880px;
       position: relative;
       isolation: isolate;
     }
     .about-hero {
       display: grid;
-      gap: 12px;
-      padding: 20px;
-      border-radius: 18px;
+      gap: 13px;
+      padding: 22px;
+      border-radius: 16px;
       border: 1px solid var(--line);
       background: var(--card);
-      box-shadow: var(--shadow-default);
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
       animation: aboutFadeUp .45s var(--ease);
     }
     .about-kicker {
       align-self: flex-start;
-      font-size: 11px;
-      letter-spacing: 0.14em;
+      font-size: 10px;
+      letter-spacing: 0.13em;
       text-transform: uppercase;
-      font-weight: 700;
+      font-weight: 800;
       color: #1d4ed8;
       background: #dbeafe;
       border: 1px solid #bfdbfe;
@@ -1401,103 +1401,105 @@ dialog {
     }
     #aboutModal h2 {
       margin: 0;
-      font-size: 30px;
-      line-height: 1.2;
+      font-size: 28px;
+      line-height: 1.16;
       letter-spacing: -0.02em;
       color: var(--text);
+      max-width: 780px;
     }
     .about-hero p {
       margin: 0;
       color: #334155;
       font-size: 15px;
-      line-height: 1.6;
-      max-width: 70ch;
+      line-height: 1.55;
+      max-width: 76ch;
     }
     .about-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
     }
     .about-link {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      border-radius: 10px;
+      min-height: 36px;
+      border-radius: 11px;
       border: 1px solid #bfdbfe;
       background: #eff6ff;
       color: #1d4ed8;
       text-decoration: none;
-      font-weight: 700;
-      font-size: 14px;
-      padding: 9px 13px;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 8px 12px;
       transition: transform .2s var(--ease), box-shadow .2s var(--ease);
     }
     .about-link:hover {
       transform: translateY(-1px);
       box-shadow: 0 10px 18px rgba(37,99,235,0.15);
     }
-    .about-metrics {
+    .about-summary {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px;
+      gap: 12px;
       animation: aboutFadeUp .52s var(--ease);
     }
     .about-metric {
-      padding: 14px;
-      border-radius: 14px;
+      padding: 15px;
+      border-radius: 15px;
       background: var(--card);
       border: 1px solid var(--line);
-      box-shadow: var(--shadow-default);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
     }
     .about-metric-value {
-      font-size: 15px;
-      font-weight: 700;
+      font-size: 16px;
+      font-weight: 800;
       color: #0f172a;
     }
     .about-metric-label {
-      margin-top: 4px;
+      margin-top: 5px;
       font-size: 13px;
       color: #64748b;
       line-height: 1.45;
     }
     .about-section {
       display: grid;
-      gap: 10px;
+      gap: 12px;
       animation: aboutFadeUp .58s var(--ease);
     }
     #aboutModal h3 {
       margin: 0;
-      font-size: 18px;
-      color: var(--blue);
+      font-size: 17px;
+      color: var(--text);
       letter-spacing: -0.01em;
     }
     .about-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
+      gap: 10px;
     }
     .about-card {
       display: grid;
       grid-template-columns: auto 1fr;
-      gap: 10px;
+      gap: 12px;
       align-items: start;
-      padding: 12px;
-      border-radius: 14px;
+      padding: 14px;
+      border-radius: 15px;
       border: 1px solid var(--line);
       background: var(--card);
-      box-shadow: var(--shadow-default);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
       transition: transform .2s var(--ease), box-shadow .2s var(--ease), border-color .2s var(--ease);
     }
     .about-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-1px);
       border-color: #bfdbfe;
-      box-shadow: 0 10px 20px rgba(37,99,235,0.14);
+      box-shadow: 0 14px 26px rgba(37,99,235,0.11);
     }
     .about-card-icon {
       width: 36px;
       height: 36px;
-      border-radius: 10px;
-      background: #dbeafe;
+      border-radius: 12px;
+      background: #eff6ff;
       color: #2563eb;
       display: inline-flex;
       align-items: center;
@@ -1505,7 +1507,7 @@ dialog {
       font-size: 18px;
     }
     .about-card h4 {
-      margin: 0 0 4px;
+      margin: 0 0 5px;
       font-size: 15px;
       color: var(--text);
     }
@@ -1513,74 +1515,34 @@ dialog {
       margin: 0;
       font-size: 13px;
       color: #64748b;
-      line-height: 1.45;
+      line-height: 1.5;
     }
-    .about-roadmap-wrap {
-      padding: 16px;
-      border-radius: 16px;
-      border: 1px solid var(--line);
-      background: var(--card);
-    }
-    .about-roadmap {
+    .about-note {
       display: grid;
+      grid-template-columns: auto 1fr;
       gap: 12px;
-      margin-top: 4px;
-      position: relative;
-    }
-    .about-roadmap::before {
-      content: "";
-      position: absolute;
-      left: 7px;
-      top: 5px;
-      bottom: 6px;
-      width: 2px;
-      background: #cbd5e1;
-    }
-    .about-roadmap-item {
-      display: grid;
-      grid-template-columns: 16px 1fr;
-      gap: 10px;
       align-items: start;
-    }
-    .about-roadmap-dot {
-      width: 14px;
-      height: 14px;
-      margin-top: 4px;
-      border-radius: 999px;
-      background: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
-    }
-    .about-roadmap-item h4 {
-      margin: 0;
-      font-size: 14px;
-      color: #0f172a;
-    }
-    .about-roadmap-item p {
-      margin: 4px 0 0;
-      font-size: 13px;
-      color: #64748b;
-    }
-    .about-cta {
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      align-items: center;
       border-radius: 16px;
-      border: 1px solid var(--line);
-      background: #f8fafc;
+      border: 1px solid #bfdbfe;
+      background: #eff6ff;
       padding: 16px;
-      box-shadow: var(--shadow-default);
+      color: #1e3a8a;
     }
-    .about-cta h3 {
+    .about-note > ion-icon {
+      margin-top: 2px;
+      font-size: 22px;
+      color: #2563eb;
+    }
+    .about-note h3 {
       margin: 0;
-      color: #1d4ed8;
-      font-size: 17px;
+      color: #1e3a8a;
+      font-size: 15px;
     }
-    .about-cta p {
+    .about-note p {
       margin: 5px 0 0;
       font-size: 13px;
       color: #334155;
-      max-width: 64ch;
+      line-height: 1.45;
     }
     .about-footer-note {
       display: flex;
@@ -1597,7 +1559,7 @@ dialog {
       color: #334155;
     }
     .about-modal-actions {
-      padding: 16px 24px 20px;
+      padding: 14px 22px 18px;
       border-top: 1px solid var(--line);
       display: flex;
       justify-content: flex-end;
@@ -1631,15 +1593,11 @@ dialog {
       .about-hero p {
         font-size: 14px;
       }
-      .about-metrics {
+      .about-summary {
         grid-template-columns: 1fr;
       }
       .about-grid {
         grid-template-columns: 1fr;
-      }
-      .about-cta {
-        flex-direction: column;
-        align-items: flex-start;
       }
       .about-footer-note {
         flex-direction: column;
@@ -1652,44 +1610,46 @@ dialog {
       }
     }
     :root[data-theme="dark"] .about-modal-head {
-      background: linear-gradient(90deg, rgba(37,99,235,0.18), rgba(34,197,94,0.14));
+      background: #0f172a;
     }
     :root[data-theme="dark"] .about-modal-body {
-      background: linear-gradient(180deg, rgba(15,23,42,0.86), rgba(2,6,23,0.92));
+      background: #020617;
     }
     :root[data-theme="dark"] .about-hero,
     :root[data-theme="dark"] .about-metric,
-    :root[data-theme="dark"] .about-card,
-    :root[data-theme="dark"] .about-roadmap-wrap {
+    :root[data-theme="dark"] .about-card {
       background: #0f172a;
       border-color: #334155;
     }
     :root[data-theme="dark"] .about-hero p,
     :root[data-theme="dark"] .about-metric-label,
     :root[data-theme="dark"] .about-card p,
-    :root[data-theme="dark"] .about-roadmap-item p,
     :root[data-theme="dark"] .about-footer-note {
       color: #94a3b8;
     }
     :root[data-theme="dark"] .about-card h4,
-    :root[data-theme="dark"] .about-roadmap-item h4,
     :root[data-theme="dark"] .about-metric-value,
     :root[data-theme="dark"] .about-footer-note span:first-child {
       color: #e2e8f0;
     }
-    :root[data-theme="dark"] .about-cta {
-      border-color: #334155;
-      background: #0f172a;
+    :root[data-theme="dark"] .about-kicker,
+    :root[data-theme="dark"] .about-link {
+      border-color: #1e3a8a;
+      background: rgba(37, 99, 235, 0.16);
+      color: #93c5fd;
     }
-    :root[data-theme="dark"] .about-cta p {
+    :root[data-theme="dark"] .about-card-icon {
+      background: rgba(37, 99, 235, 0.16);
+      color: #93c5fd;
+    }
+    :root[data-theme="dark"] .about-note {
+      border-color: #1e40af;
+      background: rgba(37, 99, 235, 0.14);
+      color: #bfdbfe;
+    }
+    :root[data-theme="dark"] .about-note h3,
+    :root[data-theme="dark"] .about-note p {
       color: #cbd5e1;
-    }
-    :root[data-theme="dark"] .about-roadmap::before {
-      background: #334155;
-    }
-    :root[data-theme="dark"] .about-roadmap-dot {
-      background: #60a5fa;
-      box-shadow: 0 0 0 3px rgba(96,165,250,0.18);
     }
   
 

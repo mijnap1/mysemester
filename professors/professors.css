@@ -12,6 +12,18 @@
   --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
+:root[data-theme="dark"] {
+  --bg: #020617;
+  --card: #0f172a;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --line: #334155;
+  --blue: #60a5fa;
+  --green: #4ade80;
+  --amber: #f59e0b;
+  --purple: #a78bfa;
+  --shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+}
 
 * { box-sizing: border-box; }
 body {
@@ -22,6 +34,12 @@ body {
     radial-gradient(760px 380px at 100% 0%, rgba(22, 163, 74, 0.12), transparent 58%),
     var(--bg);
   color: var(--text);
+}
+:root[data-theme="dark"] body {
+  background:
+    radial-gradient(900px 420px at 4% -8%, rgba(37, 99, 235, 0.12), transparent 60%),
+    radial-gradient(760px 380px at 100% 0%, rgba(34, 197, 94, 0.08), transparent 58%),
+    var(--bg);
 }
 
 .page-header {
@@ -36,6 +54,9 @@ body {
   background: var(--card);
   border-bottom: 1px solid var(--line);
   box-shadow: 0 2px 8px rgba(2, 6, 23, 0.04);
+}
+:root[data-theme="dark"] .page-header {
+  box-shadow: 0 1px 0 rgba(148, 163, 184, 0.06);
 }
 .brand {
   display: inline-flex;
@@ -83,6 +104,10 @@ body {
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+:root[data-theme="dark"] .kicker {
+  background: rgba(37, 99, 235, 0.16);
+  color: #93c5fd;
+}
 .hero h1 {
   margin: 12px 0 8px;
   font-size: clamp(34px, 5vw, 58px);
@@ -105,6 +130,9 @@ body {
   border-radius: 16px;
   background: #f8fafc;
   border: 1px solid var(--line);
+}
+:root[data-theme="dark"] .hero-note {
+  background: #111c2f;
 }
 .hero-note ion-icon {
   color: var(--purple);
@@ -138,6 +166,9 @@ body {
   border: 2px solid var(--line);
   border-radius: 13px;
   background: #fff;
+}
+:root[data-theme="dark"] .search-box {
+  background: #020617;
 }
 .search-box:focus-within {
   border-color: var(--blue);
@@ -192,11 +223,19 @@ body {
   text-align: left;
   cursor: pointer;
 }
+:root[data-theme="dark"] .course-suggestion {
+  background: #111c2f;
+}
 .course-suggestion:hover,
 .course-suggestion:focus {
   border-color: rgba(37, 99, 235, 0.35);
   background: rgba(37, 99, 235, 0.07);
   outline: 0;
+}
+:root[data-theme="dark"] .course-suggestion:hover,
+:root[data-theme="dark"] .course-suggestion:focus {
+  border-color: rgba(96, 165, 250, 0.42);
+  background: rgba(37, 99, 235, 0.14);
 }
 .suggestion-code {
   color: var(--blue);
@@ -235,6 +274,10 @@ body {
   background: #ecfdf5;
   font-weight: 800;
   white-space: nowrap;
+}
+:root[data-theme="dark"] .source-pill {
+  color: #86efac;
+  background: rgba(34, 197, 94, 0.12);
 }
 
 .professor-grid {
@@ -280,6 +323,9 @@ body {
   font-size: 15px;
   font-weight: 800;
 }
+:root[data-theme="dark"] .rank {
+  background: rgba(37, 99, 235, 0.16);
+}
 .rating-block {
   padding: 2px 0 4px;
 }
@@ -322,6 +368,9 @@ body {
   background: #f8fafc;
   border: 1px solid var(--line);
 }
+:root[data-theme="dark"] .metric {
+  background: #111c2f;
+}
 .metric span {
   display: block;
   color: var(--muted);
@@ -350,6 +399,10 @@ body {
   font-size: 12px;
   font-weight: 800;
 }
+:root[data-theme="dark"] .tag {
+  background: #1e293b;
+  color: #cbd5e1;
+}
 .summary {
   margin: 0;
   padding: 12px 14px;
@@ -360,6 +413,11 @@ body {
   font-size: 15px;
   font-weight: 600;
   line-height: 1.45;
+}
+:root[data-theme="dark"] .summary {
+  border-left-color: #1d4ed8;
+  background: #111c2f;
+  color: #dbe4f0;
 }
 .source-link {
   align-self: end;

@@ -8,6 +8,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+  <script>
+    (() => {
+      const storedTheme = localStorage.getItem('uoft_theme') || 'light';
+      const resolvedTheme = storedTheme === 'system'
+        ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : storedTheme;
+      document.documentElement.dataset.theme = resolvedTheme === 'dark' ? 'dark' : 'light';
+    })();
+  </script>
   <link rel="stylesheet" href="professors.css">
 </head>
 <body>

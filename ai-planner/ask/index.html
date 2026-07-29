@@ -97,7 +97,15 @@
           </div>
         </label>
         <label class="field-label">Courses being considered
-          <input name="courses" placeholder="CSC108, MAT137, STA130">
+          <input type="hidden" name="courses" id="plannerCoursesValue">
+          <div class="course-picker" data-course-picker>
+            <div class="course-chip-row" id="plannerCourseChips" aria-label="Selected courses"></div>
+            <div class="course-picker-search">
+              <ion-icon name="search-outline"></ion-icon>
+              <input id="plannerCourseSearch" type="search" placeholder="Type CSC, MAT, BIO..." autocomplete="off" aria-controls="plannerCourseSuggestions" aria-expanded="false">
+            </div>
+            <div class="course-picker-suggestions" id="plannerCourseSuggestions" role="listbox" aria-label="Course suggestions" hidden></div>
+          </div>
         </label>
         <label class="field-label">Preferred workload
           <div class="planner-select-wrap" data-select>
@@ -136,9 +144,23 @@
       </div>
       <form class="inline-form" id="explainForm">
         <label>Course code
-          <input name="courseCode" placeholder="CSC108" autocomplete="off">
+          <input type="hidden" name="courseCode" id="explainCourseValue">
+          <div class="course-picker" data-explain-course-picker>
+            <div class="course-picker-search explain-course-search">
+              <ion-icon name="search-outline"></ion-icon>
+              <input id="explainCourseSearch" type="search" placeholder="Type CSC, MAT, BIO..." autocomplete="off" aria-controls="explainCourseSuggestions" aria-expanded="false">
+              <button type="button" class="course-clear-btn" id="explainCourseClear" aria-label="Clear selected course" hidden>
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+            </div>
+            <div class="course-picker-suggestions" id="explainCourseSuggestions" role="listbox" aria-label="Course suggestions" hidden></div>
+          </div>
         </label>
         <button class="btn-primary" type="submit"><ion-icon name="search-outline"></ion-icon> Explain</button>
+        <div class="explainer-hint" aria-hidden="true">
+          <ion-icon name="book-outline"></ion-icon>
+          <span>Shows difficulty, common paths, warnings, and what to verify officially.</span>
+        </div>
       </form>
       <div class="result-grid" id="explainResult"></div>
     </section>

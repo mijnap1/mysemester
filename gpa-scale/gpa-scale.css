@@ -19,27 +19,29 @@ body {
 }
 
 .page-header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 18px 24px;
-  position: sticky;
-  top: 0;
-  background: rgba(248, 250, 252, 0.9);
-  backdrop-filter: blur(10px);
+  gap: 16px;
+  padding: 16px 22px;
+  background: var(--card);
   border-bottom: 1px solid var(--line);
-  z-index: 10;
+  box-shadow: 0 2px 8px rgba(2, 6, 23, 0.04);
 }
 
 .brand {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-weight: 700;
   color: var(--text);
   text-decoration: none;
+  font-size: 20px;
+  font-weight: 700;
 }
-.brand ion-icon { color: var(--blue); font-size: 22px; }
+.brand ion-icon { color: var(--blue); font-size: 23px; }
 
 .page {
   max-width: 980px;
