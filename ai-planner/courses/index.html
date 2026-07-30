@@ -34,15 +34,25 @@
         <h1>Course Catalog</h1>
         <p>Browse the 400 UofT Arts & Science course records currently used by AI Planner.</p>
       </div>
-      <div class="catalog-stats" aria-live="polite">
-        <div>
-          <span class="catalog-stat-value" id="catalogTotal">400</span>
-          <span class="catalog-stat-label">courses loaded</span>
+      <div class="catalog-side">
+        <div class="catalog-stats" aria-live="polite">
+          <div>
+            <span class="catalog-stat-value" id="catalogTotal">400</span>
+            <span class="catalog-stat-label">courses loaded</span>
+          </div>
+          <div>
+            <span class="catalog-stat-value" id="catalogVisible">0</span>
+            <span class="catalog-stat-label">showing</span>
+          </div>
         </div>
-        <div>
-          <span class="catalog-stat-value" id="catalogVisible">0</span>
-          <span class="catalog-stat-label">showing</span>
-        </div>
+        <a class="professor-picks-card" href="/professors/">
+          <span class="professor-picks-icon"><ion-icon name="star-outline"></ion-icon></span>
+          <span>
+            <strong>Professor Picks</strong>
+            <small>Test UofT professor rating cards by course</small>
+          </span>
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </a>
       </div>
     </section>
 
