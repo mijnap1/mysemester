@@ -989,76 +989,94 @@ dialog {
     .modal-body { padding: 22px; display: grid; gap: 18px; }
     .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 
-    
-    .icon-try-row-toggle {
-      display: inline-flex;
-      align-items: center;
-      font-size: 13.5px;
-      font-weight: 500;
-      color: #2563eb;
-      background: #f3f6fa;
-      border-radius: 999px;
-      border: none;
-      padding: 6px 16px;
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.18s, color 0.18s, box-shadow 0.18s var(--ease), transform 0.18s var(--ease);
-      margin-bottom: 2px;
-      outline: none;
-      box-shadow: 0 1px 5px rgba(37,99,235,0.06);
+    #iconSelectButton {
+      min-height: 49px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 400;
     }
-    .icon-try-row-toggle:hover, .icon-try-row-toggle:focus {
-      background: #e0e7ff;
-      color: #1e40af;
-      box-shadow: 0 2px 12px rgba(37,99,235,0.10);
-      transform: translateY(-1px) scale(1.03);
-      text-decoration: none;
+    .icon-select-menu {
+      max-height: none;
+      padding: 8px 34px 16px;
+      z-index: 20;
     }
-    .icon-chip-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 6px;
-      opacity: 1;
-      pointer-events: auto;
-      transition: opacity 0.23s var(--ease);
-      animation: iconchipfadein .33s var(--ease);
+    .icon-select-wrap.open .icon-select-menu {
+      display: block;
     }
-    .icon-chip-row.hide {
-      opacity: 0;
-      pointer-events: none;
-      height: 0;
-      margin-top: 0;
-      transition: opacity 0.22s var(--ease);
-      animation: none;
-    }
-    @keyframes iconchipfadein {
-      from { opacity: 0; transform: translateY(10px);}
-      to { opacity: 1; transform: none;}
-    }
-    .icon-chip {
-      display: inline-flex;
-      align-items: center;
+    .icon-select-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 6px;
-      background: var(--chip-bg);
-      color: var(--chip-text);
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border: 1px solid var(--line);
-      transition: background 0.2s, color 0.2s;
-      cursor: pointer;
-      user-select: none;
     }
-    .icon-chip ion-icon {
-      font-size: 17px;
-      margin-right: 2px;
+    .icon-select-option {
+      min-width: 0;
+      min-height: 44px;
+      padding: 4px 2px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      font-size: 11px;
+      text-align: center;
+    }
+    .icon-select-option ion-icon {
+      font-size: 19px;
+    }
+    .icon-select-option[hidden] {
+      display: none;
+    }
+    .icon-page-button {
+      position: absolute;
+      top: 50%;
+      width: 28px;
+      height: 44px;
+      padding: 0;
+      border: 0;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--muted);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transform: translateY(-50%);
+    }
+    .icon-page-button:hover:not(:disabled),
+    .icon-page-button:focus-visible {
+      color: var(--blue);
+      background: rgba(37, 99, 235, 0.08);
+      outline: none;
+    }
+    .icon-page-button:disabled {
+      opacity: 0.25;
+      cursor: default;
+    }
+    .icon-page-prev { left: 4px; }
+    .icon-page-next { right: 4px; }
+    .icon-page-dots {
+      position: absolute;
+      left: 50%;
+      bottom: 5px;
+      display: flex;
+      gap: 4px;
+      transform: translateX(-50%);
+    }
+    .icon-page-dots span {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--line);
+    }
+    .icon-page-dots span.is-active {
+      background: var(--blue);
     }
     label { font-size: 13px; font-weight: 600; color: var(--muted); }
 
     #addCourseModal {
       overflow: hidden;
+    }
+    #addCourseModal .modal-actions {
+      padding-bottom: 36px;
     }
 
     
@@ -1070,31 +1088,9 @@ dialog {
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
       }
 
-      
-      .icon-try-row-toggle {
-        background: var(--chip-bg);
-        color: var(--blue);
-        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
-      }
-
-      .icon-try-row-toggle:hover, .icon-try-row-toggle:focus {
-        background: rgba(37,99,235,0.2);
-        color: #bfdbfe;
-        box-shadow: 0 2px 10px rgba(37,99,235,0.15);
-      }
-
-      .icon-chip-row {
-        background: transparent;
-      }
-
-      .icon-chip {
-        background: var(--chip-bg);
-        color: var(--chip-text);
-        border: 1px solid var(--line);
-      }
-
-      .icon-chip:hover {
-        background: rgba(37,99,235,0.15);
+      .icon-select-option:hover,
+      .icon-select-option.is-selected {
+        background: rgba(37, 99, 235, 0.18);
         color: #bfdbfe;
       }
 
@@ -1330,6 +1326,39 @@ dialog {
       .empty-state-card { padding: 22px 14px 16px; width: min(320px, 94vw); }
       .app-dialog { width: min(94vw, 360px); }
       .app-toast { width: min(94vw, 360px); text-align: center; }
+      #addCourseModal {
+        position: fixed;
+        inset: 0;
+        margin: auto;
+        width: min(94vw, 420px);
+        max-height: calc(100dvh - 20px);
+      }
+      #addCourseModal form {
+        display: flex;
+        flex-direction: column;
+        max-height: inherit;
+      }
+      #addCourseModal .modal-head {
+        padding: 16px 18px;
+      }
+      #addCourseModal .modal-body {
+        min-height: 0;
+        padding: 18px;
+        gap: 14px;
+        overflow-y: auto;
+      }
+      #addCourseModal .modal-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+      }
+      #addCourseModal .modal-actions {
+        flex-shrink: 0;
+        padding: 14px 18px 18px;
+      }
+      #addCourseModal .icon-select-menu {
+        top: auto;
+        bottom: calc(100% + 8px);
+      }
       footer { font-size: 12px; }
     }
   
@@ -2529,24 +2558,6 @@ body.tour-lock #addCourseModal .tour-modal-mask {
 .tour-field-highlight {
   border-color: var(--line);
   box-shadow: none;
-}
-
-body.tour-lock #addCourseModal .icon-try-row-toggle.disabled {
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-body.tour-lock #addCourseModal .icon-chip-row.disabled {
-  pointer-events: none;
-  opacity: 0.6;
-}
-
-body.tour-lock #addCourseModal .icon-chip-row {
-  display: none;
-}
-
-body.tour-lock #addCourseModal .icon-try-row-toggle {
-  pointer-events: none;
 }
 
 body.tour-lock #addCourseModal button:disabled,

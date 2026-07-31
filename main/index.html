@@ -467,18 +467,30 @@
           </div>
           <div id="iconField">
             <label>Icon</label>
-            <input name="icon" id="iconInput" placeholder="e.g., laptop-outline" />
+            <div class="profile-select-wrap icon-select-wrap" id="iconSelectWrap">
+              <button type="button" class="profile-select-button" id="iconSelectButton" aria-haspopup="listbox" aria-expanded="false">Book</button>
+              <input type="hidden" name="icon" id="iconInput" value="book-outline">
+              <div class="profile-select-menu icon-select-menu" id="iconSelectMenu" role="listbox" aria-label="Course icon">
+                <button type="button" class="icon-page-button icon-page-prev" id="iconPagePrev" aria-label="Previous icons"><ion-icon name="chevron-back-outline"></ion-icon></button>
+                <div class="icon-select-grid">
+                  <button type="button" class="profile-select-option icon-select-option is-selected" data-value="book-outline" data-page="0"><ion-icon name="book-outline"></ion-icon><span>Book</span></button>
+                  <button type="button" class="profile-select-option icon-select-option" data-value="calculator-outline" data-page="0"><ion-icon name="calculator-outline"></ion-icon><span>Calculator</span></button>
+                  <button type="button" class="profile-select-option icon-select-option" data-value="flask-outline" data-page="0"><ion-icon name="flask-outline"></ion-icon><span>Flask</span></button>
+                  <button type="button" class="profile-select-option icon-select-option" data-value="globe-outline" data-page="0"><ion-icon name="globe-outline"></ion-icon><span>Globe</span></button>
+                  <button type="button" class="profile-select-option icon-select-option" data-value="laptop-outline" data-page="0"><ion-icon name="laptop-outline"></ion-icon><span>Laptop</span></button>
+                  <button type="button" class="profile-select-option icon-select-option" data-value="library-outline" data-page="0"><ion-icon name="library-outline"></ion-icon><span>Library</span></button>
+                  <button type="button" class="profile-select-option icon-select-option" data-value="medkit-outline" data-page="1" hidden><ion-icon name="medkit-outline"></ion-icon><span>Medkit</span></button>
+                  <button type="button" class="profile-select-option icon-select-option" data-value="musical-notes-outline" data-page="1" hidden><ion-icon name="musical-notes-outline"></ion-icon><span>Music</span></button>
+                  <button type="button" class="profile-select-option icon-select-option" data-value="planet-outline" data-page="1" hidden><ion-icon name="planet-outline"></ion-icon><span>Planet</span></button>
+                  <button type="button" class="profile-select-option icon-select-option" data-value="school-outline" data-page="1" hidden><ion-icon name="school-outline"></ion-icon><span>School</span></button>
+                  <button type="button" class="profile-select-option icon-select-option" data-value="stats-chart-outline" data-page="1" hidden><ion-icon name="stats-chart-outline"></ion-icon><span>Statistics</span></button>
+                  <button type="button" class="profile-select-option icon-select-option" data-value="wallet-outline" data-page="1" hidden><ion-icon name="wallet-outline"></ion-icon><span>Wallet</span></button>
+                </div>
+                <button type="button" class="icon-page-button icon-page-next" id="iconPageNext" aria-label="Next icons"><ion-icon name="chevron-forward-outline"></ion-icon></button>
+                <div class="icon-page-dots" aria-hidden="true"><span class="is-active"></span><span></span></div>
+              </div>
+            </div>
             <div class="hint">Preview: <ion-icon id="iconPreview" name="book-outline"></ion-icon></div>
-            <div class="hint" style="margin-bottom:2px;">
-              <span class="icon-try-row-toggle" id="iconTryToggle" tabindex="0" role="button" aria-expanded="false">Try:</span>
-            </div>
-            <div class="icon-chip-row hide" id="iconChipRow" aria-hidden="true">
-              <span class="icon-chip" data-icon="calculator-outline"><ion-icon name="calculator-outline"></ion-icon>calculator-outline <span style="color:var(--muted);font-weight:400;">(Math)</span></span>
-              <span class="icon-chip" data-icon="laptop-outline"><ion-icon name="laptop-outline"></ion-icon>laptop-outline <span style="color:var(--muted);font-weight:400;">(CS)</span></span>
-              <span class="icon-chip" data-icon="school-outline"><ion-icon name="school-outline"></ion-icon>school-outline <span style="color:var(--muted);font-weight:400;">(Philosophy)</span></span>
-              <span class="icon-chip" data-icon="planet-outline"><ion-icon name="planet-outline"></ion-icon>planet-outline <span style="color:var(--muted);font-weight:400;">(Astronomy)</span></span>
-              <span class="icon-chip" data-icon="stats-chart-outline"><ion-icon name="stats-chart-outline"></ion-icon>stats-chart-outline <span style="color:var(--muted);font-weight:400;">(Stats)</span></span>
-            </div>
           </div>
         </div>
         <div class="error" id="formError">Please enter at least a course code (e.g., CSC108).</div>

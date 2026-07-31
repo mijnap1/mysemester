@@ -1591,7 +1591,7 @@
           editingId = null;
           modalTitle.textContent = 'Add Course';
           addCourseForm.reset();
-          iconPreview.setAttribute('name','book-outline');
+          setIconSelection('book-outline', 'Book');
           addCourseModal.showModal();
         });
         recomputeOverview();
@@ -1620,6 +1620,7 @@
         entranceIndex += 1;
       });
       if (inFolderView && visibleCourses.length === 0 && sortedFolders.length === 0) {
+        grid.classList.add('grid-empty');
         const empty = document.createElement('div');
         empty.className = 'empty-state-card';
         empty.innerHTML = `
@@ -1647,7 +1648,7 @@
           editingId = null;
           modalTitle.textContent = 'Add Course';
           addCourseForm.reset();
-          iconPreview.setAttribute('name', 'book-outline');
+          setIconSelection('book-outline', 'Book');
           addCourseModal.showModal();
         });
         grid.appendChild(addCard);
@@ -1942,7 +1943,8 @@
       const c = state.courses.find(x=>x.id===id); if(!c) return; editingId = id;
       modalTitle.textContent = 'Edit Course';
       codeInput.value = c.code; titleInput.value = c.title; gradeInput.value = c.grade ?? '';
-      iconInput.value = c.icon; iconPreview.setAttribute('name', c.icon);
+      const option = [...iconSelectMenu.querySelectorAll('.icon-select-option')].find(item => item.dataset.value === c.icon);
+      setIconSelection(c.icon, option?.textContent.trim() || c.icon);
       addCourseModal.showModal();
     }
     function toggleCrncr(id){
@@ -1973,6 +1975,11 @@
     const saveCourse = document.getElementById('saveCourse');
     const iconInput = document.getElementById('iconInput');
     const iconPreview = document.getElementById('iconPreview');
+    const iconSelectWrap = document.getElementById('iconSelectWrap');
+    const iconSelectButton = document.getElementById('iconSelectButton');
+    const iconSelectMenu = document.getElementById('iconSelectMenu');
+    const iconPagePrev = document.getElementById('iconPagePrev');
+    const iconPageNext = document.getElementById('iconPageNext');
     const formError = document.getElementById('formError');
     const modalTitle = document.getElementById('modalTitle');
     const gradeInput = document.getElementById('gradeInput');
@@ -2010,10 +2017,12 @@
 
     openAddCourse.addEventListener('click', ()=>{
       editingId = null; modalTitle.textContent = 'Add Course';
-      addCourseForm.reset(); iconPreview.setAttribute('name','book-outline');
+      addCourseForm.reset(); setIconSelection('book-outline', 'Book');
       addCourseModal.showModal();
     });
     openAddFolder?.addEventListener('click', async () => {
+      sidebar.classList.remove('show');
+      overlay.classList.remove('show');
       const trimmed = await askInput({
         title: 'New folder',
         message: 'Choose a folder name.',
@@ -2168,59 +2177,55 @@
     });
 
     cancelCourse.addEventListener('click', ()=>{
-      addCourseModal.close(); formError.style.display='none';
+      closeIconSelect(); addCourseModal.close(); formError.style.display='none';
     });
-    iconInput.addEventListener('input', ()=>{
-      iconPreview.setAttribute('name', iconInput.value.trim()||'book-outline');
-    });
-
-    
-    document.getElementById('iconChipRow')?.addEventListener('click', function(e){
-      const chip = e.target.closest('.icon-chip');
-      if (!chip) return;
-      const icon = chip.getAttribute('data-icon');
-      if (icon) {
-        iconInput.value = icon;
-        iconPreview.setAttribute('name', icon);
-        iconInput.focus();
-      }
-    });
-
-    
-    (function() {
-      const tryToggle = document.getElementById('iconTryToggle');
-      const chipRow = document.getElementById('iconChipRow');
-      if (!tryToggle || !chipRow) return;
-      let shown = false;
-      function showChips() {
-        chipRow.classList.remove('hide');
-        chipRow.setAttribute('aria-hidden', 'false');
-        tryToggle.setAttribute('aria-expanded', 'true');
-        shown = true;
-      }
-      function hideChips() {
-        chipRow.classList.add('hide');
-        chipRow.setAttribute('aria-hidden', 'true');
-        tryToggle.setAttribute('aria-expanded', 'false');
-        shown = false;
-      }
-      function toggleChips() {
-        if (shown) {
-          hideChips();
-        } else {
-          showChips();
-        }
-      }
-      tryToggle.addEventListener('click', toggleChips);
-      tryToggle.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
-          e.preventDefault();
-          toggleChips();
-        }
+    const closeIconSelect = () => {
+      iconSelectWrap.classList.remove('open');
+      iconSelectButton.setAttribute('aria-expanded', 'false');
+    };
+    let iconPage = 0;
+    const renderIconPage = () => {
+      iconSelectMenu.querySelectorAll('.icon-select-option').forEach(option => {
+        option.hidden = Number(option.dataset.page) !== iconPage;
       });
-      
-      hideChips();
-    })();
+      iconPagePrev.disabled = iconPage === 0;
+      iconPageNext.disabled = iconPage === 1;
+      iconSelectMenu.querySelectorAll('.icon-page-dots span').forEach((dot, index) => {
+        dot.classList.toggle('is-active', index === iconPage);
+      });
+    };
+    const setIconSelection = (value, label) => {
+      iconInput.value = value;
+      iconSelectButton.textContent = label;
+      iconPreview.setAttribute('name', value);
+      iconPage = 0;
+      iconSelectMenu.querySelectorAll('.icon-select-option').forEach(option => {
+        option.classList.toggle('is-selected', option.dataset.value === value);
+        if (option.dataset.value === value) iconPage = Number(option.dataset.page);
+      });
+      renderIconPage();
+      closeIconSelect();
+    };
+    iconSelectButton.addEventListener('click', () => {
+      const open = iconSelectWrap.classList.toggle('open');
+      iconSelectButton.setAttribute('aria-expanded', String(open));
+    });
+    iconSelectMenu.addEventListener('click', (event) => {
+      const option = event.target.closest('.icon-select-option');
+      if (option) setIconSelection(option.dataset.value, option.textContent.trim());
+    });
+    iconPagePrev.addEventListener('click', () => {
+      iconPage = 0;
+      renderIconPage();
+    });
+    iconPageNext.addEventListener('click', () => {
+      iconPage = 1;
+      renderIconPage();
+    });
+    document.addEventListener('click', (event) => {
+      if (!iconSelectWrap.contains(event.target)) closeIconSelect();
+    });
+    renderIconPage();
 
     
     const codeTitlePlaceholders = [
@@ -2254,11 +2259,11 @@
 
       if(editingId){
         const c = state.courses.find(x=>x.id===editingId);
-        if(c){ c.code = normCode; c.title = title; c.icon = autoIcon(normCode, icon); c.grade = grade; }
+        if(c){ c.code = normCode; c.title = title; c.icon = icon; c.grade = grade; }
       } else {
         const newCourseId = uid();
         highlightedCardId = newCourseId;
-        state.courses.push({ id: newCourseId, code: normCode, title, icon: autoIcon(normCode, icon), grade: grade ?? null, crncr: false, folderId: null });
+        state.courses.push({ id: newCourseId, code: normCode, title, icon, grade: grade ?? null, crncr: false, folderId: null });
       }
       save(); render(); addCourseModal.close(); sidebar.classList.remove('show'); overlay.classList.remove('show');
       
@@ -2982,9 +2987,9 @@ const tourSteps = [
   },
   {
     title: 'Pick an icon',
-    body: 'Use an Ionicons name for a custom icon (e.g., laptop-outline).',
+    body: 'Open the icon menu, choose a style, and check its preview.',
     selector: '#iconField',
-    highlightSelector: '#iconInput',
+    highlightSelector: '#iconSelectButton',
     spotlightSelector: '#iconField',
     modalSpotlightSelector: '#iconField',
     preferPos: 'left',
@@ -3087,26 +3092,18 @@ function clearTourFieldHighlight() {
 function updateTourModalInteractivity(step) {
   const modalStep = !!(step && step.ensureModalOpen);
   const currentField = step?.highlightSelector ? document.querySelector(step.highlightSelector) : null;
-  const iconTryToggle = document.getElementById('iconTryToggle');
-  const iconChipRow = document.getElementById('iconChipRow');
-  const iconExtrasDisabled = modalStep && currentField !== iconInput;
 
-  [codeInput, titleInput, gradeInput, iconInput].forEach((field) => {
+  [codeInput, titleInput, gradeInput].forEach((field) => {
     if (!field) return;
     field.disabled = modalStep && field !== currentField;
   });
+  if (iconInput) iconInput.disabled = modalStep && currentField !== iconSelectButton;
+  if (iconSelectButton) iconSelectButton.disabled = modalStep && currentField !== iconSelectButton;
   if (cancelCourse) cancelCourse.disabled = modalStep;
   if (saveCourse) {
     saveCourse.disabled = step?.enableSave ? false : (modalStep ? true : false);
   }
 
-  if (iconTryToggle) {
-    iconTryToggle.setAttribute('aria-disabled', iconExtrasDisabled ? 'true' : 'false');
-    iconTryToggle.classList.toggle('disabled', iconExtrasDisabled);
-  }
-  if (iconChipRow) {
-    iconChipRow.classList.toggle('disabled', iconExtrasDisabled);
-  }
 }
 
 function updateSpotlight(target) {
