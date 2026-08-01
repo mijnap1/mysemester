@@ -2,7 +2,7 @@ const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
-const ROOT = __dirname;
+const ROOT = path.join(__dirname, '..');
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || '127.0.0.1';
 const OFFICIAL_NOTE = 'Unofficial planning help only. Verify important decisions with the UofT Calendar, department pages, your registrar, or an academic advisor.';
@@ -243,6 +243,11 @@ async function handleApi(req, res, pathname) {
 
 function serveStatic(req, res, pathname) {
   const cleanPath = decodeURIComponent(pathname).replace(/^\/+/, '');
+  if (cleanPath === '_private' || cleanPath.startsWith('_private/')) {
+    res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
+    res.end('Not found');
+    return;
+  }
   const requestedPath = path.join(ROOT, cleanPath || 'index.html');
   const safePath = requestedPath.startsWith(ROOT) ? requestedPath : path.join(ROOT, 'index.html');
   let filePath = safePath;

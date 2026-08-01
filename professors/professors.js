@@ -49,6 +49,38 @@ const PROFESSOR_DATA = [
     ]
   },
   {
+    courseCode: 'CSC207',
+    courseTitle: 'Software Design',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Paul Gries', section: 'RMP course tag: CSC207', rating: 4.3, ratingsCount: 108, wouldTakeAgain: 82, difficulty: 2.7, tags: ['Software design', 'CSC207 reviews', 'RMP linked'], summary: 'RMP includes CSC207 ratings on this profile, so this card is tied to that course tag rather than inferred from nearby CS teaching.', sourceUrl: 'https://www.ratemyprofessors.com/professor/30803' }
+    ]
+  },
+  {
+    courseCode: 'CSC209',
+    courseTitle: 'Software Tools and Systems Programming',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Karen Reid', section: 'RMP course tag: CSC209', rating: 3.5, ratingsCount: 77, wouldTakeAgain: 54, difficulty: 3.2, tags: ['Systems', 'CSC209 reviews', 'RMP linked'], summary: 'RMP shows recent CSC209 reviews for this profile; students should still confirm the current instructor in Timetable Builder.', sourceUrl: 'https://www.ratemyprofessors.com/professor/25366' }
+    ]
+  },
+  {
+    courseCode: 'CSC236',
+    courseTitle: 'Introduction to the Theory of Computation',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Harry Sha', section: 'RMP course tag: CSC236', rating: 4.6, ratingsCount: 11, wouldTakeAgain: 91, difficulty: 2.8, tags: ['Proofs', 'CSC236 reviews', 'RMP linked'], summary: 'RMP includes CSC236 ratings on this profile, so the card stays course-specific instead of guessed from other intro CS reviews.', sourceUrl: 'https://www.ratemyprofessors.com/professor/2921120' }
+    ]
+  },
+  {
+    courseCode: 'CSC263',
+    courseTitle: 'Data Structures and Analysis',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Michelle Craig', section: 'RMP course tag: CSC263', rating: 2.9, ratingsCount: 73, wouldTakeAgain: 40, difficulty: 3.3, tags: ['Data structures', 'CSC263 reviews', 'RMP linked'], summary: 'RMP shows CSC263 reviews for this St. George profile, including recent 2026 entries. Treat the rating as student-review context only.', sourceUrl: 'https://www.ratemyprofessors.com/professor/30200' }
+    ]
+  },
+  {
     courseCode: 'MAT137',
     courseTitle: 'Calculus with Proofs',
     term: '2025-2026 cached test data',
@@ -79,12 +111,35 @@ const PROFESSOR_DATA = [
     ]
   },
   {
-    courseCode: 'MAT223',
-    courseTitle: 'Linear Algebra I',
+    courseCode: 'STA220',
+    courseTitle: 'The Practice of Statistics I',
     term: '2025-2026 cached test data',
     professors: [
-      { name: 'Sourav Chatterjee', section: 'LEC0101', rating: 4.6, ratingsCount: 37, wouldTakeAgain: 91, difficulty: 3.2, tags: ['Linear algebra', 'Clear notes', 'Conceptual'], summary: 'Good match for students who want conceptual explanations and careful linear algebra structure.', sourceUrl: null },
-      { name: 'Qin Li', section: 'LEC0201', rating: 4.2, ratingsCount: 21, wouldTakeAgain: 84, difficulty: 3.0, tags: ['Examples', 'Organized', 'Problem solving'], summary: 'Students who prefer example-driven lectures may find this style easier to follow.', sourceUrl: null }
+      { name: 'Nathan Taback', section: 'RMP course tag: STA220', rating: 4.1, ratingsCount: 19, wouldTakeAgain: 77, difficulty: 3.0, tags: ['Statistics', 'STA220 reviews', 'RMP linked'], summary: 'RMP lists STA220 ratings on this profile, so this is a course-tagged card rather than a guessed statistics assignment.', sourceUrl: 'https://www.ratemyprofessors.com/professor/1921816' }
+    ]
+  },
+  {
+    courseCode: 'STA255',
+    courseTitle: 'Statistical Theory',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Nathan Taback', section: 'RMP course tag: STA255', rating: 4.1, ratingsCount: 19, wouldTakeAgain: 77, difficulty: 3.0, tags: ['Statistical theory', 'STA255 reviews', 'RMP linked'], summary: 'RMP lists STA255 ratings on this profile; verify current sections separately because this card only reflects RMP review history.', sourceUrl: 'https://www.ratemyprofessors.com/professor/1921816' }
+    ]
+  },
+  {
+    courseCode: 'STA272',
+    courseTitle: 'Statistical Models for Data Science',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Nathan Taback', section: 'RMP course tag: STA272', rating: 4.1, ratingsCount: 19, wouldTakeAgain: 77, difficulty: 3.0, tags: ['Data science', 'STA272 reviews', 'RMP linked'], summary: 'RMP includes a recent STA272 review for this profile, which makes this a supported match for the cached test data.', sourceUrl: 'https://www.ratemyprofessors.com/professor/1921816' }
+    ]
+  },
+  {
+    courseCode: 'STA305',
+    courseTitle: 'Design and Analysis of Experiments',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Nathan Taback', section: 'RMP course tag: STA305', rating: 4.1, ratingsCount: 19, wouldTakeAgain: 77, difficulty: 3.0, tags: ['Experiments', 'STA305 reviews', 'RMP linked'], summary: 'RMP lists STA305 for this profile; this replaces the incorrect STA302 pairing.', sourceUrl: 'https://www.ratemyprofessors.com/professor/1921816' }
     ]
   },
   {
@@ -104,6 +159,40 @@ const PROFESSOR_DATA = [
     professors: [
       { name: 'Yiming Xu', section: 'Fall L0101', rating: 3.6, ratingsCount: 18, wouldTakeAgain: 72, difficulty: 3.4, tags: ['Macro', 'Structured', 'Current listing'], summary: 'The Economics department lists Yiming Xu for ECO102H1F in 2025-2026; rating data is currently a lightweight cache entry.', sourceUrl: null },
       { name: 'Tyler Paul', section: 'Winter option', rating: 3.9, ratingsCount: 67, wouldTakeAgain: 72, difficulty: 3.5, tags: ['Economics', 'Clear examples', 'Moderate pace'], summary: 'Economics RMP search results show a steadier rating profile, useful as a comparison point for macro sections.', sourceUrl: null }
+    ]
+  },
+  {
+    courseCode: 'CSC309',
+    courseTitle: 'Programming on the Web',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Niv Dayan', section: 'RMP course tag: CSC309', rating: 4.8, ratingsCount: 11, wouldTakeAgain: 100, difficulty: 3.0, tags: ['Web apps', 'CSC309 reviews', 'RMP linked'], summary: 'RMP includes a CSC309 review on this profile, along with recent upper-year CS ratings.', sourceUrl: 'https://www.ratemyprofessors.com/professor/2914910' },
+      { name: 'Kianoosh Abbasi', section: 'RMP course tag: CSC309', rating: 3.5, ratingsCount: 8, wouldTakeAgain: 63, difficulty: 3.8, tags: ['Projects', 'CSC309 reviews', 'RMP linked'], summary: 'RMP shows multiple CSC309 reviews on this St. George profile, so this card stays tied to the web-programming course tag.', sourceUrl: 'https://www.ratemyprofessors.com/professor/2847858' }
+    ]
+  },
+  {
+    courseCode: 'CSC311',
+    courseTitle: 'Introduction to Machine Learning',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Rahul Krishnan', section: 'RMP course tag: CSC311', rating: 2.1, ratingsCount: 7, wouldTakeAgain: 29, difficulty: 4.4, tags: ['Machine learning', 'CSC311 reviews', 'RMP linked'], summary: 'RMP lists CSC311 ratings on this profile; the lower score is kept as-is instead of softened.', sourceUrl: 'https://www.ratemyprofessors.com/professor/2937987' },
+      { name: 'Roger Grosse', section: 'RMP course tag: CSC311', rating: 1.9, ratingsCount: 18, wouldTakeAgain: 23, difficulty: 4.5, tags: ['ML theory', 'CSC311 reviews', 'RMP linked'], summary: 'RMP includes CSC311 ratings for this profile, so this card reflects the review signal rather than a generic ML reputation.', sourceUrl: 'https://www.ratemyprofessors.com/professor/2389345' }
+    ]
+  },
+  {
+    courseCode: 'CSC318',
+    courseTitle: 'The Design of Interactive Computational Media',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Khai Truong', section: 'RMP course tag: CSC318', rating: 3.8, ratingsCount: 4, wouldTakeAgain: 75, difficulty: 3.3, tags: ['HCI', 'CSC318 reviews', 'RMP linked'], summary: 'RMP shows CSC318 reviews on this profile, so this is included as a supported 300-level CS match.', sourceUrl: 'https://www.ratemyprofessors.com/professor/2996503' }
+    ]
+  },
+  {
+    courseCode: 'CSC343',
+    courseTitle: 'Introduction to Databases',
+    term: '2025-2026 cached test data',
+    professors: [
+      { name: 'Diane Horton', section: 'RMP course tag: CSC343', rating: 4.0, ratingsCount: 100, wouldTakeAgain: 80, difficulty: 3.1, tags: ['Databases', 'CSC343 reviews', 'RMP linked'], summary: 'RMP shows recent CSC343 reviews on this profile, and her UofT page also lists csc343 under 2025-26 teaching.', sourceUrl: 'https://www.ratemyprofessors.com/professor/17796' }
     ]
   },
   {
@@ -159,15 +248,6 @@ const PROFESSOR_DATA = [
     professors: [
       { name: 'Robert Batey', section: 'LEC0101', rating: 4.0, ratingsCount: 60, wouldTakeAgain: 78, difficulty: 3.6, tags: ['Organic chem', 'Mechanisms', 'Practice heavy'], summary: 'Students who keep up with mechanisms and practice problems tend to read this style more positively.', sourceUrl: null },
       { name: 'Mark Lautens', section: 'LEC0201', rating: 4.2, ratingsCount: 44, wouldTakeAgain: 83, difficulty: 3.7, tags: ['Mechanisms', 'Detailed', 'Research'], summary: 'Best for students who like detailed organic chemistry reasoning and research-oriented examples.', sourceUrl: null }
-    ]
-  },
-  {
-    courseCode: 'PHL245',
-    courseTitle: 'Modern Symbolic Logic',
-    term: '2025-2026 cached test data',
-    professors: [
-      { name: 'Denis Walsh', section: 'LEC0101', rating: 4.4, ratingsCount: 59, wouldTakeAgain: 88, difficulty: 3.2, tags: ['Logic', 'Precise', 'Clear examples'], summary: 'Good fit if you want symbolic logic explained carefully with precise examples.', sourceUrl: null },
-      { name: 'Jessica Wilson', section: 'LEC0201', rating: 4.1, ratingsCount: 38, wouldTakeAgain: 82, difficulty: 3.3, tags: ['Philosophy', 'Abstract', 'Structured'], summary: 'Better for students comfortable with abstract reasoning and structured philosophical arguments.', sourceUrl: null }
     ]
   },
   {

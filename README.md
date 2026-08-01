@@ -177,7 +177,9 @@ The GPA Scale page provides a cleaner reference point for university-specific gr
 │   ├── index.html
 │   ├── reset-password.css
 │   └── reset-password.js
-├── server.js               # Optional local server with /api/ai-planner routes
+├── _private/
+│   ├── server.js           # Optional local server with /api/ai-planner routes
+│   └── supabase-init.js    # Supabase constants kept out of the public app root
 └── grade/
     ├── index.html
     ├── grade.css
@@ -201,7 +203,7 @@ The AI Planner page works as a static page with useful local mock responses if A
 To run the server-side API routes locally:
 
 ```bash
-node server.js
+node _private/server.js
 ```
 
 Then open [http://localhost:3000/ai-planner/](http://localhost:3000/ai-planner/).
@@ -209,7 +211,7 @@ Then open [http://localhost:3000/ai-planner/](http://localhost:3000/ai-planner/)
 Set `OPENAI_API_KEY` to enable OpenAI-backed responses:
 
 ```bash
-OPENAI_API_KEY=your_api_key_here node server.js
+OPENAI_API_KEY=your_api_key_here node _private/server.js
 ```
 
 If `OPENAI_API_KEY` is not set, these routes return deterministic mock responses:
