@@ -8,10 +8,6 @@
   A clean student workspace for organizing courses, grades, assessments, folders, GPA scales, planning tools, and semester progress.
 </p>
 
-<p align="center">
-  <a href="https://mysemester.org">Live Site</a>
-</p>
-
 ---
 
 ## Table of Contents
