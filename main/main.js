@@ -1588,11 +1588,7 @@
         `;
         grid.appendChild(empty);
         document.getElementById('emptyAddCourseBtn').addEventListener('click', ()=>{
-          editingId = null;
-          modalTitle.textContent = 'Add Course';
-          addCourseForm.reset();
-          setIconSelection('book-outline', 'Book');
-          addCourseModal.showModal();
+          openAddCourseModal();
         });
         recomputeOverview();
         return;
@@ -1645,11 +1641,7 @@
           </div>
         `;
         addCard.addEventListener('click', () => {
-          editingId = null;
-          modalTitle.textContent = 'Add Course';
-          addCourseForm.reset();
-          setIconSelection('book-outline', 'Book');
-          addCourseModal.showModal();
+          openAddCourseModal();
         });
         grid.appendChild(addCard);
         applyCardEntrance(addCard, entranceIndex);
@@ -1987,11 +1979,19 @@
     const titleInput = document.getElementById('titleInput');
     let editingId = null;
 
+    function openAddCourseModal() {
+      editingId = null;
+      modalTitle.textContent = 'Add Course';
+      addCourseForm.reset();
+      setIconSelection('book-outline', 'Book');
+      addCourseModal.showModal();
+    }
+
     menuToggle.addEventListener('click', () => {
       const willOpenSidebar = !sidebar.classList.contains('show');
       if (willOpenSidebar) {
-        localStorage.setItem('mysemester_ai_planner_hint_seen', '1');
-        const hint = document.getElementById('aiPlannerMenuCallout');
+        localStorage.setItem('mysemester_professor_picks_hint_seen', '1');
+        const hint = document.getElementById('professorPicksMenuCallout');
         if (hint) hint.hidden = true;
       }
       sidebar.classList.toggle('show');
@@ -2015,11 +2015,7 @@
       }
     });
 
-    openAddCourse.addEventListener('click', ()=>{
-      editingId = null; modalTitle.textContent = 'Add Course';
-      addCourseForm.reset(); setIconSelection('book-outline', 'Book');
-      addCourseModal.showModal();
-    });
+    openAddCourse?.addEventListener('click', openAddCourseModal);
     openAddFolder?.addEventListener('click', async () => {
       sidebar.classList.remove('show');
       overlay.classList.remove('show');
@@ -2407,7 +2403,8 @@
     const sidebarYearEl = document.getElementById('sidebarYear');
     const sidebarProgramEl = document.getElementById('sidebarProgram');
     const aiPlannerNavEl = document.getElementById('openAiPlanner');
-    const aiPlannerMenuCalloutEl = document.getElementById('aiPlannerMenuCallout');
+    const professorPicksNavEl = document.getElementById('openProfessorPicks');
+    const professorPicksMenuCalloutEl = document.getElementById('professorPicksMenuCallout');
     const profileNameError = document.getElementById('profileNameError');
     const profileEmailError = document.getElementById('profileEmailError');
     const profileStatus = document.getElementById('profileStatus');
@@ -2467,8 +2464,11 @@
       if (aiPlannerNavEl) {
         aiPlannerNavEl.hidden = !showAiPlanner;
       }
-      if (aiPlannerMenuCalloutEl) {
-        aiPlannerMenuCalloutEl.hidden = !showAiPlanner || localStorage.getItem('mysemester_ai_planner_hint_seen') === '1';
+      if (professorPicksNavEl) {
+        professorPicksNavEl.hidden = !showAiPlanner;
+      }
+      if (professorPicksMenuCalloutEl) {
+        professorPicksMenuCalloutEl.hidden = !showAiPlanner || localStorage.getItem('mysemester_professor_picks_hint_seen') === '1';
       }
     }
 
@@ -3407,7 +3407,7 @@ tourSkip?.addEventListener('click', (e) => {
 tourNext?.addEventListener('click', () => {
   const step = tourSteps[tourIndex];
   if (step?.nextAction === 'open-add-course') {
-    openAddCourse?.click();
+    openAddCourseModal();
     if (tourIndex < tourSteps.length - 1) {
       tourIndex += 1;
       renderTour();

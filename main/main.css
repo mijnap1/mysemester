@@ -251,6 +251,8 @@ body.tour-restrict .tour-allow * {
     .navbtn.blue:hover { background: var(--blue); color: #fff; }
     .navbtn.purple { border-color: var(--purple); color: var(--purple); text-decoration: none; }
     .navbtn.purple:hover { background: var(--purple); color: #fff; }
+    .navbtn.gold { border-color: #f59e0b; color: #b45309; background: rgba(245, 158, 11, 0.08); text-decoration: none; }
+    .navbtn.gold:hover { background: #f59e0b; color: #111827; box-shadow: 0 10px 22px rgba(245, 158, 11, 0.24); }
     .navbtn.gray { border-color: #94a3b8; color: #475569; }
     .navbtn.gray:hover { background: #94a3b8; color: #fff; }
 
@@ -263,14 +265,14 @@ body.tour-restrict .tour-allow * {
       position: absolute;
       right: 0;
       top: calc(100% + 18px);
-      z-index: 1100;
+      z-index: 990;
       width: fit-content;
       min-width: 138px;
       padding: 8px 10px;
-      border: 1px solid rgba(124, 58, 237, 0.2);
+      border: 1px solid rgba(245, 158, 11, 0.28);
       border-radius: 10px;
-      background: var(--card);
-      color: var(--purple);
+      background: #fffbeb;
+      color: #92400e;
       font-size: 12px;
       font-weight: 800;
       line-height: 1.2;
@@ -288,8 +290,8 @@ body.tour-restrict .tour-allow * {
       right: 17px;
       width: 11px;
       height: 11px;
-      border-left: 1px solid rgba(124, 58, 237, 0.2);
-      border-top: 1px solid rgba(124, 58, 237, 0.2);
+      border-left: 1px solid rgba(245, 158, 11, 0.28);
+      border-top: 1px solid rgba(245, 158, 11, 0.28);
       background: inherit;
       transform: rotate(45deg);
     }
@@ -298,8 +300,8 @@ body.tour-restrict .tour-allow * {
       margin-right: 5px;
       padding: 2px 6px;
       border-radius: 999px;
-      background: var(--purple);
-      color: #fff;
+      background: #f59e0b;
+      color: #111827;
       font-size: 10px;
       letter-spacing: 0.06em;
       text-transform: uppercase;
@@ -375,6 +377,20 @@ body.tour-restrict .tour-allow * {
     }
     :root[data-theme="dark"] .sidebar-help-text {
       color: #cbd5e1;
+    }
+    :root[data-theme="dark"] .navbtn.gold {
+      border-color: #fbbf24;
+      color: #fcd34d;
+      background: rgba(245, 158, 11, 0.12);
+    }
+    :root[data-theme="dark"] .navbtn.gold:hover {
+      background: #f59e0b;
+      color: #111827;
+    }
+    :root[data-theme="dark"] .sidebar-menu-callout {
+      border-color: rgba(251, 191, 36, 0.35);
+      background: #1f1607;
+      color: #fcd34d;
     }
 
   .profile-academic {

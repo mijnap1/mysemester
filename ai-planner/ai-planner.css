@@ -1440,3 +1440,7 @@ ul {
     grid-template-columns: 1fr;
   }
 }
+
+main.catalog-wrap .catalog-hero {
+  align-items: start;
+}
