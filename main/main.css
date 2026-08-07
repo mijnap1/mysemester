@@ -740,6 +740,27 @@ body.tour-restrict .tour-allow * {
       box-shadow: 0 4px 16px 0 rgba(37,99,235,0.13);
       transform: translateY(-2px) scale(1.04);
     }
+    .empty-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+    }
+    .empty-state-card .btn-empty-link {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 2px 4px;
+    }
+    .empty-state-card .btn-empty-link:hover,
+    .empty-state-card .btn-empty-link:focus {
+      color: var(--blue);
+      outline: none;
+    }
     .card {
       background: var(--card);
       border-radius: var(--radius);
@@ -804,6 +825,13 @@ body.tour-restrict .tour-allow * {
     }
     .card.add-course-card .muted-sm {
       font-family: "Outfit", sans-serif;
+    }
+    .card.add-folder-card {
+      border-style: solid;
+      background: var(--card);
+    }
+    .card.add-folder-card .course-icon {
+      color: #94a3b8;
     }
     ion-icon.course-icon {
       font-family: "Outfit", sans-serif;

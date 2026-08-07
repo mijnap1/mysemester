@@ -1050,9 +1050,48 @@ input.placeholder-swapping::placeholder {
   background: var(--chip-bg);
   border: 1px solid var(--line);
 }
-.badge.high { color: #991b1b; background: rgba(220, 38, 38, 0.1); border-color: rgba(220, 38, 38, 0.24); }
-.badge.medium { color: #92400e; background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.28); }
-.badge.low { color: #166534; background: rgba(22, 163, 74, 0.1); border-color: rgba(22, 163, 74, 0.24); }
+.badge.high,
+.badge.medium,
+.badge.low {
+  gap: 6px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  background: #fff;
+  font-weight: 700;
+}
+.badge.high::before,
+.badge.medium::before,
+.badge.low::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}
+.badge.high {
+  color: #991b1b;
+  border-color: #fecaca;
+  background: #fffafa;
+}
+.badge.medium {
+  color: #92400e;
+  border-color: #fde68a;
+  background: #fffdf5;
+}
+.badge.low {
+  color: #166534;
+  border-color: #bbf7d0;
+  background: #f7fef9;
+}
+:root[data-theme="dark"] .badge.high {
+  background: rgba(220, 38, 38, 0.08);
+}
+:root[data-theme="dark"] .badge.medium {
+  background: rgba(245, 158, 11, 0.12);
+}
+:root[data-theme="dark"] .badge.low {
+  background: rgba(22, 163, 74, 0.1);
+}
 ul {
   margin: 0;
   padding-left: 18px;

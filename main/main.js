@@ -1584,11 +1584,17 @@
           </div>
           <div class="empty-title">No courses yet</div>
           <div class="empty-desc">Start by adding your first course to track your grades!</div>
-          <button type="button" class="btn-empty-pill" id="emptyAddCourseBtn"><ion-icon name="add-outline"></ion-icon> Add Course</button>
+          <div class="empty-actions">
+            <button type="button" class="btn-empty-pill" id="emptyAddCourseBtn"><ion-icon name="add-outline"></ion-icon> Add Course</button>
+            <button type="button" class="btn-empty-link" id="emptyAddFolderBtn">Create semester folder</button>
+          </div>
         `;
         grid.appendChild(empty);
         document.getElementById('emptyAddCourseBtn').addEventListener('click', ()=>{
           openAddCourseModal();
+        });
+        document.getElementById('emptyAddFolderBtn').addEventListener('click', () => {
+          openAddFolder?.click();
         });
         recomputeOverview();
         return;
@@ -1645,6 +1651,25 @@
         });
         grid.appendChild(addCard);
         applyCardEntrance(addCard, entranceIndex);
+        entranceIndex += 1;
+
+        if (!state.folders.length) {
+          const addFolderCard = document.createElement('button');
+          addFolderCard.type = 'button';
+          addFolderCard.className = 'card add-course-card add-folder-card';
+          addFolderCard.innerHTML = `
+            <ion-icon class="course-icon" name="folder-outline"></ion-icon>
+            <div class="info">
+              <div class="code">New Folder</div>
+              <div class="muted-sm">Group by semester</div>
+            </div>
+          `;
+          addFolderCard.addEventListener('click', () => {
+            openAddFolder?.click();
+          });
+          grid.appendChild(addFolderCard);
+          applyCardEntrance(addFolderCard, entranceIndex);
+        }
       }
 
       grid.ondragover = (e) => {

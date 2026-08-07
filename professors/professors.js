@@ -270,13 +270,69 @@ const PROFESSOR_DATA = [
   }
 ];
 
-const searchEl = document.getElementById('courseSearch');
-const suggestionsEl = document.getElementById('courseSuggestions');
-const gridEl = document.getElementById('professorGrid');
-const titleEl = document.getElementById('resultTitle');
-const subtitleEl = document.getElementById('resultSubtitle');
-const sortedCourseCodes = PROFESSOR_DATA.map(course => course.courseCode).sort();
-let placeholderIndex = 0;
+const RANKING_PRIOR_COUNT = 18;
+const RANKING_WEIGHTS = {
+  rating: 0.72,
+  wouldTakeAgain: 0.20,
+  difficulty: 0.08
+};
+
+function weightedProfessorAverage(key, fallback) {
+  const professors = PROFESSOR_DATA.flatMap(course => course.professors);
+  const totalRatings = professors.reduce((sum, prof) => sum + prof.ratingsCount, 0);
+  if (!totalRatings) return fallback;
+
+  return professors.reduce((sum, prof) => (
+    sum + prof[key] * prof.ratingsCount
+  ), 0) / totalRatings;
+}
+
+const RANKING_PRIORS = {
+  rating: weightedProfessorAverage('rating', 3.7),
+  wouldTakeAgain: weightedProfessorAverage('wouldTakeAgain', 75),
+  difficulty: weightedProfessorAverage('difficulty', 3.1)
+};
+
+function confidenceAdjusted(value, ratingsCount, prior) {
+  return ((value * ratingsCount) + (prior * RANKING_PRIOR_COUNT)) / (ratingsCount + RANKING_PRIOR_COUNT);
+}
+
+function professorRankDetails(prof) {
+  const adjustedRating = confidenceAdjusted(prof.rating, prof.ratingsCount, RANKING_PRIORS.rating);
+  const adjustedWouldTakeAgain = confidenceAdjusted(prof.wouldTakeAgain, prof.ratingsCount, RANKING_PRIORS.wouldTakeAgain);
+  const adjustedDifficulty = confidenceAdjusted(prof.difficulty, prof.ratingsCount, RANKING_PRIORS.difficulty);
+  const difficultyScore = Math.max(0, Math.min(100, (5 - adjustedDifficulty) * 25));
+  const score = (
+    adjustedRating * 20 * RANKING_WEIGHTS.rating
+    + adjustedWouldTakeAgain * RANKING_WEIGHTS.wouldTakeAgain
+    + difficultyScore * RANKING_WEIGHTS.difficulty
+  );
+
+  return {
+    adjustedRating,
+    adjustedWouldTakeAgain,
+    adjustedDifficulty,
+    score
+  };
+}
+
+function professorRankScore(prof) {
+  return professorRankDetails(prof).score;
+}
+
+function reviewConfidenceLabel(ratingsCount) {
+  if (ratingsCount >= 50) return 'High confidence';
+  if (ratingsCount >= 15) return 'Moderate confidence';
+  return 'Light sample';
+}
+
+function rankProfessors(professors) {
+  return [...professors].sort((a, b) => (
+    professorRankScore(b) - professorRankScore(a)
+    || b.ratingsCount - a.ratingsCount
+    || b.rating - a.rating
+  ));
+}
 
 function normalizeCourse(value) {
   return (value || '').trim().toUpperCase().replace(/\s+/g, '');
@@ -291,6 +347,25 @@ function escapeHtml(value) {
     "'": '&#39;'
   }[char]));
 }
+
+if (typeof module !== 'undefined') {
+  module.exports = {
+    PROFESSOR_DATA,
+    professorRankDetails,
+    professorRankScore,
+    rankProfessors,
+    reviewConfidenceLabel
+  };
+}
+
+if (typeof document !== 'undefined') {
+const searchEl = document.getElementById('courseSearch');
+const suggestionsEl = document.getElementById('courseSuggestions');
+const gridEl = document.getElementById('professorGrid');
+const titleEl = document.getElementById('resultTitle');
+const subtitleEl = document.getElementById('resultSubtitle');
+const sortedCourseCodes = PROFESSOR_DATA.map(course => course.courseCode).sort();
+let placeholderIndex = 0;
 
 function starsFor(rating) {
   const rounded = Math.round(rating);
@@ -363,10 +438,13 @@ function updateSearchPlaceholder() {
 }
 
 function renderCourse(course) {
-  const sorted = [...course.professors].sort((a, b) => b.rating - a.rating || b.ratingsCount - a.ratingsCount);
+  const sorted = rankProfessors(course.professors);
   titleEl.textContent = `${course.courseCode} professor picks`;
-  subtitleEl.textContent = `${course.courseTitle} · ${course.term}`;
+  subtitleEl.textContent = `${course.courseTitle} · Ranked by adjusted rating, review count, would-take-again, and difficulty`;
   gridEl.innerHTML = sorted.map((prof, index) => {
+    const rank = professorRankDetails(prof);
+    const confidence = reviewConfidenceLabel(prof.ratingsCount);
+    const confidenceClass = confidence.toLowerCase().split(' ')[0];
     const sourceMarkup = prof.sourceUrl
       ? `<a class="source-link" href="${prof.sourceUrl}" target="_blank" rel="noopener">
           Open RMP profile <ion-icon name="open-outline"></ion-icon>
@@ -386,9 +464,15 @@ function renderCourse(course) {
       </div>
       <div class="rating-block">
         <div class="stars" aria-label="${prof.rating} out of 5 stars">${starsFor(prof.rating)}</div>
-        <div class="score-row">
+        <div class="rating-main">
           <div class="score">${prof.rating.toFixed(1)}</div>
-          <div class="score-meta">${prof.ratingsCount} ratings</div>
+          <div class="rating-copy">
+            <div class="confidence-badge confidence-${confidenceClass}">${confidence}</div>
+            <div class="score-meta">
+              <span>${prof.ratingsCount} ratings</span>
+              <span>Adjusted score ${Math.round(rank.score)} / 100</span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="metric-row">
@@ -454,3 +538,4 @@ document.addEventListener('click', (event) => {
   if (event.target.closest('.finder-panel')) return;
   hideSuggestions();
 });
+}
