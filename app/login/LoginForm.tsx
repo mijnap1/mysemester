@@ -1,49 +1,31 @@
 'use client';
 
 import { useEffect, useState, type FormEvent } from 'react';
-import { Icon } from '@/components/Icon';
+import { CardThemeToggle, PasswordInput } from '@/components/AuthBits';
 import { homePath, isLoggedIn, sendPasswordReset, signIn } from '@/lib/auth';
-
-type Notice = { tone: 'error' | 'success'; text: string } | null;
 
 export function LoginForm() {
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [notice, setNotice] = useState<Notice>(null);
+  const [error, setError] = useState('');
+  const [resetSent, setResetSent] = useState(false);
   const [resetMode, setResetMode] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     if (isLoggedIn()) window.location.replace(homePath());
   }, []);
 
-  function switchMode(next: boolean) {
-    setResetMode(next);
-    setNotice(null);
-  }
-
-  async function handleSubmit(e: FormEvent) {
+  async function handleLogin(e: FormEvent) {
     e.preventDefault();
-    setNotice(null);
+    setError('');
+    setResetSent(false);
     const name = identifier.trim();
-
-    if (resetMode) {
-      if (!name) return setNotice({ tone: 'error', text: 'Enter your email or username to reset your password.' });
-      setBusy(true);
-      try {
-        const result = await sendPasswordReset(name);
-        setNotice(result.ok ? { tone: 'success', text: 'Check your email for a reset link.' } : { tone: 'error', text: result.error });
-      } catch (err) {
-        console.error('Reset error:', err);
-        setNotice({ tone: 'error', text: 'Unexpected error. Please try again.' });
-      } finally {
-        setBusy(false);
-      }
+    if (!name || !password) {
+      setError('Please enter both username and password.');
       return;
     }
-
-    if (!name || !password) return setNotice({ tone: 'error', text: 'Please enter both your username and password.' });
     setBusy(true);
     try {
       const result = await signIn(name, password);
@@ -51,93 +33,86 @@ export function LoginForm() {
         window.location.assign(homePath());
         return;
       }
-      setNotice({ tone: 'error', text: result.error });
+      setError(result.error);
+      setFailedAttempts((n) => n + 1);
     } catch (err) {
       console.error('Login error:', err);
-      setNotice({ tone: 'error', text: 'Unexpected error. Please try again.' });
+      setError('Unexpected error. Please try again.');
     } finally {
       setBusy(false);
     }
   }
 
+  async function handleReset() {
+    setError('');
+    setResetSent(false);
+    const name = identifier.trim();
+    if (!name) {
+      setError('Enter your email or username to reset your password.');
+      return;
+    }
+    try {
+      const result = await sendPasswordReset(name);
+      if (result.ok) setResetSent(true);
+      else setError(result.error);
+    } catch (err) {
+      console.error('Reset error:', err);
+      setError('Unexpected error. Please try again.');
+    }
+  }
+
+  function toggleResetMode(next: boolean) {
+    setResetMode(next);
+    setError('');
+    setResetSent(false);
+  }
+
   return (
-    <form className="lg-form" onSubmit={handleSubmit} noValidate>
-      <div className="lg-form-head">
-        <h1>{resetMode ? 'Reset your password' : 'Welcome back'}</h1>
-        <p>{resetMode ? 'Enter your username or email and we’ll send you a reset link.' : 'Sign in to pick up where you left off.'}</p>
-      </div>
-
-      <div className="lg-field">
-        <label htmlFor="username">Username or email</label>
-        <div className="lg-input">
-          <Icon name="person-outline" />
-          <input
-            id="username"
-            type="text"
-            placeholder="you@mail.utoronto.ca"
-            autoComplete="username"
-            autoCapitalize="none"
-            spellCheck={false}
-            value={identifier}
-            onChange={(e) => setIdentifier(e.target.value)}
-          />
-        </div>
-      </div>
-
-      {!resetMode && (
-        <div className="lg-field">
-          <div className="lg-label-row">
-            <label htmlFor="password">Password</label>
-            <button type="button" className="lg-link" onClick={() => switchMode(true)}>
-              Forgot?
-            </button>
-          </div>
-          <div className="lg-input">
-            <Icon name="lock-closed-outline" />
-            <input
-              id="password"
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Your password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <button
-              type="button"
-              className="lg-eye"
-              aria-label={showPassword ? 'Hide password' : 'Show password'}
-              aria-pressed={showPassword}
-              onClick={() => setShowPassword((v) => !v)}
-            >
-              <Icon name={showPassword ? 'eye-outline' : 'eye-off-outline'} />
-            </button>
-          </div>
+    <form className={resetMode ? 'card reset-mode' : 'card'} onSubmit={handleLogin} noValidate>
+      <CardThemeToggle />
+      <h1>Welcome Back</h1>
+      <input
+        type="text"
+        id="username"
+        placeholder={resetMode ? 'Email or username' : 'Username'}
+        autoComplete="username"
+        value={identifier}
+        onChange={(e) => setIdentifier(e.target.value)}
+      />
+      <PasswordInput
+        id="password"
+        placeholder="Password"
+        autoComplete="current-password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+      />
+      {error && (
+        <div className="error" role="alert" style={{ display: 'block' }}>
+          {error}
         </div>
       )}
-
-      {notice && (
-        <div className={`lg-notice is-${notice.tone}`} role={notice.tone === 'error' ? 'alert' : 'status'}>
-          <Icon name={notice.tone === 'error' ? 'alert-circle-outline' : 'mail-unread-outline'} />
-          <span>{notice.text}</span>
+      {resetSent && (
+        <div className="success" style={{ display: 'block' }}>
+          Check your email for a reset link.
         </div>
       )}
-
-      <button type="submit" className="lg-submit" disabled={busy}>
-        {busy ? (resetMode ? 'Sending…' : 'Signing in…') : resetMode ? 'Send reset link' : 'Sign in'}
-        {!busy && <Icon name="arrow-forward-outline" />}
+      {!resetMode && failedAttempts >= 2 && (
+        <button type="button" className="link-btn" id="forgotPassword" style={{ display: 'inline-flex' }} onClick={() => toggleResetMode(true)}>
+          Forgot password?
+        </button>
+      )}
+      <button type="submit" id="loginBtn" disabled={busy}>
+        {busy ? 'Signing in…' : 'Login'}
       </button>
-
-      <p className="lg-alt">
-        {resetMode ? (
-          <button type="button" className="lg-link" onClick={() => switchMode(false)}>
-            <Icon name="arrow-back-outline" /> Back to sign in
-          </button>
-        ) : (
-          <>
-            New to MySemester? <a href="/signup/">Create an account</a>
-          </>
-        )}
-      </p>
+      <button type="button" id="sendResetBtn" style={resetMode ? { display: 'inline-flex' } : undefined} onClick={handleReset}>
+        Send reset link
+      </button>
+      <button type="button" className="link-btn" id="backToLogin" style={resetMode ? { display: 'inline-flex' } : undefined} onClick={() => toggleResetMode(false)}>
+        Back to login
+      </button>
+      <div className="small">
+        No account? <a href="/signup/">Sign up</a>
+      </div>
     </form>
   );
 }

@@ -14,16 +14,6 @@ export function CardThemeToggle() {
   );
 }
 
-/** Theme button for pages whose CSS styles it via `className`. */
-export function ThemeIconButton({ className }: { className: string }) {
-  const { isDark, toggle } = useTheme();
-  return (
-    <button type="button" className={className} aria-label="Toggle dark/light mode" title="Toggle dark/light mode" onClick={toggle}>
-      <Icon name={isDark ? 'sunny-outline' : 'moon-outline'} />
-    </button>
-  );
-}
-
 /** Password field with a show/hide eye button. */
 export function PasswordInput({ toggleLabel = 'Toggle password visibility', ...props }: ComponentProps<'input'> & { toggleLabel?: string }) {
   const [visible, setVisible] = useState(false);
