@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="mysemesterlogo.png" alt="MySemester Logo" width="100" height="100">
+  <img src="public/mysemesterlogo.png" alt="MySemester Logo" width="100" height="100">
 </p>
 
 <h1 align="center">MySemester</h1>
@@ -29,6 +29,8 @@ Fresh improvements recently added to MySemester:
 
 | Area | Update |
 | --- | --- |
+| Platform | Rebuilt on Next.js, React, and TypeScript; AI Planner API routes run on the server |
+| Sync | Courses sync by id (duplicate course codes are fine), edits merge across devices, and folders sync once the migration below is applied |
 | Professor Picks | New UofT test page with course autocomplete, professor rating cards, RMP profile links where available, and dark mode support |
 | AI Planner | Course Planner now uses autocomplete suggestions and removable selected-course chips |
 | Course Explainer | Single-course autocomplete with selected course shown directly inside the search field |
@@ -123,103 +125,58 @@ The GPA Scale page provides a cleaner reference point for university-specific gr
 ## Tech Stack
 | Layer | Technology |
 | --- | --- |
-| Frontend | HTML, CSS, JavaScript |
-| Local API | Node.js HTTP server for AI Planner routes |
-| Auth + Storage | Supabase |
-| Hosting | GitHub Pages (custom domain) |
+| Framework | Next.js 16 (App Router), React 19, TypeScript |
+| Styling | Plain CSS per route (carried over from the original site) |
+| API | Next.js route handlers for AI Planner (`/api/ai-planner/*`) |
+| Auth + Storage | Supabase (auth, `mysemester_courses`, `mysemester_folders`) |
+| Tests | Vitest for the data, grading, sync, and planner logic |
 
 ## Project Structure
 ```text
-/
-├── index.html              # Landing page
-├── index.css
-├── index.js
-├── login/
-│   ├── index.html
-│   ├── login.css
-│   └── login.js
-├── signup/
-│   ├── index.html
-│   ├── signup.css
-│   └── signup.js
-├── main/
-│   ├── index.html
-│   ├── main.css
-│   ├── main.js
-│   └── main.module.js
+app/
+├── layout.tsx              # Root layout: fonts, Ionicons, theme bootstrap
+├── page.tsx                # Landing splash → /main/ or /login/
+├── login/ signup/ reset-password/ setup/
+├── main/                   # Dashboard (courses, folders, settings, profile, tour)
+├── grade/                  # Per-course assessments, estimates, calculator
+├── gpa-scale/ professors/
 ├── ai-planner/
-│   ├── index.html
-│   ├── ask/
-│   ├── courses/
-│   ├── explainer/
-│   ├── ai-planner.css
-│   └── ai-planner.js
-├── data/
-│   └── ai-planner-courses.json
-├── gpa-scale/
-│   ├── index.html
-│   ├── gpa-scale.css
-│   ├── gpa-scale.js
-│   └── gpa-data.js
-├── professors/
-│   ├── index.html
-│   ├── professors.css
-│   └── professors.js
-├── setup/
-│   ├── index.html
-│   ├── setup.css
-│   └── setup.js
-├── reset-password/
-│   ├── index.html
-│   ├── reset-password.css
-│   └── reset-password.js
-├── _private/
-│   ├── server.js           # Optional local server with /api/ai-planner routes
-│   └── supabase-init.js    # Supabase constants kept out of the public app root
-└── grade/
-    ├── index.html
-    ├── grade.css
-    └── grade.js
+│   ├── (tabs)/             # Planner, Explainer, Semester, Enrolment, Ask (one shared layout)
+│   └── courses/            # Course catalog
+└── api/ai-planner/[route]/ # plan | explain | semester-check | ask
+components/                 # Icon, Dialog, MiniCalc, auth form bits
+lib/
+├── types.ts                # Course, Folder, Assessment, SemesterState, ...
+├── semester.ts             # Load/migrate/save local data + pure mutations
+├── cloud-sync.ts           # Merge with Supabase and push changes
+├── use-semester.ts         # React hook tying the two together
+├── grading.ts              # Letters, GPA tables, averages, estimates
+├── ai-planner.ts           # Planner rules shared by API route and pages
+└── *.test.ts
+data/ai-planner-courses.json
+supabase/migrations/        # SQL to apply in Supabase
+public/                     # Logo and static assets
 ```
 
 ## Local Development
-This project is a static website. Run a local server to avoid CORS and module import issues.
-
 ```bash
-git clone https://github.com/<your-username>/MySemester.git
-cd MySemester
-python3 -m http.server 8080
+npm install
+npm run dev        # http://localhost:3000
+npm test           # unit tests
+npm run lint
+npm run typecheck
+npm run build
 ```
 
-Then open [http://localhost:8080](http://localhost:8080).
+Copy `.env.example` to `.env.local` to configure optional settings:
 
-### AI Planner API (Optional)
-The AI Planner page works as a static page with useful local mock responses if API routes are unavailable.
-
-To run the server-side API routes locally:
-
-```bash
-node _private/server.js
-```
-
-Then open [http://localhost:3000/ai-planner/](http://localhost:3000/ai-planner/).
-
-Set `OPENAI_API_KEY` to enable OpenAI-backed responses:
-
-```bash
-OPENAI_API_KEY=your_api_key_here node _private/server.js
-```
-
-If `OPENAI_API_KEY` is not set, these routes return deterministic mock responses:
-- `/api/ai-planner/plan`
-- `/api/ai-planner/ask`
-- `/api/ai-planner/explain`
-- `/api/ai-planner/semester-check`
+- `OPENAI_API_KEY`: enables OpenAI-backed AI Planner answers. Without it, every planner route returns the built-in rule-based answers (the page also falls back to them if the API is unreachable).
+- `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY`: point at a different Supabase project. Defaults to production.
 
 AI Planner is an unofficial advising helper. Students should verify important decisions with the UofT Calendar, department pages, registrar, or an academic advisor.
 
 ## Supabase Setup (Optional)
-If you want login + cloud sync, create a Supabase project and apply the SQL below.
+If you want login + cloud sync, create a Supabase project and apply the SQL below, then run everything in `supabase/migrations/` (adds folder sync and course ordering; safe to re-run).
 
 ### 1) Username to email lookup function
 ```sql
@@ -233,6 +190,8 @@ $$;
 
 grant execute on function public.get_email_by_username(text) to anon;
 ```
+
+> Note: granting this to `anon` lets anyone turn a username into an email address. Consider dropping username login or moving the lookup behind a server route.
 
 ### 2) Courses table and row-level security (RLS)
 ```sql
@@ -275,10 +234,15 @@ for delete
 using (auth.uid() = user_id);
 ```
 
+`course_id` holds the course's own id (older rows used the course code; the app adopts those automatically on first sync).
+
 ## Data Export and Import
 Export files include:
 - Course metadata
 - Grade breakdowns (`weights`)
+- Folders
+
+Older export files (without folders) still import.
 
 To import:
 1. Open the `/main/` app view.
@@ -286,17 +250,14 @@ To import:
 3. Use the import option to restore data from your export file.
 
 ## Deployment
-1. Push changes to GitHub.
-2. Enable GitHub Pages for the repository.
-3. Ensure folder-based routes are preserved:
-   - `/login/`
-   - `/signup/`
-   - `/main/`
-   - `/grade/`
-   - `/gpa-scale/`
-   - `/ai-planner/`
-   - `/professors/`
-4. Point your custom domain (optional), e.g. `mysemester.org`.
+The app needs a Node host for its API routes (GitHub Pages can only serve static files). On Vercel:
+
+1. Import the repository and keep the default Next.js settings.
+2. Add `OPENAI_API_KEY` under Environment Variables if you want OpenAI-backed planner answers.
+3. Add the custom domain (e.g. `mysemester.org`) and point DNS at Vercel.
+4. In Supabase → Authentication → URL Configuration, make sure the site URL and `https://<domain>/reset-password/` are allowed redirect URLs.
+
+URLs are unchanged from the static site (`/main/`, `/grade/`, `/login/`, ...), and existing users' saved data loads as-is.
 
 ## Live Site
 [https://mysemester.org](https://mysemester.org)
