@@ -2612,9 +2612,7 @@ body.tour-lock #addCourseModal input:focus {
   gap: 18px;
   padding: 40px 26px 26px;
   border-right: 1px solid var(--line);
-  background:
-    radial-gradient(120% 70% at 50% 0%, rgba(37, 99, 235, 0.12), transparent 70%),
-    var(--bg);
+  background: var(--bg);
 }
 .pf-avatar-wrap {
   position: relative;
@@ -2627,7 +2625,7 @@ body.tour-lock #addCourseModal input:focus {
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  box-shadow: 0 0 0 5px var(--card), 0 14px 30px rgba(37, 99, 235, 0.22);
+  box-shadow: 0 0 0 5px var(--card), var(--shadow-default);
 }
 .pf-avatar-initials {
   display: grid;
@@ -2652,7 +2650,6 @@ body.tour-lock #addCourseModal input:focus {
   font-size: 17px;
   border: 3px solid var(--card);
   cursor: pointer;
-  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
   transition: transform 0.2s var(--ease), background 0.2s var(--ease);
 }
 .pf-avatar-edit:hover { transform: scale(1.06); background: #1d4ed8; }
@@ -2690,8 +2687,8 @@ body.tour-lock #addCourseModal input:focus {
   align-items: center;
   gap: 5px;
   max-width: 100%;
-  padding: 5px 10px;
-  border-radius: 999px;
+  padding: 6px 10px;
+  border-radius: 12px;
   border: 1px solid var(--line);
   background: var(--card);
   color: var(--chip-text);
@@ -2884,11 +2881,6 @@ body.tour-lock #addCourseModal input:focus {
 
 :root[data-theme="dark"] #profileModal {
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
-}
-:root[data-theme="dark"] .pf-identity {
-  background:
-    radial-gradient(120% 70% at 50% 0%, rgba(59, 130, 246, 0.18), transparent 70%),
-    var(--bg);
 }
 :root[data-theme="dark"] #profileModal .pf-input:hover,
 :root[data-theme="dark"] #profileModal .profile-select-button:hover { border-color: #334155; }
