@@ -139,7 +139,7 @@ describe('mergeRemote', () => {
   it('restores assessments from the cloud on a new device', () => {
     const weights = [{ name: 'Midterm', weight: 30, grade: 77 }];
     const result = mergeRemote(withState({}), { courses: [row('a', { weights })], folders: [] });
-    expect(result.state.courses[0].assessments).toEqual([{ name: 'Midterm', weight: 30, grade: 77, estimate: null }]);
+    expect(result.state.courses[0].assessments).toEqual([expect.objectContaining({ name: 'Midterm', weight: 30, grade: 77, estimate: null })]);
   });
 });
 

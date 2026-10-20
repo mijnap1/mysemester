@@ -63,6 +63,7 @@ export function normalizeAssessment(raw: unknown, index: number): Assessment {
   const r = (raw && typeof raw === 'object' ? raw : {}) as Record<string, unknown>;
   const weight = finiteOrNull(r.weight);
   return {
+    id: str(r.id) || newId(),
     name: str(r.name).trim() || `Assessment ${index + 1}`,
     weight: weight == null ? 0 : Math.max(0, Math.min(100, weight)),
     grade: clampPct(finiteOrNull(r.grade)),

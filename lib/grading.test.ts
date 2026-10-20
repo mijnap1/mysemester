@@ -12,7 +12,7 @@ import {
 } from './grading';
 import type { Assessment, Course } from './types';
 
-const row = (weight: number, grade: number | null): Assessment => ({ name: 'x', weight, grade, estimate: null });
+const row = (weight: number, grade: number | null): Assessment => ({ id: 'r', name: 'x', weight, grade, estimate: null });
 
 const course = (overrides: Partial<Course> = {}): Course => ({
   id: 'id',

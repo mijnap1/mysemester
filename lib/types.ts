@@ -1,5 +1,7 @@
 /** One weighted row on a course's grade page. */
 export interface Assessment {
+  /** Stable row identity (rows can share names). */
+  id: string;
   name: string;
   /** Percent of the final grade, 0–100. */
   weight: number;

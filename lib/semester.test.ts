@@ -24,7 +24,7 @@ describe('normalizeState (loading old data)', () => {
       code: 'CSC108',
       icon: 'laptop-outline',
       folderId: null,
-      assessments: [{ name: 'Quiz', weight: 10, grade: 90, estimate: null }],
+      assessments: [expect.objectContaining({ name: 'Quiz', weight: 10, grade: 90, estimate: null })],
       updatedAt: '',
     });
   });

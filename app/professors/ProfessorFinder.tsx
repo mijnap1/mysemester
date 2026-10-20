@@ -138,6 +138,7 @@ export function ProfessorFinder() {
             <input
               id="courseSearch"
               type="search"
+              role="combobox"
               placeholder={placeholderAt(placeholderOffset)}
               autoComplete="off"
               aria-controls="courseSuggestions"

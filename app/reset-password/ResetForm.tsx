@@ -38,11 +38,6 @@ export function ResetForm() {
   const [linkInvalid, setLinkInvalid] = useState(false);
 
   useEffect(() => {
-    if (!getSupabase()) {
-      setError('Password reset is unavailable. Please check your connection and refresh.');
-      setLinkInvalid(true);
-      return;
-    }
     establishResetSession()
       .then((ok) => {
         if (!ok) {
