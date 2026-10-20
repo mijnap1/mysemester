@@ -301,26 +301,7 @@ body {
   .footer-left { justify-content: space-between; }
 }
 
-/* Program search and faculty headings (long lists such as UofT's). */
-.option-search {
-  width: 100%;
-  height: 46px;
-  margin: 0 0 14px;
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'Outfit', system-ui, sans-serif;
-  font-size: 16px;
-  outline: none;
-  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease), background 0.2s var(--ease);
-}
-.option-search:focus {
-  border-color: var(--blue);
-  background: var(--card);
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
-}
+/* Faculty headings in long program lists (e.g. UofT's). */
 .option-group-title {
   display: flex;
   align-items: center;
@@ -338,10 +319,4 @@ body {
   flex: 1;
   height: 1px;
   background: var(--line);
-}
-.option-empty {
-  margin: 8px 0;
-  text-align: center;
-  color: var(--muted);
-  font-size: 14px;
 }

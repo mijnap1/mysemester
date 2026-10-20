@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from 'react';
 import { UNIVERSITIES } from '@/lib/grading';
-import { filterProgramGroups, programGroupsFor, YEARS, type ProgramGroup } from '@/lib/options';
+import { programGroupsFor, YEARS, type ProgramGroup } from '@/lib/options';
 import { hasCompletedSetup, readAuth } from '@/lib/semester';
 import { KEYS, writeJson } from '@/lib/storage';
 import type { Onboarding } from '@/lib/types';
@@ -25,7 +25,6 @@ function groupsForStep(key: StepKey, answers: Onboarding): ProgramGroup[] {
 export function SetupWizard() {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Onboarding>({});
-  const [query, setQuery] = useState('');
 
   useEffect(() => {
     if (!readAuth().loggedIn) window.location.assign('/login/');
@@ -35,13 +34,10 @@ export function SetupWizard() {
   const key = STEP_KEYS[stepIndex];
   const isLast = stepIndex === STEP_KEYS.length - 1;
   const selected = answers[key];
-  const allGroups = groupsForStep(key, answers);
-  const searchable = key === 'program' && allGroups.reduce((n, g) => n + g.programs.length, 0) > 12;
-  const groups = searchable ? filterProgramGroups(allGroups, query) : allGroups;
+  const groups = groupsForStep(key, answers);
 
   function goTo(index: number) {
     setStepIndex(index);
-    setQuery('');
   }
 
   function choose(option: string) {
@@ -98,16 +94,6 @@ export function SetupWizard() {
             {stepIndex + 1} / {STEP_KEYS.length}
           </div>
         </div>
-        {searchable && (
-          <input
-            className="option-search"
-            type="search"
-            placeholder={answers.university === 'University of Toronto' ? 'Search programs, e.g. Rotman, CS, UTSC' : 'Search programs'}
-            aria-label="Search programs"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        )}
         <div className="options">
           {groups.map((group) => (
             <Fragment key={group.label || 'all'}>
@@ -125,7 +111,6 @@ export function SetupWizard() {
               ))}
             </Fragment>
           ))}
-          {!groups.length && <p className="option-empty">No programs match “{query}”. Try another word, or pick Other.</p>}
         </div>
         <div className="footer">
           <div className="footer-left">
