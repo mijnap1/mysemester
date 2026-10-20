@@ -76,7 +76,7 @@ export function normalizeAssessments(raw: unknown): Assessment[] {
 
 export interface NormalizeOptions {
   /** Pre-v6 assessments lived in separate keys; this looks them up by course code. */
-  legacyAssessments?: (code: string) => Assessment[] | null;
+  legacyAssessments?: (code: string) => unknown[] | null;
 }
 
 export function normalizeState(raw: unknown, options: NormalizeOptions = {}): SemesterState {
@@ -180,7 +180,7 @@ export function loadState(auth: AuthState): SemesterState {
   return normalizeState(raw ?? {}, {
     legacyAssessments: (code) => {
       const rows = readJson<unknown>(KEYS.legacyGrades(user, code));
-      return Array.isArray(rows) ? normalizeAssessments(rows) : null;
+      return Array.isArray(rows) ? rows : null;
     },
   });
 }
