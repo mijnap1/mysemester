@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { Fragment, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Dialog } from '@/components/Dialog';
 import { Icon } from '@/components/Icon';
 import { UNIVERSITIES } from '@/lib/grading';
 import { useClickOutside } from '@/lib/hooks';
-import { PROGRAMS, YEARS } from '@/lib/options';
+import { filterProgramGroups, programGroupsFor, YEARS, type ProgramGroup } from '@/lib/options';
 import { safePictureUrl } from '@/lib/profile';
 import type { Onboarding, Profile } from '@/lib/types';
 
@@ -33,6 +33,8 @@ function ProfileSelect({
   value,
   placeholder,
   options,
+  groups,
+  searchPlaceholder,
   open,
   dropUp,
   onOpenChange,
@@ -40,14 +42,28 @@ function ProfileSelect({
 }: {
   value: string;
   placeholder: string;
-  options: readonly string[];
+  options?: readonly string[];
+  /** Grouped options with headings; takes precedence over `options`. */
+  groups?: ProgramGroup[];
+  /** Show a filter box at the top of the menu. */
+  searchPlaceholder?: string;
   open: boolean;
   dropUp?: boolean;
   onOpenChange: (open: boolean) => void;
   onChange: (value: string) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const [query, setQuery] = useState('');
   useClickOutside([ref], () => onOpenChange(false), open);
+
+  const allGroups = groups ?? [{ label: '', programs: [...(options ?? [])] }];
+  const shown = searchPlaceholder ? filterProgramGroups(allGroups, query) : allGroups;
+
+  function toggle() {
+    if (!open) setQuery('');
+    onOpenChange(!open);
+  }
+
   return (
     <div className={['profile-select-wrap', open && 'open', dropUp && 'pf-drop-up'].filter(Boolean).join(' ')} ref={ref}>
       <button
@@ -55,26 +71,49 @@ function ProfileSelect({
         className={value ? 'profile-select-button' : 'profile-select-button is-empty'}
         aria-haspopup="listbox"
         aria-expanded={open}
-        onClick={() => onOpenChange(!open)}
+        onClick={toggle}
       >
         {value || placeholder}
       </button>
       <div className="profile-select-menu" role="listbox">
-        {options.map((option) => (
-          <button
-            key={option}
-            type="button"
-            role="option"
-            aria-selected={option === value}
-            className={option === value ? 'profile-select-option is-selected' : 'profile-select-option'}
-            onClick={() => {
-              onChange(option);
-              onOpenChange(false);
+        {searchPlaceholder && open && (
+          <input
+            className="pf-menu-search"
+            type="search"
+            autoFocus
+            placeholder={searchPlaceholder}
+            aria-label={searchPlaceholder}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                e.stopPropagation();
+                onOpenChange(false);
+              }
             }}
-          >
-            {option}
-          </button>
+          />
+        )}
+        {shown.map((group) => (
+          <Fragment key={group.label || 'all'}>
+            {group.label && <div className="pf-menu-group">{group.label}</div>}
+            {group.programs.map((option) => (
+              <button
+                key={option}
+                type="button"
+                role="option"
+                aria-selected={option === value}
+                className={option === value ? 'profile-select-option is-selected' : 'profile-select-option'}
+                onClick={() => {
+                  onChange(option);
+                  onOpenChange(false);
+                }}
+              >
+                {option}
+              </button>
+            ))}
+          </Fragment>
         ))}
+        {!shown.length && <div className="pf-menu-empty">No matches. Try another word, or pick Other.</div>}
       </div>
     </div>
   );
@@ -166,9 +205,9 @@ function ProfileForm({ onClose, profile, onboarding, onSave }: Omit<ProfileDialo
     };
     const reload = onSave(next, {
       ...onboarding,
-      university: academic.university || onboarding.university || '',
-      year: academic.year || onboarding.year || '',
-      program: academic.program || onboarding.program || '',
+      university: academic.university ?? '',
+      year: academic.year ?? '',
+      program: academic.program ?? '',
     });
     setUpdatedAt(stamp);
     setStatus({ text: 'Saved', tone: 'success' });
@@ -296,7 +335,13 @@ function ProfileForm({ onClose, profile, onboarding, onSave }: Omit<ProfileDialo
                   options={UNIVERSITIES}
                   open={openMenu === 'university'}
                   onOpenChange={(o) => setOpenMenu(o ? 'university' : null)}
-                  onChange={(university) => setAcademic((a) => ({ ...a, university }))}
+                  onChange={(university) =>
+                    setAcademic((a) => {
+                      // A different university has a different program list.
+                      const programs = programGroupsFor(university).flatMap((g) => g.programs);
+                      return { ...a, university, program: a.program && programs.includes(a.program) ? a.program : '' };
+                    })
+                  }
                 />
               </Field>
               <Field label="Year">
@@ -314,7 +359,8 @@ function ProfileForm({ onClose, profile, onboarding, onSave }: Omit<ProfileDialo
                 <ProfileSelect
                   value={academic.program ?? ''}
                   placeholder="Select program"
-                  options={PROGRAMS}
+                  groups={programGroupsFor(academic.university)}
+                  searchPlaceholder={academic.university === 'University of Toronto' ? 'Search, e.g. Rotman, CS, UTSC' : 'Search programs'}
                   open={openMenu === 'program'}
                   dropUp
                   onOpenChange={(o) => setOpenMenu(o ? 'program' : null)}
