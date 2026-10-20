@@ -320,3 +320,32 @@ body {
   height: 1px;
   background: var(--line);
 }
+
+/* Placeholder for regions that are not supported yet. */
+.option.is-soon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  border-style: dashed;
+  background: var(--bg);
+  color: var(--muted);
+  cursor: default;
+}
+.option.is-soon:hover {
+  border-color: var(--line);
+  background: var(--bg);
+  box-shadow: none;
+  transform: none;
+}
+.soon-badge {
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}

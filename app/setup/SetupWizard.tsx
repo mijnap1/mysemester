@@ -17,7 +17,7 @@ const STEP_TITLES: Record<StepKey, string> = {
 const STEP_KEYS: StepKey[] = ['university', 'year', 'program'];
 
 function groupsForStep(key: StepKey, answers: Onboarding): ProgramGroup[] {
-  if (key === 'university') return [{ label: '', programs: [...UNIVERSITIES] }];
+  if (key === 'university') return [{ label: 'Canada', programs: [...UNIVERSITIES] }];
   if (key === 'year') return [{ label: '', programs: [...YEARS] }];
   return programGroupsFor(answers.university);
 }
@@ -111,6 +111,15 @@ export function SetupWizard() {
               ))}
             </Fragment>
           ))}
+          {key === 'university' && (
+            <>
+              <div className="option-group-title">United States</div>
+              <div className="option is-soon" aria-disabled="true">
+                US universities
+                <span className="soon-badge">Coming soon</span>
+              </div>
+            </>
+          )}
         </div>
         <div className="footer">
           <div className="footer-left">
