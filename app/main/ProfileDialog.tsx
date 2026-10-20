@@ -1,22 +1,40 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { Dialog } from '@/components/Dialog';
 import { Icon } from '@/components/Icon';
 import { UNIVERSITIES } from '@/lib/grading';
 import { useClickOutside } from '@/lib/hooks';
 import { PROGRAMS, YEARS } from '@/lib/options';
-import { avatarFallback, safePictureUrl } from '@/lib/profile';
+import { safePictureUrl } from '@/lib/profile';
 import type { Onboarding, Profile } from '@/lib/types';
 
-const LABEL_STYLE = { fontSize: 13, fontWeight: 600, color: 'var(--muted)' } as const;
 const MAX_PICTURE_BYTES = 3 * 1024 * 1024;
+
+const SHORT_UNIVERSITY: Record<string, string> = {
+  'University of Toronto': 'UofT',
+  'University of British Columbia': 'UBC',
+  'McGill University': 'McGill',
+  'University of Waterloo': 'Waterloo',
+  'University of Alberta': 'UAlberta',
+  'McMaster University': 'McMaster',
+  'University of Ottawa': 'uOttawa',
+  'York University': 'York',
+};
+
+function initials(name: string): string {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (!words.length) return '?';
+  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
+  return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+}
 
 function ProfileSelect({
   value,
   placeholder,
   options,
   open,
+  dropUp,
   onOpenChange,
   onChange,
 }: {
@@ -24,14 +42,21 @@ function ProfileSelect({
   placeholder: string;
   options: readonly string[];
   open: boolean;
+  dropUp?: boolean;
   onOpenChange: (open: boolean) => void;
   onChange: (value: string) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   useClickOutside([ref], () => onOpenChange(false), open);
   return (
-    <div className={open ? 'profile-select-wrap open' : 'profile-select-wrap'} ref={ref}>
-      <button type="button" className="profile-select-button" aria-haspopup="listbox" aria-expanded={open} onClick={() => onOpenChange(!open)}>
+    <div className={['profile-select-wrap', open && 'open', dropUp && 'pf-drop-up'].filter(Boolean).join(' ')} ref={ref}>
+      <button
+        type="button"
+        className={value ? 'profile-select-button' : 'profile-select-button is-empty'}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => onOpenChange(!open)}
+      >
         {value || placeholder}
       </button>
       <div className="profile-select-menu" role="listbox">
@@ -51,6 +76,18 @@ function ProfileSelect({
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function Field({ label, htmlFor, error, wide, children }: { label: string; htmlFor?: string; error?: string; wide?: boolean; children: ReactNode }) {
+  return (
+    <div className={wide ? 'pf-field pf-wide' : 'pf-field'}>
+      <label className="pf-label" htmlFor={htmlFor}>
+        {label}
+      </label>
+      {children}
+      {error && <div className="pf-error">{error}</div>}
     </div>
   );
 }
@@ -88,11 +125,13 @@ function ProfileForm({ onClose, profile, onboarding, onSave }: Omit<ProfileDialo
     return () => document.body.classList.remove('profile-modal-open');
   }, []);
 
+  const displayName = nickname.trim() || name.trim() || 'Your name';
+
   function validate(): boolean {
     const next: typeof errors = {};
     if (name.trim() && name.trim().length < 2) next.name = 'Name should be at least 2 characters.';
     if (email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) next.email = 'Enter a valid email address.';
-    setErrors(next);
+    setErrors((e) => ({ picture: e.picture, ...next }));
     return !next.name && !next.email;
   }
 
@@ -119,9 +158,9 @@ function ProfileForm({ onClose, profile, onboarding, onSave }: Omit<ProfileDialo
     }
     const stamp = new Date().toISOString();
     const next: Profile = {
-      picture: picture || profile.picture,
+      picture,
       name: name.trim() || profile.name,
-      nickname: nickname.trim() || profile.nickname,
+      nickname: nickname.trim(),
       email: email.trim() || profile.email,
       updatedAt: stamp,
     };
@@ -136,51 +175,121 @@ function ProfileForm({ onClose, profile, onboarding, onSave }: Omit<ProfileDialo
     window.setTimeout(() => (reload ? window.location.reload() : onClose()), 550);
   }
 
+  const chips = [
+    academic.university && { icon: 'school-outline', text: SHORT_UNIVERSITY[academic.university] ?? academic.university },
+    academic.year && { icon: 'calendar-clear-outline', text: academic.year },
+    academic.program && { icon: 'book-outline', text: academic.program },
+  ].filter(Boolean) as { icon: string; text: string }[];
+
   return (
-    <form onSubmit={handleSubmit} style={{ margin: 0, maxWidth: 860 }} noValidate>
-        <div className="modal-head">
-          <Icon name="person-outline" />
-          <span style={{ fontSize: 20, fontWeight: 700, letterSpacing: '-0.01em' }}>Profile</span>
+    <form className="pf" onSubmit={handleSubmit} noValidate>
+      <button type="button" className="pf-close" aria-label="Close profile" onClick={onClose}>
+        <Icon name="close-outline" />
+      </button>
+
+      <aside className="pf-identity">
+        <div className="pf-avatar-wrap">
+          {picture ? (
+            // eslint-disable-next-line @next/next/no-img-element -- user-supplied data URL
+            <img className="pf-avatar" src={picture} alt="Profile picture" />
+          ) : (
+            <div className="pf-avatar pf-avatar-initials" aria-hidden="true">
+              {initials(nickname || name)}
+            </div>
+          )}
+          <label htmlFor="profilePicInput" className="pf-avatar-edit" title="Change photo">
+            <Icon name="camera-outline" aria-label="Change photo" />
+          </label>
+          <input
+            type="file"
+            id="profilePicInput"
+            accept="image/png,image/jpeg,image/gif,image/webp"
+            hidden
+            onChange={(e) => {
+              handlePicture(e.target.files?.[0]);
+              e.target.value = '';
+            }}
+          />
         </div>
 
-        <div className="modal-body" style={{ background: 'var(--bg)', padding: '28px 32px', display: 'flex', flexDirection: 'column', gap: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 22, flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element -- user-supplied data URL */}
-              <img
-                src={picture || avatarFallback(name || nickname)}
-                alt="Profile Picture"
-                style={{ width: 100, height: 100, borderRadius: '50%', objectFit: 'cover', border: '3px solid var(--line)', background: '#f3f4f6' }}
-              />
-              <label
-                htmlFor="profilePicInput"
-                style={{ position: 'absolute', bottom: -8, right: -8, background: 'var(--blue)', color: 'white', padding: '6px 10px', borderRadius: 999, fontSize: 12, cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.15)' }}
-              >
-                Change
-              </label>
-              <input
-                type="file"
-                id="profilePicInput"
-                accept="image/png,image/jpeg,image/gif,image/webp"
-                style={{ display: 'none' }}
-                onChange={(e) => {
-                  handlePicture(e.target.files?.[0]);
-                  e.target.value = '';
-                }}
-              />
+        <div className="pf-identity-text">
+          <div className="pf-display-name">{displayName}</div>
+          <div className="pf-display-email">{email.trim() || 'No email added'}</div>
+          {chips.length > 0 && (
+            <div className="pf-chips">
+              {chips.map((chip) => (
+                <span className="pf-chip" key={chip.icon}>
+                  <Icon name={chip.icon} />
+                  {chip.text}
+                </span>
+              ))}
             </div>
-            <div style={{ flex: 1, minWidth: 220 }}>
-              <p style={{ fontSize: 13, color: errors.picture ? 'var(--red, #dc2626)' : 'var(--muted)', margin: '4px 0 0' }}>
-                {errors.picture ?? 'PNG or JPG, up to ~3MB'}
-              </p>
-            </div>
-          </div>
+          )}
+        </div>
 
-          <div className="profile-academic">
-            <div className="profile-academic-title">Academic Profile</div>
-            <div className="profile-form-grid">
-              <div className="profile-field">
-                <label style={LABEL_STYLE}>University</label>
+        <div className="pf-identity-foot">
+          <p className={errors.picture ? 'pf-photo-hint is-error' : 'pf-photo-hint'}>{errors.picture ?? 'PNG or JPG, up to 3MB'}</p>
+          {picture && (
+            <button type="button" className="pf-text-btn" onClick={() => setPicture('')}>
+              Remove photo
+            </button>
+          )}
+          {updatedAt && <p className="pf-updated">Updated {new Date(updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>}
+        </div>
+      </aside>
+
+      <div className="pf-main">
+        <div className="pf-head">
+          <h2>Edit profile</h2>
+          <p>How you appear in MySemester, and the school details used for GPA and planning tools.</p>
+        </div>
+
+        <div className="pf-body">
+          <section className="pf-section">
+            <h3 className="pf-section-title">Personal</h3>
+            <div className="pf-grid">
+              <Field label="Full name" htmlFor="profileNameInput" error={errors.name}>
+                <input
+                  id="profileNameInput"
+                  className={errors.name ? 'pf-input has-error' : 'pf-input'}
+                  type="text"
+                  placeholder="Full name"
+                  autoComplete="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  onBlur={validate}
+                />
+              </Field>
+              <Field label="Nickname" htmlFor="profileNickInput">
+                <input
+                  id="profileNickInput"
+                  className="pf-input"
+                  type="text"
+                  placeholder="What should we call you?"
+                  autoComplete="nickname"
+                  value={nickname}
+                  onChange={(e) => setNickname(e.target.value)}
+                />
+              </Field>
+              <Field label="Email" htmlFor="profileEmailInput" error={errors.email} wide>
+                <input
+                  id="profileEmailInput"
+                  className={errors.email ? 'pf-input has-error' : 'pf-input'}
+                  type="email"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onBlur={validate}
+                />
+              </Field>
+            </div>
+          </section>
+
+          <section className="pf-section">
+            <h3 className="pf-section-title">Academic</h3>
+            <div className="pf-grid">
+              <Field label="University" wide>
                 <ProfileSelect
                   value={academic.university ?? ''}
                   placeholder="Select university"
@@ -189,93 +298,48 @@ function ProfileForm({ onClose, profile, onboarding, onSave }: Omit<ProfileDialo
                   onOpenChange={(o) => setOpenMenu(o ? 'university' : null)}
                   onChange={(university) => setAcademic((a) => ({ ...a, university }))}
                 />
-              </div>
-              <div className="profile-field">
-                <label style={LABEL_STYLE}>Year</label>
+              </Field>
+              <Field label="Year">
                 <ProfileSelect
                   value={academic.year ?? ''}
                   placeholder="Select year"
                   options={YEARS}
                   open={openMenu === 'year'}
+                  dropUp
                   onOpenChange={(o) => setOpenMenu(o ? 'year' : null)}
                   onChange={(year) => setAcademic((a) => ({ ...a, year }))}
                 />
-              </div>
-              <div className="profile-field profile-field-full">
-                <label style={LABEL_STYLE}>Program</label>
+              </Field>
+              <Field label="Program">
                 <ProfileSelect
                   value={academic.program ?? ''}
                   placeholder="Select program"
                   options={PROGRAMS}
                   open={openMenu === 'program'}
+                  dropUp
                   onOpenChange={(o) => setOpenMenu(o ? 'program' : null)}
                   onChange={(program) => setAcademic((a) => ({ ...a, program }))}
                 />
-              </div>
+              </Field>
             </div>
-          </div>
-
-          <div className="profile-form-grid">
-            <div className="profile-field">
-              <label style={LABEL_STYLE} htmlFor="profileNameInput">
-                Full Name
-              </label>
-              <input
-                id="profileNameInput"
-                type="text"
-                placeholder="Full Name"
-                className={errors.name ? 'input-error' : undefined}
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onBlur={validate}
-              />
-              <div className="profile-inline">{errors.name}</div>
-            </div>
-            <div className="profile-field">
-              <label style={LABEL_STYLE} htmlFor="profileNickInput">
-                Nickname
-              </label>
-              <input id="profileNickInput" type="text" placeholder="Preferred Nickname" value={nickname} onChange={(e) => setNickname(e.target.value)} />
-            </div>
-          </div>
-
-          <div className="profile-form-grid profile-form-grid-tight">
-            <div className="profile-field profile-field-full">
-              <label style={LABEL_STYLE} htmlFor="profileEmailInput">
-                Email
-              </label>
-              <input
-                id="profileEmailInput"
-                type="email"
-                placeholder="you@example.com"
-                className={errors.email ? 'input-error' : undefined}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onBlur={validate}
-              />
-              <div className="profile-inline">{errors.email}</div>
-            </div>
-          </div>
+          </section>
         </div>
 
-        <div className="modal-actions profile-modal-actions">
-          <div className="profile-status-wrap">
-            <div className={status ? `profile-status is-${status.tone}` : 'profile-status'} aria-live="polite">
-              {status?.text}
-            </div>
-            <div className="profile-updated">
-              {updatedAt ? `Last updated ${new Date(updatedAt).toLocaleString()}` : 'Not updated yet'}
-            </div>
-          </div>
-          <div className="profile-action-buttons">
+        <div className="pf-foot">
+          <span className={status ? `pf-status is-${status.tone}` : 'pf-status'} aria-live="polite">
+            {status?.tone === 'success' && <Icon name="checkmark-circle" />}
+            {status?.text}
+          </span>
+          <div className="pf-actions">
             <button type="button" className="btn-plain" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn-primary profile-save-btn">
-              Save Changes
+            <button type="submit" className="btn-primary">
+              Save changes
             </button>
           </div>
         </div>
+      </div>
     </form>
   );
 }
