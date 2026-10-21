@@ -221,39 +221,44 @@ function ProfileForm({ onClose, profile, onboarding, onSave }: Omit<ProfileDialo
   ].filter(Boolean) as { icon: string; text: string }[];
 
   return (
-    <form className="pf" onSubmit={handleSubmit} noValidate>
+    <form className="pf" onSubmit={handleSubmit} noValidate aria-label="Edit profile">
       <button type="button" className="pf-close" aria-label="Close profile" onClick={onClose}>
         <Icon name="close-outline" />
       </button>
 
-      <aside className="pf-identity">
-        <div className="pf-avatar-wrap">
-          {picture ? (
-            // eslint-disable-next-line @next/next/no-img-element -- user-supplied data URL
-            <img className="pf-avatar" src={picture} alt="Profile picture" />
-          ) : (
-            <div className="pf-avatar pf-avatar-initials" aria-hidden="true">
-              {initials(nickname || name)}
-            </div>
-          )}
-          <label htmlFor="profilePicInput" className="pf-avatar-edit" title="Change photo">
-            <Icon name="camera-outline" aria-label="Change photo" />
-          </label>
-          <input
-            type="file"
-            id="profilePicInput"
-            accept="image/png,image/jpeg,image/gif,image/webp"
-            hidden
-            onChange={(e) => {
-              handlePicture(e.target.files?.[0]);
-              e.target.value = '';
-            }}
-          />
-        </div>
+      {/* Header and form scroll together; only the footer stays put. */}
+      <div className="pf-scroll">
+        {/* Live preview: updates as the name, nickname, email and school change. */}
+        <div className="pf-identity">
+          <div className="pf-avatar-wrap">
+            {picture ? (
+              // eslint-disable-next-line @next/next/no-img-element -- user-supplied data URL
+              <img className="pf-avatar" src={picture} alt="Profile picture" />
+            ) : (
+              <div className="pf-avatar pf-avatar-initials" aria-hidden="true">
+                {initials(nickname || name)}
+              </div>
+            )}
+            <label htmlFor="profilePicInput" className="pf-avatar-edit" title="Change photo">
+              <Icon name="camera-outline" aria-label="Change photo" />
+            </label>
+            <input
+              type="file"
+              id="profilePicInput"
+              accept="image/png,image/jpeg,image/gif,image/webp"
+              hidden
+              onChange={(e) => {
+                handlePicture(e.target.files?.[0]);
+                e.target.value = '';
+              }}
+            />
+          </div>
 
-        <div className="pf-identity-text">
-          <div className="pf-display-name">{displayName}</div>
-          <div className="pf-display-email">{email.trim() || 'No email added'}</div>
+          <div className="pf-identity-text">
+            <div className="pf-display-name">{displayName}</div>
+            <div className="pf-display-email">{email.trim() || 'No email added'}</div>
+          </div>
+
           {chips.length > 0 && (
             <div className="pf-chips">
               {chips.map((chip) => (
@@ -264,23 +269,18 @@ function ProfileForm({ onClose, profile, onboarding, onSave }: Omit<ProfileDialo
               ))}
             </div>
           )}
-        </div>
 
-        <div className="pf-identity-foot">
-          <p className={errors.picture ? 'pf-photo-hint is-error' : 'pf-photo-hint'}>{errors.picture ?? 'PNG or JPG, up to 3MB'}</p>
-          {picture && (
-            <button type="button" className="pf-text-btn" onClick={() => setPicture('')}>
-              Remove photo
-            </button>
-          )}
-          {updatedAt && <p className="pf-updated">Updated {new Date(updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</p>}
-        </div>
-      </aside>
-
-      <div className="pf-main">
-        <div className="pf-head">
-          <h2>Edit profile</h2>
-          <p>How you appear in MySemester, and the school details used for GPA and planning tools.</p>
+          <p className={errors.picture ? 'pf-photo-hint is-error' : 'pf-photo-hint'}>
+            {errors.picture ?? 'PNG or JPG, up to 3MB'}
+            {picture && !errors.picture && (
+              <>
+                {' · '}
+                <button type="button" className="pf-text-btn" onClick={() => setPicture('')}>
+                  Remove photo
+                </button>
+              </>
+            )}
+          </p>
         </div>
 
         <div className="pf-body">
@@ -370,20 +370,21 @@ function ProfileForm({ onClose, profile, onboarding, onSave }: Omit<ProfileDialo
             </div>
           </section>
         </div>
+      </div>
 
-        <div className="pf-foot">
-          <span className={status ? `pf-status is-${status.tone}` : 'pf-status'} aria-live="polite">
-            {status?.tone === 'success' && <Icon name="checkmark-circle" />}
-            {status?.text}
-          </span>
-          <div className="pf-actions">
-            <button type="button" className="btn-plain" onClick={onClose}>
-              Cancel
-            </button>
-            <button type="submit" className="btn-primary">
-              Save changes
-            </button>
-          </div>
+      <div className="pf-foot">
+        <span className={status ? `pf-status is-${status.tone}` : 'pf-status'} aria-live="polite">
+          {status?.tone === 'success' && <Icon name="checkmark-circle" />}
+          {status?.text ??
+            (updatedAt ? `Updated ${new Date(updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}` : '')}
+        </span>
+        <div className="pf-actions">
+          <button type="button" className="btn-plain" onClick={onClose}>
+            Cancel
+          </button>
+          <button type="submit" className="btn-primary">
+            Save changes
+          </button>
         </div>
       </div>
     </form>

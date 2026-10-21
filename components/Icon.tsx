@@ -4,9 +4,13 @@ interface IconProps extends HTMLAttributes<HTMLElement> {
   name: string;
 }
 
-/** An Ionicons icon. Decorative unless given an aria-label. */
+/**
+ * An Ionicons icon. Decorative unless given an aria-label.
+ * The Ionicons script adds its own attributes (class="md hydrated", role) before React hydrates
+ * server-rendered pages, so attribute differences on this element are expected.
+ */
 export function Icon({ name, ...rest }: IconProps) {
-  return <ion-icon name={name} aria-hidden={rest['aria-label'] ? undefined : true} {...rest} />;
+  return <ion-icon name={name} aria-hidden={rest['aria-label'] ? undefined : true} suppressHydrationWarning {...rest} />;
 }
 
 const BARE_BUTTON: CSSProperties = {

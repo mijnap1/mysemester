@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react';
 import { Icon } from '@/components/Icon';
 import { courseGrade, letterFromPct, type UniversityRules } from '@/lib/grading';
+import type { NextDeadline } from '@/lib/quercus';
 import type { Course, Folder, SemesterState } from '@/lib/types';
 
 const DRAG_TYPE = 'application/x-mysemester-item';
@@ -124,6 +125,7 @@ function CourseCard({
   rules,
   highlighted,
   removing,
+  next,
   handlers,
 }: {
   course: Course;
@@ -131,6 +133,8 @@ function CourseCard({
   rules: UniversityRules;
   highlighted: boolean;
   removing: boolean;
+  /** Most pressing Quercus deadline for this course, if connected. */
+  next: NextDeadline | null;
   handlers: CardHandlers;
 }) {
   const entrance = useEntrance(index);
@@ -157,11 +161,18 @@ function CourseCard({
     >
       <Icon className="course-icon" name={course.icon} />
       <div className="info">
-        <div className="code">{course.code}</div>
-        <div className="muted-sm">
-          {course.title}
+        <div className="code-row">
+          <div className="code">{course.code}</div>
           {credit && <span className="tag-crncr">{rules.creditLabel || 'CR/NCR'}</span>}
         </div>
+        <div className="muted-sm">{course.title}</div>
+        {next && (
+          <div className={next.overdue ? 'card-next is-overdue' : 'card-next'} title={`${next.deadline.title} (from Quercus)`}>
+            <Icon name={next.overdue ? 'alert-circle-outline' : 'time-outline'} />
+            <span className="card-next-title">{next.deadline.title}</span>
+            <span className="card-next-when">· {next.when}</span>
+          </div>
+        )}
       </div>
       <GradeMark pct={pct} showLetter={rules.showLetter} />
     </div>
@@ -298,17 +309,14 @@ interface CourseGridProps extends CardHandlers {
   highlightCourseId: string | null;
   highlightFolderId: string | null;
   removingId: string | null;
+  /** Course id → its next Quercus deadline (empty when Quercus isn't connected). */
+  nextDeadlines: ReadonlyMap<string, NextDeadline>;
 }
 
-export function CourseGrid({ state, rules, highlightCourseId, highlightFolderId, removingId, ...handlers }: CourseGridProps) {
+export function CourseGrid({ state, rules, highlightCourseId, highlightFolderId, removingId, nextDeadlines, ...handlers }: CourseGridProps) {
   const current = state.currentFolderId;
   const inFolder = !!current;
   const isEmpty = !state.courses.length && !state.folders.length;
-
-  useEffect(() => {
-    document.body.classList.toggle('no-scroll-empty', isEmpty);
-    return () => document.body.classList.remove('no-scroll-empty');
-  }, [isEmpty]);
 
   const folders = state.folders
     .filter((f) => (f.parentFolderId ?? null) === (current ?? null))
@@ -332,8 +340,8 @@ export function CourseGrid({ state, rules, highlightCourseId, highlightFolderId,
   if (isEmpty) {
     content = (
       <div className="empty-state-card">
-        <div className="empty-plus-badge">
-          <Icon name="add-outline" />
+        <div className="empty-icon">
+          <Icon name="book-outline" />
         </div>
         <div className="empty-title">No courses yet</div>
         <div className="empty-desc">Start by adding your first course to track your grades!</div>
@@ -342,7 +350,7 @@ export function CourseGrid({ state, rules, highlightCourseId, highlightFolderId,
             <Icon name="add-outline" /> Add Course
           </button>
           <button type="button" className="btn-empty-link" id="emptyAddFolderBtn" onClick={handlers.onAddFolder}>
-            Create semester folder
+            <Icon name="folder-outline" /> Create semester folder
           </button>
         </div>
       </div>
@@ -371,12 +379,13 @@ export function CourseGrid({ state, rules, highlightCourseId, highlightFolderId,
             rules={rules}
             highlighted={course.id === highlightCourseId}
             removing={course.id === removingId}
+            next={nextDeadlines.get(course.id) ?? null}
             handlers={handlers}
           />
         ))}
         {inFolder && !courses.length && !folders.length && (
           <div className="empty-state-card">
-            <div className="empty-plus-badge">
+            <div className="empty-icon">
               <Icon name="folder-open-outline" />
             </div>
             <div className="empty-title">This folder is empty</div>

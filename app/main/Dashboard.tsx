@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '@/components/Icon';
+import { useToast } from '@/components/Toast';
 import { signOut } from '@/lib/auth';
 import { getUniversityRules, semesterOverview } from '@/lib/grading';
 import { useEscape } from '@/lib/hooks';
@@ -32,15 +33,28 @@ import {
   restoreCourse,
   setCurrentFolder,
   storageUser,
+  newId,
+  setAssessments,
   updateCourse,
   type CourseInput,
 } from '@/lib/semester';
+import {
+  assessmentFromDeadline,
+  countDueSoon,
+  inGrades,
+  nextDeadlineFor,
+  readQuercusLink,
+  writeQuercusLink,
+  type Deadline,
+  type NextDeadline,
+  type QuercusLink,
+} from '@/lib/quercus';
 import { allKeys, KEYS, readString, removeKey, writeString } from '@/lib/storage';
 import type { Course, Onboarding, Profile, Settings } from '@/lib/types';
 import { useSemester } from '@/lib/use-semester';
 import { AboutDialog } from './AboutDialog';
 import { AddCourseDialog, type TourField } from './AddCourseDialog';
-import { useAppDialogs, useToast } from './AppDialogs';
+import { useAppDialogs } from './AppDialogs';
 import { BulkImportDialog } from './BulkImportDialog';
 import { CourseMenu, FolderMenu, type MenuPosition } from './ContextMenus';
 import { CourseGrid } from './CourseGrid';
@@ -49,6 +63,8 @@ import { ProfileDialog } from './ProfileDialog';
 import { SettingsDialog } from './SettingsDialog';
 import { Sidebar } from './Sidebar';
 import { Tour } from './Tour';
+import { QuercusPrompt } from './QuercusPrompt';
+import { ConnectQuercusDialog, QuercusConnectCard, UpcomingPanel } from './UpcomingPanel';
 
 const HIGHLIGHT_MS = 600;
 const REMOVE_ANIMATION_MS = 260;
@@ -65,6 +81,12 @@ export function Dashboard() {
   const [onboarding, setOnboarding] = useState<Onboarding>(readOnboarding);
   const [settings, setSettings] = useState<Settings>(readSettings);
   const [profile, setProfile] = useState<Profile | null>(() => readProfile(auth));
+  const user = storageUser(auth);
+  const [quercus, setQuercus] = useState<QuercusLink | null>(() => readQuercusLink(user));
+  const [quercusConnectOpen, setQuercusConnectOpen] = useState(false);
+  const [quercusPromptOpen, setQuercusPromptOpen] = useState(false);
+  // UofT students switch between their courses and their Quercus deadlines.
+  const [view, setView] = useState<'courses' | 'deadlines'>(() => (readString(KEYS.dashboardView) === 'deadlines' ? 'deadlines' : 'courses'));
   const [calloutVisible, setCalloutVisible] = useState(
     () => readOnboarding().university === 'University of Toronto' && readString(KEYS.professorPicksHintSeen) !== '1',
   );
@@ -82,7 +104,6 @@ export function Dashboard() {
 
   const [highlight, setHighlight] = useState<{ course: string | null; folder: string | null }>({ course: null, folder: null });
   const [removingId, setRemovingId] = useState<string | null>(null);
-  const [undo, setUndo] = useState<{ course: Course; index: number } | null>(null);
 
   const { confirm, notice, input, dialogs } = useAppDialogs();
   const { show: showToast, toast } = useToast();
@@ -93,6 +114,28 @@ export function Dashboard() {
     const id = window.setTimeout(() => setTourActive(true), 120);
     return () => window.clearTimeout(id);
   }, []);
+
+  // Invite UofT students to connect Quercus once the page has settled (never over the tour).
+  const isUofT = onboarding.university === 'University of Toronto';
+  // The tour points at course cards, so it always runs on the Courses view.
+  const activeView = isUofT && !tourActive ? view : 'courses';
+  const dueSoon = useMemo(() => countDueSoon(quercus), [quercus]);
+  const nextDeadlines = useMemo(() => {
+    const map = new Map<string, NextDeadline>();
+    if (!isUofT || !quercus) return map;
+    for (const course of state.courses) {
+      const next = nextDeadlineFor(course, quercus, state.courses);
+      if (next) map.set(course.id, next);
+    }
+    return map;
+  }, [isUofT, quercus, state.courses]);
+  useEffect(() => {
+    if (!isUofT || quercus || initialSyncing || tourActive) return;
+    if (readString(KEYS.quercusPromptDismissed) === '1') return;
+    if (readString(KEYS.tutorialStart) === '1' && !readString(KEYS.tutorialSeen)) return;
+    const id = window.setTimeout(() => setQuercusPromptOpen(true), 1200);
+    return () => window.clearTimeout(id);
+  }, [isUofT, quercus, initialSyncing, tourActive]);
 
   useEffect(() => {
     document.body.setAttribute('data-layout', settings.layout === 'spacious' ? 'spacious' : 'compact');
@@ -111,12 +154,6 @@ export function Dashboard() {
     const id = window.setTimeout(() => setHighlight({ course: null, folder: null }), HIGHLIGHT_MS);
     return () => window.clearTimeout(id);
   }, [highlight]);
-
-  useEffect(() => {
-    if (!undo) return;
-    const id = window.setTimeout(() => setUndo(null), UNDO_MS);
-    return () => window.clearTimeout(id);
-  }, [undo]);
 
   // Context menus close on the next click anywhere.
   useEffect(() => {
@@ -182,21 +219,22 @@ export function Dashboard() {
     setRemovingId(id);
     window.setTimeout(() => {
       setRemovingId(null);
-      let removed: { course: Course; index: number } | null = null;
+      let removed = null as { course: Course; index: number } | null;
       update((s) => {
         const result = removeCourse(s, id);
         if (result.removed) removed = { course: result.removed, index: result.index };
         return result.state;
       });
-      if (removed) setUndo(removed);
+      if (!removed) return;
+      const { course, index } = removed;
+      showToast(`${course.code || 'Course'} removed.`, 'info', UNDO_MS, {
+        label: 'Undo',
+        onClick: () => {
+          update((s) => (s.courses.some((c) => c.id === course.id) ? s : restoreCourse(s, course, index)));
+          setHighlight({ course: course.id, folder: null });
+        },
+      });
     }, REMOVE_ANIMATION_MS);
-  }
-
-  function undoRemove() {
-    if (!undo) return;
-    update((s) => restoreCourse(s, undo.course, undo.index));
-    setHighlight({ course: undo.course.id, folder: null });
-    setUndo(null);
   }
 
   function handleCourseAction(action: 'edit' | 'dup' | 'detach' | 'crncr' | 'del', id: string) {
@@ -348,7 +386,7 @@ export function Dashboard() {
     });
     if (!ok) return;
     update(resetState);
-    const prefix = `grades_${storageUser(auth)}_`;
+    const prefix = `grades_${user}_`;
     allKeys().filter((k) => k.startsWith(prefix)).forEach(removeKey);
     clearSettings();
     setSettings(readSettings());
@@ -379,7 +417,49 @@ export function Dashboard() {
     setSidebarOpen((o) => !o);
   }
 
-  function endTour() {
+  // ---- Quercus -----------------------------------------------------------
+
+  const saveQuercus = useCallback(
+    (next: QuercusLink | null) => {
+      setQuercus(next);
+      writeQuercusLink(user, next);
+    },
+    [user],
+  );
+
+  /** "Add to grades": a new unweighted row on the course's grade page, named after the deadline. */
+  function addDeadlineToGrades(deadline: Deadline, course: Course) {
+    update((s) => {
+      const current = s.courses.find((c) => c.id === course.id);
+      if (!current || inGrades(deadline, current)) return s;
+      return setAssessments(s, current.id, [...current.assessments, assessmentFromDeadline(deadline, newId())]);
+    });
+    showToast(`Added “${deadline.title}” to ${course.code}. Set its weight there.`, 'success', 5000, {
+      label: 'Open',
+      onClick: () => window.location.assign(`/grade/?id=${encodeURIComponent(course.id)}`),
+    });
+  }
+
+  function changeView(next: 'courses' | 'deadlines') {
+    setView(next);
+    writeString(KEYS.dashboardView, next);
+  }
+
+  /** Sidebar button: open the Deadlines view (it offers Connect when needed). */
+  function openQuercus() {
+    closeSidebar();
+    changeView('deadlines');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function dismissQuercusPrompt() {
+    setQuercusPromptOpen(false);
+    writeString(KEYS.quercusPromptDismissed, '1');
+  }
+
+  function endTour(finished = false) {
+    // The last step opens the course page, which shows a one-time "You're all set".
+    if (finished) writeString(KEYS.tutorialFinale, '1');
     writeString(KEYS.tutorialSeen, '1');
     removeKey(KEYS.tutorialStart);
     setTourActive(false);
@@ -402,7 +482,7 @@ export function Dashboard() {
         name={name}
         email={profile?.email || auth.email || ''}
         picture={picture}
-        showProfessorPicksCallout={calloutVisible}
+        menuCallout={calloutVisible ? 'Professor Picks is here' : null}
         onOpenProfile={() => profile && setProfileOpen(true)}
         onSignOut={handleSignOut}
         onToggleMenu={toggleMenu}
@@ -419,6 +499,8 @@ export function Dashboard() {
         open={sidebarOpen}
         onboarding={onboarding}
         onNewFolder={handleNewFolder}
+        quercusConnected={!!quercus}
+        onQuercus={openQuercus}
         onOpenSettings={() => {
           closeSidebar();
           setSettingsOpen(true);
@@ -433,55 +515,96 @@ export function Dashboard() {
       <main className="wrap">
         <section className="hero">
           <h2>{auth.loggedIn ? `Welcome, ${name}` : 'Welcome'}</h2>
-          <p>Courses and academic overview</p>
-          {currentFolder && (
+          <p>{activeView === 'deadlines' ? 'Upcoming deadlines from Quercus' : 'Courses and academic overview'}</p>
+          {isUofT && (
+            <div className="view-switch" role="tablist" aria-label="Dashboard view">
+              <button type="button" role="tab" aria-selected={activeView === 'courses'} onClick={() => changeView('courses')}>
+                <Icon name="school-outline" /> Courses
+              </button>
+              <button type="button" role="tab" aria-selected={activeView === 'deadlines'} onClick={() => changeView('deadlines')}>
+                <Icon name="calendar-outline" /> Deadlines
+                {dueSoon > 0 && (
+                  <span className="view-switch-count" aria-label={`${dueSoon} due soon`}>
+                    {dueSoon}
+                  </span>
+                )}
+              </button>
+            </div>
+          )}
+          {activeView === 'courses' && currentFolder && (
             <button type="button" className="btn-plain hero-back" style={{ display: 'inline-flex' }} onClick={() => updateLocal((s) => setCurrentFolder(s, backTarget))}>
               <Icon name="arrow-back-outline" /> {backTarget ? 'Back to parent folder' : 'Back to all courses'}
             </button>
           )}
         </section>
 
-        <CourseGrid
-          state={state}
-          rules={rules}
-          highlightCourseId={highlight.course}
-          highlightFolderId={highlight.folder}
-          removingId={removingId}
-          onOpenCourse={(id) => window.location.assign(`/grade/?id=${encodeURIComponent(id)}`)}
-          onOpenFolder={(id) => updateLocal((s) => setCurrentFolder(s, id))}
-          onCourseMenu={(x, y, id) => {
-            setFolderMenu(null);
-            setCourseMenu({ x, y, id });
-          }}
-          onFolderMenu={(x, y, id) => {
-            setCourseMenu(null);
-            setFolderMenu({ x, y, id });
-          }}
-          onRenameFolder={(id) => void handleRenameFolder(id)}
-          onMoveCourse={(courseId, folderId) => update((s) => moveCourse(s, courseId, folderId))}
-          onMoveFolder={(folderId, parentId) => update((s) => moveFolder(s, folderId, parentId))}
-          onAddCourse={openAddCourse}
-          onAddFolder={() => void handleNewFolder()}
-        />
+        {activeView === 'courses' && (
+          <>
+            <CourseGrid
+              state={state}
+              rules={rules}
+              highlightCourseId={highlight.course}
+              highlightFolderId={highlight.folder}
+              removingId={removingId}
+              nextDeadlines={nextDeadlines}
+              onOpenCourse={(id) => window.location.assign(`/grade/?id=${encodeURIComponent(id)}`)}
+              onOpenFolder={(id) => updateLocal((s) => setCurrentFolder(s, id))}
+              onCourseMenu={(x, y, id) => {
+                setFolderMenu(null);
+                setCourseMenu({ x, y, id });
+              }}
+              onFolderMenu={(x, y, id) => {
+                setCourseMenu(null);
+                setFolderMenu({ x, y, id });
+              }}
+              onRenameFolder={(id) => void handleRenameFolder(id)}
+              onMoveCourse={(courseId, folderId) => update((s) => moveCourse(s, courseId, folderId))}
+              onMoveFolder={(folderId, parentId) => update((s) => moveFolder(s, folderId, parentId))}
+              onAddCourse={openAddCourse}
+              onAddFolder={() => void handleNewFolder()}
+            />
 
-        <section className="overview">
-          {rules.showGpa && (
-            <div className="ov">
-              <div className="label">{gpaLabel(rules.gpaScale)}</div>
-              <div className="value">{overview ? overview.gpa.toFixed(2) : '—'}</div>
-            </div>
-          )}
-          {rules.showLetter && (
-            <div className="ov">
-              <div className="label">Letter Avg</div>
-              <div className="value">{overview ? overview.letter : '—'}</div>
-            </div>
-          )}
-          <div className="ov">
-            <div className="label">Percent Avg</div>
-            <div className="value">{overview ? `${Math.round(overview.average)}%` : '—'}</div>
-          </div>
-        </section>
+            <section className="overview">
+              {rules.showGpa && (
+                <div className="ov">
+                  <div className="label">{gpaLabel(rules.gpaScale)}</div>
+                  <div className="value">{overview ? overview.gpa.toFixed(2) : '—'}</div>
+                </div>
+              )}
+              {rules.showLetter && (
+                <div className="ov">
+                  <div className="label">Letter Avg</div>
+                  <div className="value">{overview ? overview.letter : '—'}</div>
+                </div>
+              )}
+              <div className="ov">
+                <div className="label">Percent Avg</div>
+                <div className="value">{overview ? `${Math.round(overview.average)}%` : '—'}</div>
+              </div>
+            </section>
+          </>
+        )}
+
+        {activeView === 'deadlines' && !quercus && <QuercusConnectCard onConnect={() => setQuercusConnectOpen(true)} />}
+        {activeView === 'deadlines' && quercus && (
+          <UpcomingPanel
+            user={user}
+            link={quercus}
+            onLinkChange={saveQuercus}
+            courses={state.courses}
+            onOpenCourse={(id) => window.location.assign(`/grade/?id=${encodeURIComponent(id)}`)}
+            onAddToGrades={addDeadlineToGrades}
+            notify={showToast}
+            confirmDisconnect={() =>
+              confirm({
+                title: 'Disconnect Quercus?',
+                message: 'Your Quercus deadlines will be removed from this device. Your courses and grades are not affected.',
+                confirmText: 'Disconnect',
+                confirmTone: 'danger',
+              })
+            }
+          />
+        )}
 
         <footer>© 2026 MySemester. All Rights Reserved.</footer>
       </main>
@@ -507,6 +630,24 @@ export function Dashboard() {
         onBulkImport={() => setBulkOpen(true)}
         onReset={() => void resetAll()}
       />
+      <QuercusPrompt
+        open={quercusPromptOpen && !quercus && activeView === 'courses'}
+        onConnect={() => {
+          setQuercusPromptOpen(false);
+          setQuercusConnectOpen(true);
+        }}
+        onDismiss={dismissQuercusPrompt}
+      />
+      <ConnectQuercusDialog
+        open={quercusConnectOpen}
+        onClose={() => setQuercusConnectOpen(false)}
+        onConnected={(feedUrl, deadlines) => {
+          saveQuercus({ feedUrl, deadlines, syncedAt: new Date().toISOString(), done: [], hidden: [] });
+          setQuercusConnectOpen(false);
+          showToast(`Connected. Found ${deadlines.length} item${deadlines.length === 1 ? '' : 's'} on Quercus.`, 'success');
+          changeView('deadlines');
+        }}
+      />
       <BulkImportDialog open={bulkOpen} onClose={() => setBulkOpen(false)} onImport={bulkImport} />
       {profile && <ProfileDialog open={profileOpen} onClose={() => setProfileOpen(false)} profile={profile} onboarding={onboarding} onSave={saveProfile} />}
       <AddCourseDialog
@@ -519,14 +660,7 @@ export function Dashboard() {
       {dialogs}
       {toast}
 
-      <div className={undo ? 'undo-toast show' : 'undo-toast'} role="status" aria-live="polite">
-        <span>{undo?.course.code || 'Course'} removed.</span>
-        <button type="button" onClick={undoRemove}>
-          Undo
-        </button>
-      </div>
-
-      {tourActive && <Tour onClose={endTour} ensureAddCourseOpen={ensureAddCourseOpen} onFieldChange={setTourField} />}
+      {tourActive && <Tour isUofT={isUofT} onClose={endTour} ensureAddCourseOpen={ensureAddCourseOpen} onFieldChange={setTourField} />}
     </>
   );
 }

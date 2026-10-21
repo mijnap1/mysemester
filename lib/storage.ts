@@ -17,8 +17,16 @@ export const KEYS = {
   semesterBase: 'uoft-grade-lite-v5',
   tutorialStart: 'ms_tutorial_start',
   tutorialSeen: 'ms_tutorial_seen',
+  /** Set when the tour is finished (not skipped); the grade page shows a one-time "You're all set". */
+  tutorialFinale: 'ms_tutorial_finale',
   professorPicksHintSeen: 'mysemester_professor_picks_hint_seen',
+  /** Set when the student dismisses the slide-in "Connect Quercus" card. */
+  quercusPromptDismissed: 'mysemester_quercus_prompt_dismissed',
+  /** Which dashboard tab was last open: "courses" or "deadlines". */
+  dashboardView: 'mysemester_dashboard_view',
   profile: (username: string) => `mysemester_user_${username}`,
+  /** Quercus calendar feed link and cached deadlines. Device-only, never synced. */
+  quercus: (username: string) => `mysemester_quercus_${username}`,
   legacyPfp: (username: string) => `uoft_user_${username}_pfp`,
   /** Pre-v6 assessments lived outside the semester state, keyed by course code. */
   legacyGrades: (username: string, code: string) => `grades_${username}_${code}_v3`,

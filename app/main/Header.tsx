@@ -10,13 +10,14 @@ interface HeaderProps {
   name: string;
   email: string;
   picture: string;
-  showProfessorPicksCallout: boolean;
+  /** Short "New" hint shown under the menu button, or null for none. */
+  menuCallout: string | null;
   onOpenProfile: () => void;
   onSignOut: () => void;
   onToggleMenu: () => void;
 }
 
-export function Header({ loggedIn, name, email, picture, showProfessorPicksCallout, onOpenProfile, onSignOut, onToggleMenu }: HeaderProps) {
+export function Header({ loggedIn, name, email, picture, menuCallout, onOpenProfile, onSignOut, onToggleMenu }: HeaderProps) {
   const [accountOpen, setAccountOpen] = useState(false);
   const { isDark, toggle } = useTheme();
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -98,9 +99,9 @@ export function Header({ loggedIn, name, email, picture, showProfessorPicksCallo
           <Icon name={isDark ? 'sunny-outline' : 'moon-outline'} />
         </button>
         <div className="sidebar-menu-feature">
-          <div className="sidebar-menu-callout" hidden={!showProfessorPicksCallout}>
+          <div className="sidebar-menu-callout" hidden={!menuCallout}>
             <span>New</span>
-            Professor Picks is here
+            {menuCallout}
           </div>
           <button className="iconbtn menu-icon" id="menuToggle" aria-label="Open Menu" onClick={onToggleMenu}>
             <Icon name="menu-outline" />

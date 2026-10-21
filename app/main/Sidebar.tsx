@@ -15,11 +15,14 @@ interface SidebarProps {
   open: boolean;
   onboarding: Onboarding;
   onNewFolder: () => void;
+  /** Whether a Quercus calendar feed is connected on this device. */
+  quercusConnected: boolean;
+  onQuercus: () => void;
   onOpenSettings: () => void;
   onOpenAbout: () => void;
 }
 
-export function Sidebar({ open, onboarding, onNewFolder, onOpenSettings, onOpenAbout }: SidebarProps) {
+export function Sidebar({ open, onboarding, onNewFolder, quercusConnected, onQuercus, onOpenSettings, onOpenAbout }: SidebarProps) {
   const tip = useRotating(TIPS, 6000);
   const isUofT = onboarding.university === 'University of Toronto';
 
@@ -27,6 +30,9 @@ export function Sidebar({ open, onboarding, onNewFolder, onOpenSettings, onOpenA
     <aside className={open ? 'sidebar show' : 'sidebar'} aria-label="Sidebar Navigation">
       <button className="navbtn blue" onClick={onNewFolder}>
         <Icon name="folder-outline" /> New Folder
+      </button>
+      <button className="navbtn blue" onClick={onQuercus} hidden={!isUofT}>
+        <Icon name="calendar-outline" /> {quercusConnected ? 'Quercus Deadlines' : 'Connect Quercus'}
       </button>
       <a className="navbtn purple" href="/ai-planner/" hidden={!isUofT}>
         <Icon name="sparkles-outline" /> AI Planner

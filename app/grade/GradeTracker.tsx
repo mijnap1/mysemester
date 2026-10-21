@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Icon, IconButton } from '@/components/Icon';
 import { MiniCalc } from '@/components/MiniCalc';
+import { useToast } from '@/components/Toast';
 import {
   applyEstimates,
   assessmentAverage,
@@ -13,26 +14,32 @@ import {
   letterForSchool,
   totalWeight,
 } from '@/lib/grading';
-import { newId, normalizeCode, readEstimateTarget, readUniversity, setAssessments } from '@/lib/semester';
-import { KEYS } from '@/lib/storage';
+import { assessmentFromDeadline, courseDeadlines, inGrades, readQuercusLink, type Deadline } from '@/lib/quercus';
+import { newId, normalizeCode, readEstimateTarget, readUniversity, setAssessments, storageUser } from '@/lib/semester';
+import { KEYS, readString, removeKey } from '@/lib/storage';
 import { useTheme } from '@/lib/theme';
 import type { Assessment } from '@/lib/types';
 import { useSemester } from '@/lib/use-semester';
 import { AssessmentRow } from './AssessmentRow';
+import { CourseDeadlines } from './CourseDeadlines';
+import { TourFinale } from './TourFinale';
 
 const SAVE_NOTICE_DELAY_MS = 650;
 const WEIGHT_NOTICE_MS = 1800;
+const UNDO_MS = 4500;
 
 export function GradeTracker() {
   const params = useSearchParams();
-  const { state, update, initialSyncing } = useSemester();
+  const { auth, state, update, initialSyncing } = useSemester();
+  // Quercus deadlines are cached on this device by the dashboard; read-only here.
+  const [quercus] = useState(() => readQuercusLink(storageUser(auth)));
+  const [openedAt] = useState(() => Date.now());
+  const [finale, setFinale] = useState(() => readString(KEYS.tutorialFinale) === '1');
   const { isDark, toggle } = useTheme();
   const [university, setUniversity] = useState(readUniversity);
   const [estimateTarget, setEstimateTarget] = useState(readEstimateTarget);
-  const [saveNotice, setSaveNotice] = useState(false);
-  const [weightNotice, setWeightNotice] = useState(false);
-  const [undo, setUndo] = useState<{ row: Assessment; index: number } | null>(null);
   const noticeTimer = useRef<number | null>(null);
+  const { show: showToast, toast } = useToast();
 
   // Links from the dashboard use ?id=; older bookmarks use ?course=CODE.
   const idParam = params.get('id');
@@ -61,17 +68,15 @@ export function GradeTracker() {
   }, []);
 
   useEffect(() => {
-    if (!undo) return;
-    const id = window.setTimeout(() => setUndo(null), 4500);
-    return () => window.clearTimeout(id);
-  }, [undo]);
-
-  useEffect(() => {
     document.title = course ? `${course.code} — Grade Tracker` : 'Grade Tracker';
   }, [course]);
 
   const assessments = course?.assessments ?? [];
   const rules = getUniversityRules(university);
+  const deadlineList = useMemo(() => {
+    const items = course && university === 'University of Toronto' ? courseDeadlines(course, quercus, state.courses, openedAt) : [];
+    return { items, now: openedAt };
+  }, [course, quercus, state.courses, university, openedAt]);
   const isCredit = !!(rules.creditAllowed && course?.crncr);
   const goal = isCredit ? 50 : estimateTarget;
   const average = assessmentAverage(assessments);
@@ -108,18 +113,18 @@ export function GradeTracker() {
     // Warn once each time the total goes over 100%.
     const nextTotal = totalWeight(next);
     if (nextTotal > 100 && used <= 100) {
-      setWeightNotice(true);
-      window.setTimeout(() => setWeightNotice(false), WEIGHT_NOTICE_MS);
-    } else if (nextTotal <= 100) {
-      setWeightNotice(false);
+      showToast('Total weight cannot exceed 100%.', 'error', WEIGHT_NOTICE_MS);
     }
     if (notify) {
       if (noticeTimer.current) window.clearTimeout(noticeTimer.current);
-      noticeTimer.current = window.setTimeout(() => {
-        setSaveNotice(true);
-        window.setTimeout(() => setSaveNotice(false), 1600);
-      }, SAVE_NOTICE_DELAY_MS);
+      noticeTimer.current = window.setTimeout(() => showToast('Grades saved successfully!', 'success', 1600), SAVE_NOTICE_DELAY_MS);
     }
+  }
+
+  function addFromDeadline(deadline: Deadline) {
+    if (!course || inGrades(deadline, course)) return;
+    save([...assessments, assessmentFromDeadline(deadline, newId())], false);
+    showToast(`Added “${deadline.title}”. Set its weight in the table.`, 'success', 3200);
   }
 
   function addAssessment() {
@@ -134,17 +139,20 @@ export function GradeTracker() {
   }
 
   function removeAssessment(index: number) {
-    setUndo({ row: assessments[index], index });
+    const row = assessments[index];
     save(assessments.filter((_, i) => i !== index), false);
-  }
-
-  function undoRemove() {
-    if (!undo) return;
-    const at = Math.min(Math.max(undo.index, 0), assessments.length);
-    const next = [...assessments];
-    next.splice(at, 0, undo.row);
-    save(next, false);
-    setUndo(null);
+    showToast(`${row.name || 'Assessment'} removed.`, 'info', UNDO_MS, {
+      label: 'Undo',
+      // Put the row back into whatever the list is by then, at its old position.
+      onClick: () =>
+        update((s) => {
+          const current = s.courses.find((c) => c.id === courseId)?.assessments ?? [];
+          if (current.some((a) => a.id === row.id)) return s;
+          const next = [...current];
+          next.splice(Math.min(Math.max(index, 0), next.length), 0, row);
+          return setAssessments(s, courseId, next);
+        }),
+    });
   }
 
   const estimateLabel = isCredit
@@ -175,18 +183,16 @@ export function GradeTracker() {
         />
       </header>
 
-      <div className={saveNotice ? 'notification show' : 'notification'} role="status">
-        Grades saved successfully!
-      </div>
-      <div className={weightNotice ? 'notification error show' : 'notification error'} role="alert">
-        Total weight cannot exceed 100%.
-      </div>
-      <div className={undo ? 'undo-toast show' : 'undo-toast'} role="status" aria-live="polite">
-        <span>{undo?.row.name || 'Assessment'} removed.</span>
-        <button type="button" onClick={undoRemove}>
-          Undo
-        </button>
-      </div>
+      {toast}
+      <TourFinale
+        open={finale}
+        onDone={() => {
+          removeKey(KEYS.tutorialFinale);
+          setFinale(false);
+        }}
+      />
+
+      <CourseDeadlines course={course} items={deadlineList.items} now={deadlineList.now} onAdd={addFromDeadline} />
 
       <table className={assessments.length === 0 ? 'empty' : undefined}>
         <thead>

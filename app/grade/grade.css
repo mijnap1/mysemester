@@ -340,62 +340,6 @@
   :root[data-theme='dark'] .empty-state ion-icon {
     background: rgba(96, 165, 250, 0.14);
   }
-  .notification {
-  position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #22c55e;
-  color: #fff;
-  padding: 12px 22px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 15px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.4s var(--ease), transform 0.4s var(--ease);
-  z-index: 1000;
-}
-.notification.show {
-  opacity: 1;
-  transform: translateX(-50%) translateY(10px);
-}
-.notification.error {
-  background: #dc2626;
-}
-.undo-toast {
-  position: fixed;
-  left: 50%;
-  bottom: 22px;
-  transform: translateX(-50%) translateY(20px);
-  background: var(--card);
-  color: var(--text);
-  border: 1px solid var(--line, #e2e8f0);
-  padding: 12px 16px;
-  border-radius: 12px;
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
-  z-index: 1000;
-  box-shadow: var(--shadow);
-}
-.undo-toast.show {
-  opacity: 1;
-  pointer-events: auto;
-  transform: translateX(-50%) translateY(0);
-}
-.undo-toast button {
-  border: none;
-  background: var(--blue);
-  color: #fff;
-  font-weight: 700;
-  padding: 6px 10px;
-  border-radius: 8px;
-  cursor: pointer;
-}
 .calc-fab {
   position: fixed;
   right: 22px;
@@ -619,23 +563,6 @@
     border-radius: 12px;
   }
   .summary { font-size: 15px; margin-top: 24px; }
-  .notification {
-    top: max(12px, env(safe-area-inset-top));
-    left: 14px;
-    right: 14px;
-    width: auto;
-    transform: translateY(-12px);
-    padding: 12px 16px;
-    border-radius: 14px;
-    text-align: center;
-    font-size: 15px;
-    line-height: 1.25;
-    box-shadow: 0 14px 34px rgba(34, 197, 94, 0.24);
-  }
-  .notification.show {
-    transform: translateY(0);
-  }
-  .undo-toast { width: min(92vw, 360px); justify-content: space-between; }
   .calc-fab {
     right: 14px;
     bottom: 14px;
@@ -647,3 +574,161 @@
     max-width: 340px;
   }
 }
+
+/* This course's upcoming Quercus items, above the grade table. */
+.course-deadlines {
+  box-sizing: border-box;
+  width: min(850px, 96%);
+  margin-bottom: 18px;
+  padding: 14px 16px 6px;
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  text-align: left;
+}
+.course-deadlines-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.course-deadlines h2 {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.course-deadlines h2 ion-icon { font-size: 16px; color: var(--blue); }
+.course-deadlines-more { font-size: 13px; font-weight: 600; color: var(--blue); text-decoration: none; }
+.course-deadlines-more:hover { text-decoration: underline; }
+.course-deadlines ul { list-style: none; margin: 0; padding: 0; }
+.course-deadlines li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid var(--line, #e5e7eb);
+}
+.course-deadlines li:first-child { border-top: 0; }
+.course-deadlines-main { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.course-deadlines-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.course-deadlines-test {
+  flex: none;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.course-deadlines-when { font-size: 13px; color: var(--muted); }
+.course-deadlines li.is-overdue .course-deadlines-when { color: var(--red); }
+.course-deadlines-add,
+.course-deadlines-added {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 10px;
+}
+.course-deadlines-add {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: var(--blue);
+  cursor: pointer;
+  transition: background .2s var(--ease), transform .2s var(--ease);
+}
+.course-deadlines-add:hover { background: #dbeafe; transform: translateY(-1px); }
+.course-deadlines-add:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.course-deadlines-added { color: #16a34a; }
+.course-deadlines-add ion-icon,
+.course-deadlines-added ion-icon { font-size: 15px; }
+
+:root[data-theme='dark'] .course-deadlines li { border-top-color: #334155; }
+:root[data-theme='dark'] .course-deadlines-test { background: rgba(220, 38, 38, 0.18); color: #fca5a5; }
+:root[data-theme='dark'] .course-deadlines-add { background: rgba(37, 99, 235, 0.15); border-color: rgba(96, 165, 250, 0.45); color: #93c5fd; }
+:root[data-theme='dark'] .course-deadlines-added { color: #4ade80; }
+
+@media (max-width: 700px) {
+  .course-deadlines { width: 100%; padding: 12px 14px 4px; }
+  .course-deadlines-title { font-size: 14.5px; }
+}
+
+/* Tutorial's closing message on the course page. */
+#tourFinale {
+  width: min(400px, 92vw);
+  padding: 30px 28px 26px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.25);
+  text-align: center;
+  font-family: 'Outfit', sans-serif;
+  animation: finaleIn .35s var(--ease);
+}
+#tourFinale::backdrop { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(4px); }
+@keyframes finaleIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+.tour-finale-icon {
+  width: 56px;
+  height: 56px;
+  margin: 0 auto 14px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f5f8ff 0%, #e8efff 100%);
+  border: 1px solid #dbe5ff;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.12);
+  color: var(--blue);
+  font-size: 26px;
+}
+#tourFinale h2 { margin: 0 0 8px; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+#tourFinale p { margin: 0; font-size: 14.5px; line-height: 1.55; color: var(--muted); }
+#tourFinale .tour-finale-luck { margin-top: 12px; font-weight: 600; color: var(--text); }
+.tour-finale-btn {
+  width: 100%;
+  margin-top: 22px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--blue);
+  color: #fff;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.22);
+  transition: background .2s var(--ease), transform .2s var(--ease);
+}
+.tour-finale-btn:hover { background: #1d4ed8; transform: translateY(-1px); }
+.tour-finale-btn:focus-visible { outline: 2px solid var(--blue); outline-offset: 3px; }
+:root[data-theme='dark'] #tourFinale { box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6); }
+:root[data-theme='dark'] .tour-finale-icon {
+  background: linear-gradient(180deg, rgba(59,130,246,0.16) 0%, rgba(59,130,246,0.08) 100%);
+  border-color: rgba(96,165,250,0.25);
+  box-shadow: none;
+  color: #93c5fd;
+}
+:root[data-theme='dark'] .tour-finale-btn { background: #2563eb; }
+@media (prefers-reduced-motion: reduce) { #tourFinale { animation: none; } }

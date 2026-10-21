@@ -168,25 +168,3 @@ function InputForm({ options, onAnswer }: { options: InputOptions; onAnswer: (va
       </form>
   );
 }
-
-/** Small status toast at the bottom of the dashboard. */
-export function useToast(): { show: (message: string, type?: 'info' | 'success' | 'error', ms?: number) => void; toast: ReactNode } {
-  const [toast, setToast] = useState<{ message: string; type: string; visible: boolean }>({ message: '', type: 'info', visible: false });
-  const timer = useRef<number | null>(null);
-  const show = useCallback((message: string, type: 'info' | 'success' | 'error' = 'info', ms = 2600) => {
-    if (timer.current) window.clearTimeout(timer.current);
-    setToast({ message, type, visible: true });
-    timer.current = window.setTimeout(() => setToast((t) => ({ ...t, visible: false })), ms);
-  }, []);
-  const className = ['app-toast', toast.visible && 'show', toast.type === 'success' && 'is-success', toast.type === 'error' && 'is-error']
-    .filter(Boolean)
-    .join(' ');
-  return {
-    show,
-    toast: (
-      <div className={className} role="status" aria-live="polite">
-        {toast.message}
-      </div>
-    ),
-  };
-}
