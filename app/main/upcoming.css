@@ -1,0 +1,512 @@
+/* Upcoming: Quercus deadlines on the dashboard. */
+
+.upcoming {
+  max-width: 900px;
+  margin: 30px auto 0;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-default);
+  padding: 18px 20px;
+  text-align: left;
+  /* Room under the fixed header when the menu scrolls here. */
+  scroll-margin-top: calc(var(--header-h) + 16px);
+}
+
+.upcoming-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.upcoming-head h3 {
+  margin: 0;
+  margin-right: auto;
+  font-size: 18px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.upcoming-head h3 ion-icon { color: var(--blue); font-size: 20px; }
+.upcoming-synced { color: var(--muted); font-size: 13px; }
+.upcoming-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+  display: inline-grid;
+  place-items: center;
+  font-size: 17px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.upcoming-icon-btn:hover:not(:disabled) { transform: translateY(-1px); border-color: #93c5fd; }
+.upcoming-icon-btn:disabled { opacity: 0.6; cursor: default; }
+.upcoming-icon-btn.is-spinning ion-icon { animation: upcomingSpin 0.9s linear infinite; }
+@keyframes upcomingSpin { to { transform: rotate(360deg); } }
+
+.upcoming-groups {
+  margin-top: 12px;
+  display: grid;
+  gap: 14px;
+}
+.upcoming-group-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.upcoming-group-label.is-danger { color: var(--danger); }
+.upcoming-group ul { list-style: none; margin: 0; padding: 0; }
+
+.deadline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 4px;
+  border-top: 1px solid var(--line);
+}
+.upcoming-group li:first-child { border-top: 0; }
+
+.deadline-check {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  padding: 0;
+  accent-color: var(--blue);
+  cursor: pointer;
+}
+.deadline-dot {
+  flex: none;
+  width: 18px;
+  display: grid;
+  place-items: center;
+}
+.deadline-dot::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gray);
+}
+
+.deadline-main { flex: 1; min-width: 0; }
+.deadline-title {
+  display: block;
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--text);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+a.deadline-title:hover { color: var(--blue); }
+.deadline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  margin-top: 3px;
+}
+.deadline-course {
+  flex: none;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--chip-bg);
+  color: var(--chip-text);
+  cursor: pointer;
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.deadline-course:not(.is-static):hover { border-color: #93c5fd; color: var(--blue); }
+.deadline-course.is-static { cursor: default; }
+.deadline-kind {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+.deadline-kind.is-test { background: #fee2e2; color: #b91c1c; }
+.deadline-kind.is-event { background: var(--chip-bg); color: var(--muted); }
+
+.deadline-when {
+  flex: none;
+  display: grid;
+  justify-items: end;
+  font-size: 13px;
+  font-weight: 600;
+}
+.deadline-when small { color: var(--muted); font-weight: 500; font-size: 12px; }
+
+.deadline.is-done .deadline-title { text-decoration: line-through; color: var(--muted); }
+.deadline.is-done .deadline-when { opacity: 0.55; }
+
+.upcoming-more {
+  margin-top: 4px;
+  border: 0;
+  background: none;
+  padding: 4px;
+  color: var(--blue);
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+.upcoming-empty { margin: 14px 0 4px; color: var(--muted); }
+.upcoming-note { margin: 12px 0 0; font-size: 12px; color: var(--muted); }
+
+/* Connect dialog */
+#quercusConnectModal { width: min(520px, 92vw); }
+#quercusConnectModal .modal-head ion-icon { color: var(--blue); }
+.quercus-steps {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 6px;
+  line-height: 1.5;
+  text-align: left;
+  color: var(--text);
+}
+.quercus-steps a { color: var(--blue); font-weight: 600; }
+.quercus-privacy {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+  text-align: left;
+}
+.quercus-privacy ion-icon { vertical-align: -2px; margin-right: 2px; }
+#quercusConnectModal .btn-primary:disabled { opacity: 0.7; cursor: default; transform: none; }
+
+:root[data-theme="dark"] .deadline-kind.is-test { background: rgba(220, 38, 38, 0.18); color: #fca5a5; }
+:root[data-theme="dark"] .upcoming-group-label.is-danger { color: #f87171; }
+
+body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
+
+@media (max-width: 700px) {
+  .upcoming { margin-top: 22px; padding: 14px; }
+  .upcoming-synced { display: none; }
+  .deadline { gap: 10px; }
+  .deadline-course { max-width: 140px; }
+}
+#quercusConnectModal .error { text-align: left; }
+
+/* Slide-in invite to connect Quercus (bottom-right corner). */
+.quercus-prompt {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 990;
+  width: 340px;
+  padding: 20px 20px 18px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 18px 50px rgba(2, 6, 23, 0.16);
+  text-align: left;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(24px);
+  transition: opacity .35s var(--ease), transform .45s var(--ease), visibility 0s linear .45s;
+}
+.quercus-prompt.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+  transition: opacity .35s var(--ease), transform .45s var(--ease), visibility 0s;
+}
+.quercus-prompt-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--muted);
+  font-size: 20px;
+  cursor: pointer;
+  transition: background .2s var(--ease), color .2s var(--ease);
+}
+.quercus-prompt-close:hover { background: var(--chip-bg); color: var(--text); }
+.quercus-prompt-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 13px;
+  background: linear-gradient(180deg, #f5f8ff 0%, #e8efff 100%);
+  border: 1px solid #dbe5ff;
+  color: var(--blue);
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+.quercus-prompt h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.quercus-prompt p {
+  margin: 0 0 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.quercus-prompt-actions { display: flex; gap: 8px; }
+.quercus-prompt-primary,
+.quercus-prompt-secondary {
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background .2s var(--ease), transform .2s var(--ease), border-color .2s var(--ease);
+}
+.quercus-prompt-primary {
+  border: 0;
+  background: var(--blue);
+  color: #fff;
+}
+.quercus-prompt-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+.quercus-prompt-secondary {
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--text);
+}
+.quercus-prompt-secondary:hover { border-color: #cbd5e1; transform: translateY(-1px); }
+.quercus-prompt button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+:root[data-theme="dark"] .quercus-prompt { border-color: #1f2937; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55); }
+:root[data-theme="dark"] .quercus-prompt-icon {
+  background: linear-gradient(180deg, rgba(59,130,246,0.16) 0%, rgba(59,130,246,0.08) 100%);
+  border-color: rgba(96,165,250,0.25);
+  color: #93c5fd;
+}
+:root[data-theme="dark"] .quercus-prompt-secondary:hover { border-color: #334155; }
+
+@media (max-width: 700px) {
+  .quercus-prompt {
+    left: 12px;
+    right: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    width: auto;
+  }
+  .quercus-prompt-actions button { flex: 1; min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .quercus-prompt, .quercus-prompt.show { transform: none; }
+}
+
+/* Courses | Deadlines switch under the welcome heading (UofT students). */
+.view-switch {
+  display: inline-flex;
+  gap: 4px;
+  margin-top: 22px;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--chip-bg);
+  border: 1px solid var(--line);
+}
+.view-switch button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .2s var(--ease), color .2s var(--ease), box-shadow .2s var(--ease);
+}
+.view-switch button:hover { color: var(--text); }
+.view-switch button[aria-selected="true"] {
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(2, 6, 23, 0.08), 0 1px 2px rgba(2, 6, 23, 0.04);
+}
+.view-switch button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.view-switch ion-icon { font-size: 17px; }
+.view-switch button[aria-selected="true"] ion-icon { color: var(--blue); }
+.view-switch-count {
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+:root[data-theme="dark"] .view-switch button[aria-selected="true"] { background: #1e293b; box-shadow: none; }
+:root[data-theme="dark"] .view-switch button[aria-selected="true"] ion-icon { color: #93c5fd; }
+
+/* Deadlines view before Quercus is connected. */
+.deadlines-connect {
+  margin-top: 34px;
+  max-width: 460px;
+  padding: 36px 28px 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.deadlines-connect-icon {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #f5f8ff 0%, #e8efff 100%);
+  border: 1px solid #dbe5ff;
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.10);
+  color: var(--blue);
+  font-size: 26px;
+  margin-bottom: 14px;
+}
+.deadlines-connect h3 { margin: 0 0 6px; font-size: 20px; font-weight: 700; letter-spacing: -0.01em; }
+.deadlines-connect p { margin: 0 0 20px; max-width: 340px; font-size: 14px; line-height: 1.5; color: var(--muted); }
+.deadlines-connect .btn-primary { padding: 11px 22px; }
+:root[data-theme="dark"] .deadlines-connect-icon {
+  background: linear-gradient(180deg, rgba(59,130,246,0.16) 0%, rgba(59,130,246,0.08) 100%);
+  border-color: rgba(96,165,250,0.25);
+  box-shadow: none;
+  color: #93c5fd;
+}
+@media (max-width: 700px) {
+  .view-switch { margin-top: 16px; }
+  .view-switch button { padding: 8px 14px; font-size: 14.5px; }
+  .deadlines-connect { margin-top: 24px; padding: 28px 20px 24px; }
+}
+
+/* Next deadline line on a course card. */
+.card-next {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--blue);
+}
+.card-next ion-icon { flex: none; font-size: 14px; }
+.card-next-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.card-next-when { flex: none; font-weight: 500; color: var(--muted); }
+.card-next.is-overdue { color: var(--danger); }
+:root[data-theme="dark"] .card-next { color: #93c5fd; }
+:root[data-theme="dark"] .card-next.is-overdue { color: #f87171; }
+
+/* "Heavy week ahead" banner at the top of the deadline list. */
+.upcoming-heavy {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #fde68a;
+  background: #fffbeb;
+  color: #92400e;
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+.upcoming-heavy ion-icon { flex: none; font-size: 18px; color: #f59e0b; }
+.upcoming-heavy strong { font-weight: 700; }
+:root[data-theme="dark"] .upcoming-heavy { background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.3); color: #fcd34d; }
+
+/* Show/hide courses menu. */
+.upcoming-filter { position: relative; }
+.upcoming-icon-btn.is-active { border-color: #93c5fd; color: var(--blue); background: #eff6ff; }
+.upcoming-filter-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  z-index: 20;
+  width: 260px;
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 6px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.16);
+}
+.upcoming-filter-title {
+  padding: 8px 10px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.upcoming-filter-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.upcoming-filter-row:hover { background: var(--chip-bg); }
+.upcoming-filter-row input { width: 16px; height: 16px; margin: 0; padding: 0; accent-color: var(--blue); flex: none; }
+.upcoming-filter-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.upcoming-filter-count { flex: none; font-size: 12px; color: var(--muted); }
+.upcoming-filter-empty { padding: 10px; font-size: 13px; color: var(--muted); }
+:root[data-theme="dark"] .upcoming-icon-btn.is-active { background: rgba(37, 99, 235, 0.15); border-color: rgba(96, 165, 250, 0.45); color: #93c5fd; }
+
+/* "Add to grades" on a deadline row: quiet until the row is hovered. */
+.deadline-add,
+.deadline-added {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.deadline-add {
+  border: 1px dashed #bfdbfe;
+  background: none;
+  color: var(--blue);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .2s var(--ease), background .2s var(--ease);
+}
+.deadline:hover .deadline-add,
+.deadline-add:focus-visible { opacity: 1; }
+.deadline-add:hover { background: #eff6ff; border-style: solid; }
+.deadline-add:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.deadline-add ion-icon,
+.deadline-added ion-icon { font-size: 13px; }
+.deadline-added { color: #16a34a; }
+@media (hover: none) { .deadline-add { opacity: 1; } }
+:root[data-theme="dark"] .deadline-add { border-color: rgba(96, 165, 250, 0.45); color: #93c5fd; }
+:root[data-theme="dark"] .deadline-add:hover { background: rgba(37, 99, 235, 0.15); }
+:root[data-theme="dark"] .deadline-added { color: #4ade80; }

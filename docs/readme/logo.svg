@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240" role="img" aria-labelledby="t">
+  <title id="t">MySemester</title>
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e3edff"/><stop offset="0.5" stop-color="#ffffff"/><stop offset="1" stop-color="#d5e3ff"/>
+    </linearGradient>
+    <linearGradient id="disc" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.5" stop-color="#fff" stop-opacity="0.55"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <clipPath id="clip"><rect x="8" y="8" width="224" height="224" rx="56"/></clipPath>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#1d4ed8" flood-opacity="0.28"/></filter>
+  </defs>
+  <style>
+    .sheen { animation: sheen 7s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
+    @keyframes sheen { 0%, 70% { transform: translateX(-260px); } 100% { transform: translateX(260px); } }
+    @media (prefers-reduced-motion: reduce) { .sheen { animation: none; opacity: 0; } }
+  </style>
+  <rect x="8" y="8" width="224" height="224" rx="56" fill="url(#tile)" stroke="#cbdaf5" stroke-width="2"/>
+  <g filter="url(#shadow)">
+    <circle cx="120" cy="120" r="66" fill="url(#disc)"/>
+    <g transform="translate(54 54) scale(1.32)">
+  <polygon points="21.6,42.4 50,26.6 78,42.4 50,58" fill="#fff"/>
+  <polygon points="32,53 32,64 50,73 68,64 68,53 50,62.4" fill="#fff"/>
+  <rect x="72.6" y="45" width="4.6" height="18" fill="#fff"/></g>
+  </g>
+  <g clip-path="url(#clip)"><rect class="sheen" x="-40" y="0" width="90" height="240" fill="url(#sheen)" transform="skewX(-18)"/></g>
+</svg>

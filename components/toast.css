@@ -1,0 +1,93 @@
+/*
+ * Status toast shared by the dashboard and the grade page. It sits inside the
+ * fixed nav bar (centred on --header-h) so it never covers page content; pages
+ * without a nav bar get the same spot at the top edge. Fallbacks cover pages
+ * without these tokens.
+ */
+.app-toast {
+  position: fixed;
+  left: 50%;
+  top: calc(var(--header-h, 72px) / 2);
+  max-width: calc(100vw - 360px);
+  transform: translate(-50%, calc(-50% - 8px));
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid var(--line, #e5e7eb);
+  box-shadow: var(--shadow-default, 0 4px 12px rgba(2, 6, 23, 0.06));
+  border-radius: 12px;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s var(--ease), transform .22s var(--ease);
+  z-index: 10020;
+}
+.app-toast.show {
+  opacity: 1;
+  transform: translate(-50%, -50%);
+}
+.app-toast.is-success {
+  border-color: #86efac;
+  color: #15803d;
+}
+.app-toast.is-error {
+  border-color: #fecaca;
+  color: #b91c1c;
+}
+/* With an action (e.g. Undo): message and button side by side, and clickable while shown. */
+.app-toast.has-action {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 8px 8px 14px;
+}
+.app-toast.has-action.show { pointer-events: auto; }
+.app-toast-action {
+  flex: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 9px;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: var(--blue);
+  cursor: pointer;
+  transition: background .2s var(--ease), border-color .2s var(--ease);
+}
+.app-toast-action:hover { background: #dbeafe; border-color: #93c5fd; }
+.app-toast-action:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+:root[data-theme="dark"] .app-toast-action {
+  background: rgba(37, 99, 235, 0.15);
+  border-color: rgba(96, 165, 250, 0.45);
+  color: #93c5fd;
+}
+:root[data-theme="dark"] .app-toast-action:hover { background: rgba(37, 99, 235, 0.25); border-color: #60a5fa; }
+:root[data-theme="dark"] .app-toast {
+  border-color: #334155;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+}
+:root[data-theme="dark"] .app-toast.is-success {
+  border-color: rgba(74, 222, 128, 0.5);
+  color: #4ade80;
+}
+:root[data-theme="dark"] .app-toast.is-error {
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #f87171;
+}
+
+@media (max-width: 700px) {
+  /* No room beside the logo and buttons: cover the bar for the moment it shows. */
+  .app-toast {
+    left: 8px;
+    right: 8px;
+    max-width: none;
+    top: calc(env(safe-area-inset-top) + var(--header-h, 64px) / 2);
+    transform: translateY(calc(-50% - 8px));
+    text-align: center;
+  }
+  .app-toast.show { transform: translateY(-50%); }
+  .app-toast.has-action { justify-content: space-between; text-align: left; }
+}
