@@ -268,7 +268,9 @@ await open('/ai-planner/', {});
 await capture('desk-planner');
 await open('/gpa-scale/', {});
 await capture('desk-gpa');
-await open('/professors/', {}, 2400);
+await open('/professors/?course=CSC108', {}, 4500);
+await evaluate(`window.scrollTo(0, document.querySelector('.results-head').getBoundingClientRect().top + window.scrollY - 16)`);
+await wait(300);
 await capture('desk-professors');
 
 await viewport(...PHONE, { mobile: true });

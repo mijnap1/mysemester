@@ -1,0 +1,122 @@
+/* The "Rate this professor" dialog, shared by Professor Picks and the dashboard. */
+body.dialog-lock { overflow: hidden; }
+.rate-dialog {
+  width: min(480px, 94vw);
+  max-height: min(760px, 92vh);
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.22);
+  overflow-y: auto;
+}
+.rate-dialog::backdrop { background: rgba(15, 23, 42, 0.38); backdrop-filter: blur(4px); }
+.rate-dialog:focus-visible { outline: none; }
+.rate-form { position: relative; display: grid; gap: 18px; padding: 24px; }
+.rate-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 22px;
+  cursor: pointer;
+}
+.rate-close:hover { background: var(--bg); color: var(--text); }
+.rate-head h2 { margin: 0 40px 6px 0; font-size: 21px; line-height: 1.2; }
+.rate-head p { margin: 0; color: var(--muted); font-size: 13px; line-height: 1.5; }
+.rate-field { margin: 0; padding: 0; border: 0; display: grid; gap: 8px; min-width: 0; }
+.rate-field legend {
+  padding: 0;
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.rate-field legend span { margin-left: 6px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.rate-stars { display: flex; gap: 4px; }
+.rate-stars button {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #cbd5e1;
+  font-size: 30px;
+  cursor: pointer;
+  transition: transform 0.15s var(--ease), color 0.15s var(--ease);
+}
+:root[data-theme="dark"] .rate-stars button { color: #475569; }
+.rate-stars button.on { color: var(--amber, #f59e0b); }
+.rate-stars button:hover { transform: scale(1.08); }
+.rate-segments { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
+.rate-segments.two { grid-template-columns: 1fr 1fr; }
+.rate-segments button,
+.rate-tags button {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease), color 0.15s var(--ease);
+}
+.rate-segments button { display: grid; gap: 2px; padding: 9px 4px; text-align: center; }
+.rate-segments strong { font-size: 15px; }
+.rate-segments span { color: var(--muted); font-size: 11px; font-weight: 600; }
+.rate-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.rate-tags button { padding: 6px 10px; font-size: 13px; font-weight: 600; }
+.rate-tags button:disabled { opacity: 0.45; cursor: default; }
+.rate-segments button.on,
+.rate-tags button.on {
+  border-color: var(--blue);
+  background: rgba(37, 99, 235, 0.08);
+  color: var(--blue);
+}
+.rate-segments button.on span { color: inherit; }
+:root[data-theme="dark"] .rate-segments button.on,
+:root[data-theme="dark"] .rate-tags button.on { background: rgba(37, 99, 235, 0.18); }
+.rate-error { margin: 0; color: #dc2626; font-size: 13px; font-weight: 600; }
+.rate-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 4px; }
+.rate-btn {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 10px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.rate-btn:disabled { opacity: 0.5; cursor: default; }
+.rate-btn-primary { border: 0; background: var(--blue); color: #fff; }
+:root[data-theme="dark"] .rate-btn-primary { background: #2563eb; }
+.rate-btn-quiet { margin-right: auto; border: 1px solid var(--line); background: transparent; color: var(--muted); }
+@media (max-width: 420px) {
+  .rate-segments span { display: none; }
+}
+.rate-loading { margin: 0; color: var(--muted); font-size: 14px; }
+.rate-input {
+  width: 100%;
+  min-height: 42px;
+  margin-top: 8px;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  outline: 0;
+}
+.rate-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }

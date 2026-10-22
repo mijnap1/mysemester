@@ -1,10 +1,10 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '@/components/Icon';
 import { useToast } from '@/components/Toast';
 import { signOut } from '@/lib/auth';
-import { getUniversityRules, semesterOverview } from '@/lib/grading';
+import { getUniversityRules, isCourseFinished, semesterOverview } from '@/lib/grading';
 import { useEscape } from '@/lib/hooks';
 import { applyBulkCsv, buildExport, parseImport } from '@/lib/import-export';
 import {
@@ -50,8 +50,11 @@ import {
   type QuercusLink,
 } from '@/lib/quercus';
 import { allKeys, KEYS, readString, removeKey, writeString } from '@/lib/storage';
-import type { Course, Onboarding, Profile, Settings } from '@/lib/types';
+import type { Course, Folder, Onboarding, Profile, Settings } from '@/lib/types';
 import { useSemester } from '@/lib/use-semester';
+import { fetchMyRatedCourses, ratingCourseCode } from '@/lib/professor-ratings';
+import { normalizeCourseQuery } from '@/lib/timetable';
+import { RateDialog, type RateTarget } from '../professors/RateDialog';
 import { AboutDialog } from './AboutDialog';
 import { AddCourseDialog, type TourField } from './AddCourseDialog';
 import { useAppDialogs } from './AppDialogs';
@@ -75,6 +78,15 @@ function gpaLabel(scale: number | null): string {
   return `GPA (${Number.isInteger(scale) && scale < 10 ? scale.toFixed(1) : scale})`;
 }
 
+function readJsonArray(key: string): string[] {
+  try {
+    const value: unknown = JSON.parse(readString(key) ?? '[]');
+    return Array.isArray(value) ? value.filter((v): v is string => typeof v === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
 export function Dashboard() {
   const { auth, state, update, updateLocal, initialSyncing, syncError } = useSemester();
 
@@ -91,6 +103,10 @@ export function Dashboard() {
     () => readOnboarding().university === 'University of Toronto' && readString(KEYS.professorPicksHintSeen) !== '1',
   );
   const [tourActive, setTourActive] = useState(false);
+  // "Rate your professor" on finished courses: codes already rated (null until known) and codes dismissed.
+  const [ratedCodes, setRatedCodes] = useState<Set<string> | null>(null);
+  const [dismissedRateCodes, setDismissedRateCodes] = useState<Set<string>>(() => new Set(readJsonArray(KEYS.ratePromptDismissed)));
+  const [rateTarget, setRateTarget] = useState<RateTarget | null>(null);
   const [tourField, setTourField] = useState<TourField | null>(null);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -129,6 +145,31 @@ export function Dashboard() {
     }
     return map;
   }, [isUofT, quercus, state.courses]);
+  useEffect(() => {
+    if (!isUofT || !auth.loggedIn) return;
+    let live = true;
+    void fetchMyRatedCourses().then((codes) => live && setRatedCodes(codes));
+    return () => {
+      live = false;
+    };
+  }, [isUofT, auth.loggedIn]);
+  const ratePrompts = useMemo(() => {
+    const ids = new Set<string>();
+    if (!isUofT || !auth.loggedIn || !ratedCodes || tourActive) return ids;
+    for (const course of state.courses) {
+      const code = normalizeCourseQuery(course.code);
+      if (!code || !isCourseFinished(course)) continue;
+      const key = ratingCourseCode(code);
+      if (!ratedCodes.has(key) && !dismissedRateCodes.has(key)) ids.add(course.id);
+    }
+    return ids;
+  }, [isUofT, auth.loggedIn, ratedCodes, dismissedRateCodes, tourActive, state.courses]);
+  function openRatePrompt(courseId: string) {
+    const course = state.courses.find((c) => c.id === courseId);
+    const code = course && normalizeCourseQuery(course.code);
+    if (code) setRateTarget({ courseCode: code, instructorName: '', term: '', existing: undefined });
+  }
+
   useEffect(() => {
     if (!isUofT || quercus || initialSyncing || tourActive) return;
     if (readString(KEYS.quercusPromptDismissed) === '1') return;
@@ -467,6 +508,11 @@ export function Dashboard() {
   }
 
   const backTarget = currentFolder?.parentFolderId ?? null;
+  // The open folder and its parents, outermost first, for the breadcrumb.
+  const folderPath: Folder[] = [];
+  for (let f: Folder | undefined = currentFolder ?? undefined; f && !folderPath.includes(f); f = state.folders.find((x) => x.id === f!.parentFolderId)) {
+    folderPath.unshift(f);
+  }
 
   return (
     <>
@@ -532,9 +578,32 @@ export function Dashboard() {
             </div>
           )}
           {activeView === 'courses' && currentFolder && (
-            <button type="button" className="btn-plain hero-back" style={{ display: 'inline-flex' }} onClick={() => updateLocal((s) => setCurrentFolder(s, backTarget))}>
-              <Icon name="arrow-back-outline" /> {backTarget ? 'Back to parent folder' : 'Back to all courses'}
-            </button>
+            <nav className="folder-crumbs" aria-label="Folder path">
+              <button
+                type="button"
+                className="folder-crumbs-back"
+                aria-label={backTarget ? 'Back to parent folder' : 'Back to all courses'}
+                title={backTarget ? 'Back to parent folder' : 'Back to all courses'}
+                onClick={() => updateLocal((s) => setCurrentFolder(s, backTarget))}
+              >
+                <Icon name="arrow-back-outline" />
+              </button>
+              <button type="button" className="folder-crumb" onClick={() => updateLocal((s) => setCurrentFolder(s, null))}>
+                All courses
+              </button>
+              {folderPath.slice(0, -1).map((f) => (
+                <Fragment key={f.id}>
+                  <Icon name="chevron-forward-outline" className="folder-crumb-sep" />
+                  <button type="button" className="folder-crumb" onClick={() => updateLocal((s) => setCurrentFolder(s, f.id))}>
+                    {f.name}
+                  </button>
+                </Fragment>
+              ))}
+              <Icon name="chevron-forward-outline" className="folder-crumb-sep" />
+              <span className="folder-crumb is-current" aria-current="page">
+                {currentFolder.name}
+              </span>
+            </nav>
           )}
         </section>
 
@@ -547,6 +616,8 @@ export function Dashboard() {
               highlightFolderId={highlight.folder}
               removingId={removingId}
               nextDeadlines={nextDeadlines}
+              ratePrompts={ratePrompts}
+              onRateCourse={openRatePrompt}
               onOpenCourse={(id) => window.location.assign(`/grade/?id=${encodeURIComponent(id)}`)}
               onOpenFolder={(id) => updateLocal((s) => setCurrentFolder(s, id))}
               onCourseMenu={(x, y, id) => {
@@ -629,6 +700,23 @@ export function Dashboard() {
         onImportFile={(file) => void importFile(file)}
         onBulkImport={() => setBulkOpen(true)}
         onReset={() => void resetAll()}
+      />
+      <RateDialog
+        key={rateTarget?.courseCode ?? 'closed'}
+        target={rateTarget}
+        onClose={() => setRateTarget(null)}
+        onSaved={(message) => {
+          if (rateTarget) setRatedCodes((codes) => new Set(codes).add(ratingCourseCode(rateTarget.courseCode)));
+          setRateTarget(null);
+          showToast(message, 'success');
+        }}
+        onDismiss={() => {
+          if (!rateTarget) return;
+          const next = new Set(dismissedRateCodes).add(ratingCourseCode(rateTarget.courseCode));
+          writeString(KEYS.ratePromptDismissed, JSON.stringify([...next]));
+          setDismissedRateCodes(next);
+          setRateTarget(null);
+        }}
       />
       <QuercusPrompt
         open={quercusPromptOpen && !quercus && activeView === 'courses'}

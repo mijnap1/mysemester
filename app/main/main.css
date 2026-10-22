@@ -520,15 +520,17 @@ body.tour-restrict .tour-allow * {
     .grid {
       display: flex;
       justify-content: center;
+      /* Rows keep their natural height (the empty state below sets its own min-height). */
+      align-content: flex-start;
       flex-wrap: wrap;
       gap: 30px;
       margin-top: 34px;
-      min-height: 260px;
       position: relative;
     }
 
     .grid.grid-empty {
       align-items: center;
+      align-content: center;
       min-height: 340px;
     }
 
@@ -586,12 +588,50 @@ body.tour-restrict .tour-allow * {
     :root[data-theme="dark"] .folder-hint {
       color: #93c5fd;
     }
-    .hero-back {
-      margin-top: 12px;
-      display: inline-flex;
+    /* Folder breadcrumb under the heading: ← All courses › Semester 1 */
+    .folder-crumbs {
+      display: flex;
+      flex-wrap: wrap;
       align-items: center;
-      gap: 8px;
+      justify-content: center;
+      gap: 4px;
+      margin: 18px auto 0;
+      max-width: 100%;
     }
+    .folder-crumbs-back {
+      width: 32px;
+      height: 32px;
+      margin-right: 6px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--card);
+      color: var(--text);
+      font-size: 17px;
+      cursor: pointer;
+      transition: border-color .2s var(--ease), color .2s var(--ease), transform .2s var(--ease);
+    }
+    .folder-crumbs-back:hover { border-color: #93c5fd; color: var(--blue); transform: translateX(-2px); }
+    .folder-crumb {
+      max-width: 220px;
+      padding: 5px 8px;
+      border: 0;
+      border-radius: 8px;
+      background: none;
+      font-family: 'Outfit', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    button.folder-crumb { cursor: pointer; transition: color .2s var(--ease), background .2s var(--ease); }
+    button.folder-crumb:hover { color: var(--blue); background: var(--chip-bg); }
+    .folder-crumb.is-current { color: var(--text); font-weight: 700; }
+    .folder-crumb-sep { font-size: 14px; color: var(--gray); }
+    .folder-crumbs button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
     
     .empty-state-card {
       display: flex;

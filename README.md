@@ -110,11 +110,11 @@ Open a course to see its assessment table: each row has a weight, your grade and
 | Tool | What it does |
 |---|---|
 | **AI Planner** | Compare a possible schedule against your path and workload, get plain-language course explanations, run a semester check against your saved courses, and browse an 800-course catalog. |
-| **Professor Picks** | Search a course code and compare instructors with rating cards and links to their Rate My Professors pages. |
+| **Professor Picks** | Search a St. George course to see who's teaching each lecture section this year, from UofT Timetable Builder, ranked by ratings from MySemester students: stars, would-take-again, difficulty and top tags. Signed-in students rate the instructors they had, and each card links to Rate My Professors too. |
 | **GPA Scale guide** | See how each supported university turns percentages into letters and grade points. |
 
 > [!WARNING]
-> The AI Planner and Professor Picks are unofficial helpers, and ratings are a snapshot that can go out of date. Confirm enrolment, program, prerequisite and graduation decisions with the Academic Calendar, your department or your registrar.
+> The AI Planner and Professor Picks are unofficial helpers. Instructors can change before a term starts, so confirm sections in Timetable Builder or ACORN, and confirm program, prerequisite and graduation decisions with the Academic Calendar, your department or your registrar.
 
 ### Light, dark, and your phone
 
@@ -237,7 +237,7 @@ on public.mysemester_courses for delete using (auth.uid() = user_id);
 |---|---|
 | Framework | Next.js 16 (App Router), React 19, TypeScript |
 | Styling | Plain CSS per route, with shared tokens for light and dark |
-| Server | Route handlers for the AI Planner (`/api/ai-planner/*`) and the Quercus feed (`/api/quercus/feed`) |
+| Server | Route handlers for the AI Planner (`/api/ai-planner/*`), the Quercus feed (`/api/quercus/feed`) and course timetables (`/api/timetable/[code]`) |
 | Accounts and sync | Supabase auth, with `mysemester_courses` and `mysemester_folders` tables |
 | Tests | Vitest for grading, sync, import and export, the planner, and the calendar feed parser |
 
@@ -262,12 +262,15 @@ app/
 ├── ai-planner/  professors/  gpa-scale/
 └── api/
     ├── ai-planner/[route]/   # plan | explain | semester-check | ask
-    └── quercus/feed/         # fetches and parses a Quercus calendar feed
+    ├── quercus/feed/         # fetches and parses a Quercus calendar feed
+    └── timetable/[code]/     # a course's sections and instructors, cached 6 hours
 components/                   # Icon, Dialog, Toast, MiniCalc, auth form bits
 lib/
 ├── types.ts  semester.ts  use-semester.ts  cloud-sync.ts
 ├── grading.ts                # letters, GPA tables, averages, estimates
 ├── quercus.ts  ics.ts        # deadlines: feed parsing, grouping, course matching
+├── timetable.ts              # Professor Picks: Timetable Builder sections and instructors
+├── professor-ratings.ts      # Professor Picks: student ratings and ranking
 ├── ai-planner.ts
 └── *.test.ts
 data/ai-planner-courses.json

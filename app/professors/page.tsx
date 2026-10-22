@@ -1,10 +1,13 @@
 import type { Metadata } from 'next';
 import { Icon } from '@/components/Icon';
-import { PROFESSOR_DATA_UPDATED } from '@/lib/professors';
-import { ProfessorFinder } from './ProfessorFinder';
+import catalogData from '@/data/ai-planner-courses.json';
+import { ProfessorFinder, type CatalogCourse } from './ProfessorFinder';
 import './professors.css';
 
 export const metadata: Metadata = { title: 'Professor Picks — MySemester' };
+
+// Only codes and titles reach the browser, for search suggestions.
+const CATALOG: CatalogCourse[] = (catalogData as CatalogCourse[]).map(({ code, title }) => ({ code, title }));
 
 export default function ProfessorsPage() {
   return (
@@ -19,22 +22,22 @@ export default function ProfessorsPage() {
       <main className="page">
         <section className="hero">
           <div>
-            <span className="kicker">UofT professor guide</span>
+            <span className="kicker">UofT St. George</span>
             <h1>Professor Picks</h1>
             <p>
-              Search a UofT course and compare instructor options with clean rating cards, star scores, difficulty, and
-              short student-vibe summaries.
+              Search a course to see who’s teaching each lecture section this year, straight from UofT Timetable Builder,
+              ranked by MySemester students’ ratings. Had one of them? Rate them for the next person.
             </p>
           </div>
           <div className="hero-note">
             <Icon name="information-circle-outline" />
             <span>
-              Ratings are a snapshot from {PROFESSOR_DATA_UPDATED}. Double-check current instructors in UofT Timetable
-              Builder and ratings on RMP before enrolment.
+              Instructors can change before term starts, and some sections list theirs late. Timetable Builder and ACORN have
+              the final word.
             </span>
           </div>
         </section>
-        <ProfessorFinder />
+        <ProfessorFinder catalog={CATALOG} />
       </main>
     </>
   );

@@ -117,6 +117,8 @@ interface CardHandlers {
   onMoveFolder: (folderId: string, parentId: string | null) => void;
   onAddCourse: () => void;
   onAddFolder: () => void;
+  /** Opens "Rate your professor" for a finished course. */
+  onRateCourse: (id: string) => void;
 }
 
 function CourseCard({
@@ -126,6 +128,7 @@ function CourseCard({
   highlighted,
   removing,
   next,
+  ratePrompt,
   handlers,
 }: {
   course: Course;
@@ -135,6 +138,8 @@ function CourseCard({
   removing: boolean;
   /** Most pressing Quercus deadline for this course, if connected. */
   next: NextDeadline | null;
+  /** Finished UofT course whose professor the student hasn't rated yet. */
+  ratePrompt: boolean;
   handlers: CardHandlers;
 }) {
   const entrance = useEntrance(index);
@@ -172,6 +177,20 @@ function CourseCard({
             <span className="card-next-title">{next.deadline.title}</span>
             <span className="card-next-when">· {next.when}</span>
           </div>
+        )}
+        {!next && ratePrompt && (
+          <button
+            type="button"
+            className="card-next card-rate"
+            onClick={(e) => {
+              e.stopPropagation();
+              handlers.onRateCourse(course.id);
+            }}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <Icon name="star-outline" />
+            <span className="card-next-title">Rate your professor</span>
+          </button>
         )}
       </div>
       <GradeMark pct={pct} showLetter={rules.showLetter} />
@@ -311,9 +330,11 @@ interface CourseGridProps extends CardHandlers {
   removingId: string | null;
   /** Course id → its next Quercus deadline (empty when Quercus isn't connected). */
   nextDeadlines: ReadonlyMap<string, NextDeadline>;
+  /** Course ids that show "Rate your professor". */
+  ratePrompts: ReadonlySet<string>;
 }
 
-export function CourseGrid({ state, rules, highlightCourseId, highlightFolderId, removingId, nextDeadlines, ...handlers }: CourseGridProps) {
+export function CourseGrid({ state, rules, highlightCourseId, highlightFolderId, removingId, nextDeadlines, ratePrompts, ...handlers }: CourseGridProps) {
   const current = state.currentFolderId;
   const inFolder = !!current;
   const isEmpty = !state.courses.length && !state.folders.length;
@@ -380,6 +401,7 @@ export function CourseGrid({ state, rules, highlightCourseId, highlightFolderId,
             highlighted={course.id === highlightCourseId}
             removing={course.id === removingId}
             next={nextDeadlines.get(course.id) ?? null}
+            ratePrompt={ratePrompts.has(course.id)}
             handlers={handlers}
           />
         ))}

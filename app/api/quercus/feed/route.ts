@@ -1,4 +1,5 @@
 import { parseIcs } from '@/lib/ics';
+import { createRateLimiter } from '@/lib/rate-limit';
 import { eventsToDeadlines, normalizeFeedUrl } from '@/lib/quercus';
 
 /**
@@ -14,24 +15,7 @@ const MAX_BODY_BYTES = 2_000;
 const MAX_FEED_BYTES = 5_000_000;
 const FETCH_TIMEOUT_MS = 15_000;
 
-// Best-effort per-client limit, in memory per server instance (like the AI Planner's).
-const RATE_LIMIT = 30;
-const RATE_WINDOW_MS = 10 * 60_000;
-const hits = new Map<string, { count: number; resetAt: number }>();
-
-function rateLimited(ip: string): boolean {
-  const now = Date.now();
-  if (hits.size > 5_000) {
-    for (const [key, value] of hits) if (value.resetAt < now) hits.delete(key);
-  }
-  const entry = hits.get(ip);
-  if (!entry || entry.resetAt < now) {
-    hits.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
-    return false;
-  }
-  entry.count += 1;
-  return entry.count > RATE_LIMIT;
-}
+const limited = createRateLimiter(30, 10 * 60_000);
 
 function fail(error: string, status: number) {
   return Response.json({ error }, { status, headers: { 'Cache-Control': 'no-store' } });
@@ -57,8 +41,7 @@ async function readCapped(res: Response, limit: number): Promise<string | null> 
 }
 
 export async function POST(request: Request) {
-  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown';
-  if (rateLimited(ip)) return fail('Too many refreshes. Try again in a few minutes.', 429);
+  if (limited(request)) return fail('Too many refreshes. Try again in a few minutes.', 429);
 
   const text = await request.text();
   if (text.length > MAX_BODY_BYTES) return fail('Request too large', 413);

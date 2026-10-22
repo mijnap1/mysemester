@@ -20,7 +20,7 @@ const FEATURES: Feature[] = [
 const UOFT_TOOLS: Feature[] = [
   { icon: 'calendar-outline', title: 'Quercus deadlines', body: 'Due dates from your Quercus calendar on the dashboard.' },
   { icon: 'sparkles-outline', title: 'AI Planner', body: 'Course plans and explanations for Arts & Science.', href: '/ai-planner/' },
-  { icon: 'star-outline', title: 'Professor Picks', body: 'Compare instructors for a course.', href: '/professors/' },
+  { icon: 'star-outline', title: 'Professor Picks', body: 'Who’s teaching each section this year, ranked by student ratings.', href: '/professors/' },
 ];
 
 function FeatureList({ items }: { items: Feature[] }) {

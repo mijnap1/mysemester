@@ -5,6 +5,7 @@ import {
   courseGrade,
   getUniversityRules,
   gpaFromPct,
+  isCourseFinished,
   letterForSchool,
   letterFromPct,
   neededAverage,
@@ -67,6 +68,14 @@ describe('course averages', () => {
     expect(courseGrade(course({ grade: 70 }))).toBe(70);
     expect(courseGrade(course({ grade: 70, assessments: [row(100, 90)] }))).toBe(90);
     expect(courseGrade(course({ grade: 70, assessments: [row(100, null)] }))).toBeNull();
+  });
+
+  it('counts a course as finished once its final mark is in', () => {
+    expect(isCourseFinished(course({ grade: 82 }))).toBe(true);
+    expect(isCourseFinished(course())).toBe(false);
+    expect(isCourseFinished(course({ assessments: [row(40, 80), row(60, 75)] }))).toBe(true);
+    expect(isCourseFinished(course({ assessments: [row(40, 80), row(60, null)] }))).toBe(false);
+    expect(isCourseFinished(course({ assessments: [row(40, 80), row(30, 75)] }))).toBe(false);
   });
 });
 

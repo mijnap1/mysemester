@@ -177,6 +177,15 @@ export function courseGrade(course: Course): number | null {
 }
 
 /**
+ * True once a course has its final mark: every assessment graded and the
+ * weights adding up to 100%, or a grade entered with no assessments.
+ */
+export function isCourseFinished(course: Course): boolean {
+  if (course.assessments.length === 0) return course.grade != null;
+  return course.assessments.every((a) => a.grade != null) && totalWeight(course.assessments) >= 99.5;
+}
+
+/**
  * Average needed on every ungraded row to finish at `goal`, clamped to
  * 0–100 and rounded to 2 decimals. Null when nothing is left to grade.
  */

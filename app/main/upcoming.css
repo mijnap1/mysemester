@@ -510,3 +510,14 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
 :root[data-theme="dark"] .deadline-add { border-color: rgba(96, 165, 250, 0.45); color: #93c5fd; }
 :root[data-theme="dark"] .deadline-add:hover { background: rgba(37, 99, 235, 0.15); }
 :root[data-theme="dark"] .deadline-added { color: #4ade80; }
+
+/* "Rate your professor" on a finished course: same line as the next deadline, as a button. */
+.card-rate {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: inherit;
+  cursor: pointer;
+}
+.card-rate:hover .card-next-title { text-decoration: underline; text-underline-offset: 2px; }
+.card-rate:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }

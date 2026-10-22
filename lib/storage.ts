@@ -17,11 +17,15 @@ export const KEYS = {
   semesterBase: 'uoft-grade-lite-v5',
   tutorialStart: 'ms_tutorial_start',
   tutorialSeen: 'ms_tutorial_seen',
+  /** Index of the splash description shown last, so the next visit shows a different one. */
+  landingLine: 'ms_landing_line',
   /** Set when the tour is finished (not skipped); the grade page shows a one-time "You're all set". */
   tutorialFinale: 'ms_tutorial_finale',
   professorPicksHintSeen: 'mysemester_professor_picks_hint_seen',
   /** Set when the student dismisses the slide-in "Connect Quercus" card. */
   quercusPromptDismissed: 'mysemester_quercus_prompt_dismissed',
+  /** Course codes (e.g. "CSC148") whose "Rate your professor" line the student dismissed. */
+  ratePromptDismissed: 'mysemester_rate_prompt_dismissed',
   /** Which dashboard tab was last open: "courses" or "deadlines". */
   dashboardView: 'mysemester_dashboard_view',
   profile: (username: string) => `mysemester_user_${username}`,
