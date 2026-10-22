@@ -19,7 +19,7 @@ export function PlannerHeader() {
         <Icon name="school-outline" />
         <span>MySemester</span>
       </a>
-      <nav className="planner-nav" aria-label="AI Planner sections">
+      <nav className="planner-nav" aria-label="Course Planner sections">
         <Link className={cls('planner')} href="/ai-planner/">
           Course Planner
         </Link>

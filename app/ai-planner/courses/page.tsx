@@ -3,7 +3,7 @@ import { PlannerHeader } from '../PlannerHeader';
 import { Catalog } from './Catalog';
 import '../ai-planner.css';
 
-export const metadata: Metadata = { title: 'AI Planner Course Catalog | MySemester' };
+export const metadata: Metadata = { title: 'Course Catalog | MySemester' };
 
 export default function CoursesPage() {
   return (

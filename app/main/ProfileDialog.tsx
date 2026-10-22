@@ -6,7 +6,7 @@ import { Icon } from '@/components/Icon';
 import { UNIVERSITIES } from '@/lib/grading';
 import { useClickOutside } from '@/lib/hooks';
 import { filterProgramGroups, programGroupsFor, YEARS, type ProgramGroup } from '@/lib/options';
-import { safePictureUrl } from '@/lib/profile';
+import { initials, safePictureUrl } from '@/lib/profile';
 import type { Onboarding, Profile } from '@/lib/types';
 
 const MAX_PICTURE_BYTES = 3 * 1024 * 1024;
@@ -21,13 +21,6 @@ const SHORT_UNIVERSITY: Record<string, string> = {
   'University of Ottawa': 'uOttawa',
   'York University': 'York',
 };
-
-function initials(name: string): string {
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (!words.length) return '?';
-  if (words.length === 1) return words[0].slice(0, 2).toUpperCase();
-  return (words[0][0] + words[words.length - 1][0]).toUpperCase();
-}
 
 function ProfileSelect({
   value,

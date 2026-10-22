@@ -47,9 +47,9 @@ export function Catalog() {
     <>
       <section className="planner-hero catalog-hero">
         <div>
-          <p className="eyebrow">AI Planner Dataset</p>
+          <p className="eyebrow">Course Planner Dataset</p>
           <h1>Course Catalog</h1>
-          <p>Browse the 800 UofT Arts &amp; Science course records currently used by AI Planner.</p>
+          <p>Browse the 800 UofT Arts &amp; Science course records currently used by Course Planner.</p>
         </div>
         <div className="catalog-side">
           <div className="catalog-stats" aria-live="polite">

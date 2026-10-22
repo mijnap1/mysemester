@@ -22,6 +22,7 @@ import type { Assessment } from '@/lib/types';
 import { useSemester } from '@/lib/use-semester';
 import { AssessmentRow } from './AssessmentRow';
 import { CourseDeadlines } from './CourseDeadlines';
+import { SyllabusImport } from './SyllabusImport';
 import { TourFinale } from './TourFinale';
 
 const SAVE_NOTICE_DELAY_MS = 650;
@@ -39,6 +40,9 @@ export function GradeTracker() {
   const [university, setUniversity] = useState(readUniversity);
   const [estimateTarget, setEstimateTarget] = useState(readEstimateTarget);
   const noticeTimer = useRef<number | null>(null);
+  // Bumped on every open so the import dialog starts fresh.
+  const [importKey, setImportKey] = useState(0);
+  const [importOpen, setImportOpen] = useState(false);
   const { show: showToast, toast } = useToast();
 
   // Links from the dashboard use ?id=; older bookmarks use ?course=CODE.
@@ -155,6 +159,27 @@ export function GradeTracker() {
     });
   }
 
+  function openImport() {
+    setImportKey((k) => k + 1);
+    setImportOpen(true);
+  }
+
+  function importSyllabus(rows: { name: string; weight: number }[]) {
+    const previous = assessments;
+    // Keep grades (and row identity) for rows the student already had under the same name.
+    const byName = new Map(previous.map((a) => [a.name.trim().toLowerCase(), a]));
+    const next: Assessment[] = rows.map((r) => {
+      const old = byName.get(r.name.trim().toLowerCase());
+      return { id: old?.id ?? newId(), name: r.name, weight: r.weight, grade: old?.grade ?? null, estimate: old?.estimate ?? null };
+    });
+    setImportOpen(false);
+    save(next, false);
+    showToast(`Added ${next.length} assessment${next.length === 1 ? '' : 's'} from the syllabus.`, 'success', UNDO_MS, {
+      label: 'Undo',
+      onClick: () => update((s) => setAssessments(s, courseId, previous)),
+    });
+  }
+
   const estimateLabel = isCredit
     ? `Estimate for ${(rules.creditLabel || 'CR/NCR').split('/')[0]} (50%)`
     : `Estimate for ${estimateTarget}`;
@@ -227,6 +252,9 @@ export function GradeTracker() {
                   <button type="button" className="empty-cta" onClick={addAssessment}>
                     + Add Assessment
                   </button>
+                  <button type="button" className="empty-import" onClick={openImport}>
+                    or import them from your syllabus
+                  </button>
                 </div>
               </td>
             </tr>
@@ -244,7 +272,9 @@ export function GradeTracker() {
         </tbody>
       </table>
 
-      <div className="actions">
+      {assessments.length > 0 && <p className="touch-hint">Press and hold a name or weight to change it.</p>}
+
+      <div className="actions" hidden={assessments.length === 0}>
         <button
           type="button"
           className="estimate"
@@ -255,7 +285,19 @@ export function GradeTracker() {
         <button type="button" className="add" onClick={addAssessment}>
           + Add Assessment
         </button>
+        <button type="button" className="import-syllabus" onClick={openImport}>
+          Import syllabus
+        </button>
       </div>
+
+      <SyllabusImport
+        key={importKey}
+        open={importOpen}
+        courseCode={course.code}
+        currentCount={assessments.length}
+        onClose={() => setImportOpen(false)}
+        onImport={importSyllabus}
+      />
 
       <div className="summary">
         {showGpa && (

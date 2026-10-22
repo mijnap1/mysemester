@@ -30,7 +30,7 @@ MySemester is a small web app for keeping track of a semester. Add your courses 
 It works without an account. Sign in only if you want your courses on more than one device.
 
 > [!NOTE]
-> Grade tracking and GPA scales work for every university in the picker. Quercus deadlines, the AI Planner and Professor Picks are for University of Toronto students, and appear once your profile says UofT.
+> Grade tracking and GPA scales work for every university in the picker. Quercus deadlines, the Course Planner and Professor Picks are for University of Toronto students, and appear once your profile says UofT.
 
 <br>
 
@@ -99,22 +99,23 @@ Once connected, the list refreshes when you open the dashboard (if it's more tha
 
 Open a course to see its assessment table: each row has a weight, your grade and an optional estimate. The average updates as you type, and **Estimate** shows what you need on the remaining work to reach your target (85% by default, changeable in Settings).
 
+- **Import syllabus** reads the course outline PDF and fills in the grading breakdown. You check and edit it before anything is added, rules like "best 4 of 5" are shown as notes, and the file isn't kept.
 - **On Quercus** lists the course's next items above the table. **Add** turns one into an unweighted row, ready for its weight.
 - **The built-in calculator** (bottom right) helps when a grade arrives as a fraction.
 - **Double-click** a name or weight to edit it in place.
 
 ### Planning tools for UofT
 
-<img src="docs/readme/tools.webp" width="100%" alt="The GPA scale guide, the AI Planner and Professor Picks.">
+<img src="docs/readme/tools.webp" width="100%" alt="The GPA scale guide, the Course Planner and Professor Picks.">
 
 | Tool | What it does |
 |---|---|
-| **AI Planner** | Compare a possible schedule against your path and workload, get plain-language course explanations, run a semester check against your saved courses, and browse an 800-course catalog. |
+| **Course Planner** | Compare a possible schedule against your path and workload, get plain-language course explanations, run a semester check against your saved courses, and browse an 800-course catalog. |
 | **Professor Picks** | Search a St. George course to see who's teaching each lecture section this year, from UofT Timetable Builder, ranked by ratings from MySemester students: stars, would-take-again, difficulty and top tags. Signed-in students rate the instructors they had, and each card links to Rate My Professors too. |
 | **GPA Scale guide** | See how each supported university turns percentages into letters and grade points. |
 
 > [!WARNING]
-> The AI Planner and Professor Picks are unofficial helpers. Instructors can change before a term starts, so confirm sections in Timetable Builder or ACORN, and confirm program, prerequisite and graduation decisions with the Academic Calendar, your department or your registrar.
+> The Course Planner and Professor Picks are unofficial helpers. Instructors can change before a term starts, so confirm sections in Timetable Builder or ACORN, and confirm program, prerequisite and graduation decisions with the Academic Calendar, your department or your registrar.
 
 ### Light, dark, and your phone
 
@@ -160,7 +161,7 @@ Open [localhost:3000](http://localhost:3000). Everything works without keys. Two
 
 | Variable | Adds |
 |---|---|
-| `OPENAI_API_KEY` | OpenAI-written AI Planner answers. Without it, the planner uses its built-in rule-based answers. |
+| `OPENAI_API_KEY` | OpenAI-written Course Planner answers, and AI help reading syllabi. Without it, the planner uses its built-in rule-based answers. |
 | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Points sign-in and sync at your own Supabase project instead of production. |
 
 > [!CAUTION]
@@ -237,7 +238,7 @@ on public.mysemester_courses for delete using (auth.uid() = user_id);
 |---|---|
 | Framework | Next.js 16 (App Router), React 19, TypeScript |
 | Styling | Plain CSS per route, with shared tokens for light and dark |
-| Server | Route handlers for the AI Planner (`/api/ai-planner/*`), the Quercus feed (`/api/quercus/feed`) and course timetables (`/api/timetable/[code]`) |
+| Server | Route handlers for the Course Planner (`/api/ai-planner/*`), the Quercus feed (`/api/quercus/feed`) course timetables (`/api/timetable/[code]`) and syllabus import (`/api/syllabus`) |
 | Accounts and sync | Supabase auth, with `mysemester_courses` and `mysemester_folders` tables |
 | Tests | Vitest for grading, sync, import and export, the planner, and the calendar feed parser |
 
@@ -258,12 +259,14 @@ app/
 │   └── upcoming.css  main.css
 ├── grade/                    # A course's assessments, estimates, calculator
 │   ├── CourseDeadlines.tsx   #   "On Quercus" box
+│   ├── SyllabusImport.tsx    #   upload a syllabus, review its grading breakdown
 │   └── TourFinale.tsx        #   the tour's closing card
 ├── ai-planner/  professors/  gpa-scale/
 └── api/
     ├── ai-planner/[route]/   # plan | explain | semester-check | ask
     ├── quercus/feed/         # fetches and parses a Quercus calendar feed
-    └── timetable/[code]/     # a course's sections and instructors, cached 6 hours
+    ├── timetable/[code]/     # a course's sections and instructors, cached 6 hours
+    └── syllabus/             # reads a syllabus PDF or text once, returns its grading scheme
 components/                   # Icon, Dialog, Toast, MiniCalc, auth form bits
 lib/
 ├── types.ts  semester.ts  use-semester.ts  cloud-sync.ts
@@ -271,6 +274,7 @@ lib/
 ├── quercus.ts  ics.ts        # deadlines: feed parsing, grouping, course matching
 ├── timetable.ts              # Professor Picks: Timetable Builder sections and instructors
 ├── professor-ratings.ts      # Professor Picks: student ratings and ranking
+├── syllabus.ts               # grading-scheme extraction from syllabus text
 ├── ai-planner.ts
 └── *.test.ts
 data/ai-planner-courses.json

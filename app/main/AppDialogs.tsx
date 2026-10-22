@@ -11,6 +11,8 @@ interface ConfirmOptions {
   cancelText?: string;
   confirmTone?: 'primary' | 'danger';
   showCancel?: boolean;
+  /** Ionicon shown above the title. Defaults to a question mark, or a warning for danger. */
+  icon?: string;
 }
 
 interface InputOptions {
@@ -19,6 +21,7 @@ interface InputOptions {
   initialValue?: string;
   placeholder?: string;
   confirmText?: string;
+  icon?: string;
   /** Return an error message to block saving, or '' to accept. */
   validate?: (value: string) => string;
 }
@@ -33,7 +36,7 @@ type Pending =
  */
 export function useAppDialogs(): {
   confirm: (options: ConfirmOptions) => Promise<boolean>;
-  notice: (message: string, title?: string) => Promise<boolean>;
+  notice: (message: string, title?: string, icon?: string) => Promise<boolean>;
   input: (options: InputOptions) => Promise<string | null>;
   dialogs: ReactNode;
 } {
@@ -44,7 +47,8 @@ export function useAppDialogs(): {
     [],
   );
   const notice = useCallback(
-    (message: string, title = 'Notice') => confirm({ title, message, confirmText: 'OK', showCancel: false }),
+    (message: string, title = 'Notice', icon = 'information-circle-outline') =>
+      confirm({ title, message, icon, confirmText: 'OK', showCancel: false }),
     [confirm],
   );
   const input = useCallback(
@@ -71,35 +75,40 @@ export function useAppDialogs(): {
   return { confirm, notice, input, dialogs };
 }
 
+function DialogIcon({ name, danger }: { name: string; danger?: boolean }) {
+  return (
+    <span className={danger ? 'ad-icon is-danger' : 'ad-icon'}>
+      <Icon name={name} />
+    </span>
+  );
+}
+
 function ConfirmDialog({ pending, onAnswer }: { pending: ConfirmOptions | null; onAnswer: (ok: boolean) => void }) {
   const okRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
   const options = pending ?? {};
+  const danger = options.confirmTone === 'danger';
+  const hasCancel = options.showCancel !== false;
   useEffect(() => {
-    if (pending) okRef.current?.focus();
+    // Enter shouldn't delete things by accident: dangerous confirms start on Cancel.
+    if (pending) (pending.confirmTone === 'danger' && pending.showCancel !== false ? cancelRef : okRef).current?.focus();
   }, [pending]);
   return (
     <Dialog open={!!pending} onClose={() => onAnswer(false)} id="appConfirmModal" className="app-dialog">
-      <div className="modal-head">
-        <Icon name="help-circle-outline" />
-        <span>{options.title ?? 'Confirm action'}</span>
-      </div>
-      <div className="modal-body">
-        <p className="app-dialog-message">{options.message ?? 'Are you sure?'}</p>
-      </div>
-      <div className="modal-actions">
-        {options.showCancel !== false && (
-          <button type="button" className="btn-plain" onClick={() => onAnswer(false)}>
-            {options.cancelText ?? 'Cancel'}
+      <div className="ad">
+        <DialogIcon name={options.icon ?? (danger ? 'alert-circle-outline' : 'help-circle-outline')} danger={danger} />
+        <h2 className="ad-title">{options.title ?? 'Confirm action'}</h2>
+        <p className="ad-message">{options.message ?? 'Are you sure?'}</p>
+        <div className={hasCancel ? 'ad-actions' : 'ad-actions is-single'}>
+          {hasCancel && (
+            <button ref={cancelRef} type="button" className="btn-plain" onClick={() => onAnswer(false)}>
+              {options.cancelText ?? 'Cancel'}
+            </button>
+          )}
+          <button ref={okRef} type="button" className={danger ? 'btn-primary danger' : 'btn-primary'} onClick={() => onAnswer(true)}>
+            {options.confirmText ?? 'Confirm'}
           </button>
-        )}
-        <button
-          ref={okRef}
-          type="button"
-          className={options.confirmTone === 'danger' ? 'btn-primary danger' : 'btn-primary'}
-          onClick={() => onAnswer(true)}
-        >
-          {options.confirmText ?? 'Confirm'}
-        </button>
+        </div>
       </div>
     </Dialog>
   );
@@ -125,46 +134,45 @@ function InputForm({ options, onAnswer }: { options: InputOptions; onAnswer: (va
 
   return (
     <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          const trimmed = value.trim();
-          const message = options.validate?.(trimmed) ?? '';
-          if (message) {
-            setError(message);
-            fieldRef.current?.focus();
-            return;
-          }
-          onAnswer(trimmed);
+      className="ad"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const trimmed = value.trim();
+        const message = options.validate?.(trimmed) ?? '';
+        if (message) {
+          setError(message);
+          fieldRef.current?.focus();
+          return;
+        }
+        onAnswer(trimmed);
+      }}
+    >
+      <DialogIcon name={options.icon ?? 'create-outline'} />
+      <h2 className="ad-title">{options.title ?? 'Enter value'}</h2>
+      {options.message && <p className="ad-message">{options.message}</p>}
+      <input
+        ref={fieldRef}
+        className={error ? 'ad-input has-error' : 'ad-input'}
+        type="text"
+        autoComplete="off"
+        placeholder={options.placeholder}
+        aria-label={options.title ?? 'Value'}
+        aria-invalid={!!error}
+        value={value}
+        onChange={(e) => {
+          setValue(e.target.value);
+          if (error) setError('');
         }}
-      >
-        <div className="modal-head">
-          <Icon name="create-outline" />
-          <span>{options.title ?? 'Enter value'}</span>
-        </div>
-        <div className="modal-body">
-          <p className="app-dialog-message">{options.message ?? 'Enter a value below.'}</p>
-          <input
-            ref={fieldRef}
-            type="text"
-            autoComplete="off"
-            placeholder={options.placeholder}
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-          />
-          {error && (
-            <div className="error" style={{ display: 'block' }}>
-              {error}
-            </div>
-          )}
-        </div>
-        <div className="modal-actions">
-          <button type="button" className="btn-plain" onClick={() => onAnswer(null)}>
-            Cancel
-          </button>
-          <button type="submit" className="btn-primary">
-            {options.confirmText ?? 'Save'}
-          </button>
-        </div>
-      </form>
+      />
+      {error && <p className="ad-error">{error}</p>}
+      <div className="ad-actions">
+        <button type="button" className="btn-plain" onClick={() => onAnswer(null)}>
+          Cancel
+        </button>
+        <button type="submit" className="btn-primary">
+          {options.confirmText ?? 'Save'}
+        </button>
+      </div>
+    </form>
   );
 }

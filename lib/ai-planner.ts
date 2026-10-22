@@ -1,5 +1,5 @@
 /**
- * AI Planner logic shared by the API route (server) and the pages (client
+ * Course Planner logic shared by the API route (server) and the pages (client
  * fallback when the API is unavailable). The "mock" answers are rule-based
  * and deterministic; the API route asks OpenAI when a key is configured.
  */
@@ -135,7 +135,7 @@ export function mockExplain(seed: SeedCourse[], payload: ExplainPayload): Explai
       source: 'mock',
       officialNote: OFFICIAL_NOTE,
       course: {
-        ...unknownCourse(payload.courseCode, 'This course is not in the local AI Planner seed dataset yet.'),
+        ...unknownCourse(payload.courseCode, 'This course is not in the local Course Planner seed dataset yet.'),
         warnings: ['Search the current UofT Calendar and department page for exact details.'],
       },
       misunderstandings: [

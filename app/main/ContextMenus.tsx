@@ -44,16 +44,17 @@ export function CourseMenu({ position, inFolder, creditLabel, creditOn, onAction
         <Icon name="copy-outline" /> Duplicate
       </button>
       {inFolder && (
-        <button type="button" role="menuitem" onClick={() => act('detach')} style={{ display: 'flex' }}>
+        <button type="button" role="menuitem" onClick={() => act('detach')}>
           <Icon name="return-up-back-outline" /> Remove from folder
         </button>
       )}
       {creditLabel && (
-        <button type="button" role="menuitem" onClick={() => act('crncr')} style={{ display: 'flex' }}>
+        <button type="button" role="menuitem" onClick={() => act('crncr')}>
           <Icon name="shield-checkmark-outline" />
           <span>{creditOn ? `Remove ${creditLabel}` : `Set ${creditLabel}`}</span>
         </button>
       )}
+      <div className="ctx-sep" role="separator" />
       <button type="button" role="menuitem" className="danger" onClick={() => act('del')}>
         <Icon name="trash-outline" /> Remove
       </button>
@@ -80,6 +81,7 @@ export function FolderMenu({ position, hasParent, onAction }: FolderMenuProps) {
           <Icon name="return-up-back-outline" /> Remove from folder
         </button>
       )}
+      <div className="ctx-sep" role="separator" />
       <button type="button" role="menuitem" className="danger" onClick={() => act('del')}>
         <Icon name="trash-outline" /> Delete folder
       </button>

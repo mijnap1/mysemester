@@ -100,7 +100,7 @@ async function askOpenAI(route: string, payload: unknown): Promise<Record<string
   const key = process.env.OPENAI_API_KEY;
   if (!key) return null;
   const system = [
-    'You are AI Planner for MySemester, an unofficial helper for first-year UofT Arts & Science students.',
+    'You are Course Planner for MySemester, an unofficial helper for first-year UofT Arts & Science students.',
     'Never claim to be official advising. Never invent exact program, POSt, prerequisite, breadth, enrolment, or CR/NCR rules.',
     'If requirements matter, tell the user to verify with the UofT Calendar, department pages, registrar, or an academic advisor.',
     'Keep answers friendly, short, structured, and student-friendly.',

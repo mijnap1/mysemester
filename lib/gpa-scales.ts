@@ -18,7 +18,7 @@ export const GPA_SCALES: GpaScale[] = [
     name: "University of Toronto",
     province: "Ontario",
     scaleType: "4.0",
-    sourceUrl: "https://utsc.utoronto.ca/academic-handbook/section8",
+    sourceUrl: "https://governingcouncil.utoronto.ca/secretariat/policies/grading-practices-policy-university-assessment-and",
     mappings: [
       { letter: "A+", percent: "90-100", points: "4.0" },
       { letter: "A", percent: "85-89", points: "4.0" },
@@ -39,7 +39,7 @@ export const GPA_SCALES: GpaScale[] = [
     name: "McGill University",
     province: "Quebec",
     scaleType: "4.0",
-    sourceUrl: "https://www.mcgill.ca/study/2020-2021/university_regulations_and_resources/undergraduate/gi_grading_and_grade_point_averages",
+    sourceUrl: "https://coursecatalogue.mcgill.ca/en/regulations/undergraduate/student-records/grading-gpa/",
     mappings: [
       { letter: "A", percent: "85-100", points: "4.0" },
       { letter: "A-", percent: "80-84", points: "3.7" },
@@ -76,7 +76,7 @@ export const GPA_SCALES: GpaScale[] = [
     name: "University of Waterloo",
     province: "Ontario",
     scaleType: "Percent",
-    sourceUrl: "https://ugradcalendar.uwaterloo.ca/page/Acad-Regs-Grade-Conversion-Scale",
+    sourceUrl: "https://uwaterloo.ca/academic-calendar/undergraduate-studies/catalog#/policy/rkrb6r5V6",
     note: "Legacy letter conversion for pre-2001 courses; Waterloo now reports numeric grades.",
     mappings: [
       { letter: "A+", percent: "90-100", points: null },
@@ -100,7 +100,7 @@ export const GPA_SCALES: GpaScale[] = [
     name: "Queen's University",
     province: "Ontario",
     scaleType: "4.3",
-    sourceUrl: "https://www.queensu.ca/artsci/undergraduate/student-services/academic-support/grading-information",
+    sourceUrl: "https://www.queensu.ca/registrar/academic-info/grades/official-gpa-scale",
     mappings: [
       { letter: "A+", percent: "90-100", points: "4.3" },
       { letter: "A", percent: "85-89.9", points: "4.0" },
@@ -142,7 +142,7 @@ export const GPA_SCALES: GpaScale[] = [
     name: "University of Ottawa",
     province: "Ontario",
     scaleType: "10-point",
-    sourceUrl: "https://www.uottawa.ca/about-us/policies-regulations/academic-regulations/a-3-grading-system",
+    sourceUrl: "https://www.uottawa.ca/about-us/leadership-governance/policies-regulations/a-3-grading-system",
     mappings: [
       { letter: "A+", percent: "90-100", points: "10" },
       { letter: "A", percent: "85-89", points: "9" },
@@ -161,7 +161,7 @@ export const GPA_SCALES: GpaScale[] = [
     name: "York University",
     province: "Ontario",
     scaleType: "9-point",
-    sourceUrl: "https://calendars.students.yorku.ca/2024-2025/academic/grades-and-grading-schemes",
+    sourceUrl: "https://www.yorku.ca/secretariat/policies/policies/common-grading-scheme-for-undergraduate-faculties/",
     mappings: [
       { letter: "A+", percent: "90-100", points: "9" },
       { letter: "A", percent: "80-89", points: "8" },
@@ -179,7 +179,7 @@ export const GPA_SCALES: GpaScale[] = [
     name: "Carleton University",
     province: "Ontario",
     scaleType: "12-point",
-    sourceUrl: "https://calendar.carleton.ca/undergrad/regulations/academicregulationsandrequirements/grading/",
+    sourceUrl: "https://calendar.carleton.ca/undergrad/regulations/academicregulationsoftheuniversity/grading/",
     mappings: [
       { letter: "A+", percent: "90-100", points: "12" },
       { letter: "A", percent: "85-89", points: "11" },
@@ -200,7 +200,7 @@ export const GPA_SCALES: GpaScale[] = [
     name: "Western University",
     province: "Ontario",
     scaleType: "Percent",
-    sourceUrl: "https://teaching.uwo.ca/academic-resources/grades-and-assessments.html",
+    sourceUrl: "https://www.westerncalendar.uwo.ca/PolicyPages.cfm?Command=showCategory&PolicyCategoryID=5&SelectedCalendar=Live&ArchiveID=#Page_70",
     note: "Percent-to-letter ranges shown; GPA points vary by program.",
     mappings: [
       { letter: "A+", percent: "90-100", points: null },
@@ -215,7 +215,7 @@ export const GPA_SCALES: GpaScale[] = [
     name: "Simon Fraser University",
     province: "British Columbia",
     scaleType: "4.33",
-    sourceUrl: "https://www.sfu.ca/students/calendar/2025/fall/general/grading.html",
+    sourceUrl: "https://www.sfu.ca/students/calendar/fees-and-regulations/grading-policy/grading-systems-and-policies.html",
     note: "Points shown; percent conversion varies by course.",
     mappings: [
       { letter: "A+", percent: null, points: "4.33" },
@@ -235,7 +235,7 @@ export const GPA_SCALES: GpaScale[] = [
     name: "University of Alberta",
     province: "Alberta",
     scaleType: "4.0",
-    sourceUrl: "https://www.ualberta.ca/registrar/examinations/assessment-and-grading/grading-system-explained.html",
+    sourceUrl: "https://www.ualberta.ca/en/registrar/examinations/assessment-and-grading/grading-system-explained.html",
     note: "Points shown; percent conversion varies by faculty.",
     mappings: [
       { letter: "A+", percent: null, points: "4.0" },
@@ -256,7 +256,7 @@ export const GPA_SCALES: GpaScale[] = [
     name: "University of Calgary",
     province: "Alberta",
     scaleType: "4.0",
-    sourceUrl: "https://www.ucalgary.ca/pubs/calendar/current/f-1-1.html",
+    sourceUrl: "https://calendar.ucalgary.ca/pages/3213736771d7408bbae3f6e4d42536f7",
     note: "Points shown; percent conversion varies by faculty.",
     mappings: [
       { letter: "A+", percent: null, points: "4.0" },

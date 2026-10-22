@@ -97,7 +97,7 @@ function EditableCell({
 
   if (editing) {
     return (
-      <td data-edit={kind}>
+      <td data-edit={kind} className={`cell-${kind}`}>
         <input
           autoFocus
           type={kind === 'weight' ? 'number' : 'text'}
@@ -123,6 +123,7 @@ function EditableCell({
   return (
     <td
       data-edit={kind}
+      className={`cell-${kind}`}
       onDoubleClick={begin}
       onTouchStart={(e) => {
         if (!isCoarse() || e.touches.length !== 1) return;
@@ -173,13 +174,13 @@ export function AssessmentRow({ assessment, maxWeight, onChange, onRemove }: Ass
           if (adjusted !== assessment.weight) onChange({ weight: adjusted }, false);
         }}
       />
-      <td>
+      <td className="cell-grade" data-label="Your grade">
         <PercentInput label={`${assessment.name} grade`} value={assessment.grade} onCommit={(grade) => onChange({ grade }, true)} />
       </td>
-      <td>
+      <td className="cell-estimate" data-label="Estimate">
         <PercentInput label={`${assessment.name} estimate`} value={assessment.estimate} onCommit={(estimate) => onChange({ estimate }, false)} />
       </td>
-      <td>
+      <td className="cell-remove">
         <button type="button" className="remove-btn" aria-label={`Remove ${assessment.name}`} onClick={onRemove}>
           <Icon name="trash-outline" />
         </button>

@@ -1,0 +1,201 @@
+/* "Import syllabus" dialog on the grade page. Uses the grade page's tokens. */
+.syllabus-dialog {
+  --syl-line: #e5e7eb;
+  --syl-soft: #f8fafc;
+  width: min(560px, 94vw);
+  max-height: min(820px, 92vh);
+  padding: 0;
+  border: 1px solid var(--syl-line);
+  border-radius: var(--radius, 18px);
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 30px 80px rgba(15, 23, 42, 0.22);
+  overflow-y: auto;
+  font-family: 'Outfit', sans-serif;
+}
+:root[data-theme='dark'] .syllabus-dialog { --syl-line: #334155; --syl-soft: #0f172a; }
+.syllabus-dialog::backdrop { background: rgba(15, 23, 42, 0.38); backdrop-filter: blur(4px); }
+.syllabus-dialog:focus-visible { outline: none; }
+body.dialog-lock { overflow: hidden; }
+
+.syl { position: relative; padding: 24px; }
+.syl-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 22px;
+  cursor: pointer;
+}
+.syl-close:hover { background: var(--syl-soft); color: var(--text); }
+.syl-head h2 { margin: 0 40px 6px 0; font-size: 21px; line-height: 1.2; }
+.syl-head p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.syl-body { display: grid; gap: 14px; margin-top: 18px; }
+
+.syl-drop {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 26px 16px;
+  border: 2px dashed var(--syl-line);
+  border-radius: 14px;
+  background: var(--syl-soft);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease), background 0.2s var(--ease);
+}
+.syl-drop:hover,
+.syl-drop.is-dragging,
+.syl-drop:focus-within { border-color: var(--blue); background: rgba(37, 99, 235, 0.05); }
+.syl-drop.has-file { border-style: solid; border-color: var(--blue); }
+.syl-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.syl-drop ion-icon { font-size: 30px; color: var(--blue); margin-bottom: 4px; }
+.syl-drop strong { font-size: 15px; word-break: break-word; }
+.syl-drop span { color: var(--muted); font-size: 13px; }
+
+.syl-error { margin: 0; color: var(--red); font-size: 14px; font-weight: 600; }
+
+.syl-reading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 160px;
+  color: var(--muted);
+  font-weight: 600;
+}
+.syl-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid var(--syl-line);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: syl-spin 0.8s linear infinite;
+}
+@keyframes syl-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .syl-spinner { animation-duration: 2.4s; } }
+
+.syl-table { display: grid; gap: 6px; }
+.syl-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 64px 92px 32px;
+  gap: 8px;
+  align-items: center;
+}
+.syl-row-head span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.syl-row input {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--syl-line);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  outline: 0;
+}
+.syl-row input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+.syl-weight { display: flex; align-items: center; gap: 4px; color: var(--muted); font-weight: 600; }
+.syl-remove {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 18px;
+  cursor: pointer;
+}
+.syl-remove:hover { color: var(--red); background: var(--syl-soft); }
+.syl-add-row {
+  justify-self: start;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--blue);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.syl-total { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; font-weight: 700; }
+.syl-total ion-icon { font-size: 18px; }
+.syl-total.is-ok { color: #16a34a; }
+.syl-total.is-off { color: #b45309; }
+:root[data-theme='dark'] .syl-total.is-ok { color: #4ade80; }
+:root[data-theme='dark'] .syl-total.is-off { color: #fbbf24; }
+
+.syl-notes {
+  display: grid;
+  gap: 6px;
+  padding: 12px 14px;
+  border-left: 3px solid #f59e0b;
+  border-radius: 0 12px 12px 0;
+  background: var(--syl-soft);
+  font-size: 14px;
+}
+.syl-notes ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; line-height: 1.45; }
+.syl-notes span { color: var(--muted); font-size: 13px; }
+
+.syl-actions { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+.syl-fine { flex: 1 1 220px; margin: 0; color: var(--muted); font-size: 12.5px; line-height: 1.45; }
+.syl-btn {
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 14px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
+}
+.syl-btn:disabled { opacity: 0.5; cursor: default; }
+.syl-btn-primary { border: 2px solid var(--blue); background: var(--blue); color: #fff; }
+.syl-btn-primary:not(:disabled):hover { background: #1d4ed8; }
+:root[data-theme='dark'] .syl-btn-primary { background: #2563eb; border-color: #2563eb; }
+.syl-btn-quiet { border: 2px solid var(--syl-line); background: transparent; color: var(--muted); }
+.syl-btn-quiet:hover { color: var(--text); }
+
+/* Entry points on the grade page. */
+.import-syllabus {
+  background: transparent;
+  color: var(--blue);
+  border: 2px solid var(--blue) !important;
+}
+.import-syllabus:hover { background: rgba(37, 99, 235, 0.07); }
+.empty-import {
+  margin-top: 2px;
+  padding: 4px;
+  border: 0;
+  background: none;
+  color: var(--blue);
+  font-family: 'Outfit', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.empty-import:hover { text-decoration: underline; text-underline-offset: 2px; }
+
+@media (max-width: 520px) {
+  .syl { padding: 20px 16px; }
+  .syl-row { grid-template-columns: minmax(0, 1fr) 52px 80px 28px; gap: 6px; }
+}

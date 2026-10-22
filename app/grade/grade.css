@@ -237,6 +237,8 @@
     }
     input[type=number] { -moz-appearance: textfield; }
 
+    .actions[hidden] { display: none !important; }
+    .touch-hint { display: none; }
     .actions {
       display: flex;
       justify-content: center;
@@ -512,14 +514,81 @@
 
 
 @media (max-width: 700px) {
-  body { padding: 22px 10px 96px; }
+  body { padding: 22px 24px 96px; }
   header { width: 100%; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
   header h1 { font-size: 24px; }
   header p { font-size: 14px; margin-top: 0; }
-  table {
+  /* Each assessment is its own card instead of a table you scroll sideways. */
+  table:not(.empty) {
     display: block;
-    overflow-x: auto;
-    border-radius: 14px;
+    width: 100%;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+  table:not(.empty) thead { display: none; }
+  table:not(.empty) tbody { display: grid; gap: 10px; }
+  table:not(.empty) tr {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 6px 10px;
+    padding: 14px 16px;
+    background: var(--card);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+  }
+  table:not(.empty) td { display: block; padding: 0; border: 0; font-size: 15px; text-align: left; }
+  table:not(.empty) .cell-name {
+    grid-column: 1 / -1;
+    min-width: 0;
+    min-height: 30px;
+    display: flex;
+    align-items: center;
+    padding-right: 96px;
+    font-weight: 700;
+    font-size: 16px;
+    overflow-wrap: anywhere;
+  }
+  /* Weight badge and trash sit in the card's top-right corner. */
+  table:not(.empty) .cell-weight {
+    position: absolute;
+    top: 14px;
+    right: 48px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--blue);
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  table:not(.empty) .cell-weight:not(:has(input))::after { content: '%'; }
+  table:not(.empty) .cell-weight input { width: 64px !important; }
+  table:not(.empty) .cell-remove { position: absolute; top: 10px; right: 10px; }
+  table:not(.empty) .cell-grade { grid-column: 1; }
+  table:not(.empty) .cell-estimate { grid-column: 2; }
+  table:not(.empty) .cell-grade::before,
+  table:not(.empty) .cell-estimate::before {
+    content: attr(data-label);
+    display: block;
+    margin: 6px 0 5px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+  table:not(.empty) .cell-grade input,
+  table:not(.empty) .cell-estimate input { width: 100% !important; box-sizing: border-box; }
+  table:not(.empty) .remove-btn { padding: 6px; }
+  .touch-hint {
+    display: block;
+    width: 100%;
+    margin: 10px 0 0;
+    text-align: center;
+    font-size: 12.5px;
+    color: var(--muted);
   }
   table.empty {
     width: 100%;
@@ -537,7 +606,7 @@
   table.empty tbody {
     display: block;
   }
-  th, td { padding: 11px 8px; font-size: 13.5px; }
+  table.empty td { padding: 11px 8px; }
   .empty-msg {
     display: block;
     width: 100%;
@@ -551,17 +620,31 @@
   }
   input { font-size: 16px !important; }
   input[type="number"] { width: 88px; font-size: 16px; padding: 8px 8px; }
+  /* Add on its own row, then Estimate and Import side by side. */
   .actions {
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 8px;
-    margin-top: 18px;
-    width: min(850px, 96%);
+    margin-top: 16px;
+    width: 100%;
   }
+  .actions .add {
+    grid-column: 1 / -1;
+    order: -1;
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #fff;
+  }
+  .actions .add:hover { background: #1d4ed8; color: #fff; }
   .actions button {
     width: 100%;
     min-height: 46px;
+    padding: 0 10px;
     border-radius: 12px;
+    font-size: 15px;
   }
+  .actions .estimate,
+  .actions .import-syllabus { background: var(--card); border: 2px solid var(--blue) !important; color: var(--blue); }
   .summary { font-size: 15px; margin-top: 24px; }
   .calc-fab {
     right: 14px;

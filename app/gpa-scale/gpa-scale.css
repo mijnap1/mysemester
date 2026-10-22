@@ -5,7 +5,7 @@
   --muted: #64748b;
   --blue: #2563eb;
   --line: #e2e8f0;
-  --radius: 18px;
+  --radius: 12px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 }
@@ -60,14 +60,15 @@ body {
 }
 .kicker {
   display: inline-flex;
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  font-weight: 700;
+  padding: 4px 8px;
+  border: 1px solid #bfdbfe;
+  border-radius: 6px;
+  background: #f8fbff;
   color: var(--blue);
-  background: #e7efff;
-  padding: 6px 10px;
-  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 .hero h1 { margin: 12px 0 8px; font-size: 32px; letter-spacing: -0.01em; }
 .hero p { margin: 0; color: var(--muted); font-size: 16px; line-height: 1.6; }
@@ -79,7 +80,7 @@ body {
   justify-content: center;
   gap: 8px;
   padding: 10px 16px;
-  border-radius: 12px;
+  border-radius: 8px;
   font-weight: 600;
   text-decoration: none;
   border: 1px solid transparent;
@@ -94,7 +95,7 @@ body {
 }
 .card {
   background: var(--card);
-  border-radius: 16px;
+  border-radius: var(--radius);
   padding: 16px;
   border: 1px solid var(--line);
   box-shadow: var(--shadow);
@@ -102,7 +103,7 @@ body {
 }
 .card-icon {
   width: 36px; height: 36px;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #eef2ff;
   color: var(--blue);
   display: inline-flex;
@@ -135,7 +136,7 @@ body {
 #scaleSearch {
   flex: 1 1 240px;
   padding: 10px 12px;
-  border-radius: 12px;
+  border-radius: 8px;
   border: 1px solid var(--line);
   font-family: inherit;
   font-size: 14px;
@@ -175,7 +176,7 @@ body {
 }
 .scale-card {
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 8px;
   background: #f8fafc;
   padding: 16px;
   display: grid;
@@ -207,8 +208,8 @@ body {
   letter-spacing: 0.08em;
   color: var(--blue);
   background: #e7efff;
-  padding: 6px 10px;
-  border-radius: 999px;
+  padding: 5px 8px;
+  border-radius: 6px;
 }
 .scale-tag.pct { color: #c2410c; background: #ffedd5; }
 .scale-tag.fourthree { color: #5b21b6; background: #ede9fe; }
@@ -224,7 +225,7 @@ body {
 .scale-table .scale-col {
   background: #fff;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 10px;
 }
 .scale-col h4 {

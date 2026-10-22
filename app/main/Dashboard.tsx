@@ -255,7 +255,14 @@ export function Dashboard() {
   }
 
   async function handleRemoveCourse(id: string) {
-    const ok = await confirm({ title: 'Remove course?', message: 'Remove this course?', confirmText: 'Remove', confirmTone: 'danger' });
+    const code = state.courses.find((c) => c.id === id)?.code || 'this course';
+    const ok = await confirm({
+      title: `Remove ${code}?`,
+      message: 'Its assessments and grades go with it. You can undo right after.',
+      confirmText: 'Remove',
+      confirmTone: 'danger',
+      icon: 'trash-outline',
+    });
     if (!ok) return;
     setRemovingId(id);
     window.setTimeout(() => {
@@ -306,9 +313,10 @@ export function Dashboard() {
     closeSidebar();
     const folderName = await input({
       title: 'New folder',
-      message: 'Choose a folder name.',
+      message: 'Group courses by term, year or anything you like.',
       placeholder: 'e.g. Winter 2026',
       confirmText: 'Create folder',
+      icon: 'folder-outline',
       validate: (value) => (!value ? 'Folder name is required.' : folderNameTaken(state, value) ? 'A folder with that name already exists.' : ''),
     });
     if (!folderName) return;
@@ -326,7 +334,6 @@ export function Dashboard() {
     if (!folder) return;
     const next = await input({
       title: 'Rename folder',
-      message: 'Choose a new folder name.',
       initialValue: folder.name,
       placeholder: 'e.g. Midterms',
       confirmText: 'Rename',
@@ -343,10 +350,11 @@ export function Dashboard() {
     if (action === 'detach') update((s) => moveFolder(s, id, null));
     if (action === 'del') {
       const ok = await confirm({
-        title: 'Delete folder?',
-        message: `Delete folder "${folder.name}"? Courses will become unassigned.`,
+        title: `Delete “${folder.name}”?`,
+        message: 'Its courses move back to your dashboard. Nothing inside is deleted.',
         confirmText: 'Delete folder',
         confirmTone: 'danger',
+        icon: 'trash-outline',
       });
       if (ok) update((s) => deleteFolder(s, id));
     }
@@ -372,7 +380,7 @@ export function Dashboard() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Export error:', err);
-      void notice('Sorry, something went wrong while exporting your courses.', 'Export failed');
+      void notice('Something went wrong while exporting your courses. Try again in a moment.', 'Export failed', 'alert-circle-outline');
     }
   }
 
@@ -382,16 +390,19 @@ export function Dashboard() {
       parsed = parseImport(await file.text());
     } catch (err) {
       console.error('Import error:', err);
-      await notice('Could not read this file. Please make sure it is a valid MySemester export.', 'Import failed');
+      await notice('Couldn’t read this file. Make sure it’s a MySemester export.', 'Import failed', 'alert-circle-outline');
       return;
     }
-    if (!parsed) return void notice('This file does not look like a valid MySemester export.', 'Import failed');
-    if (!parsed.courses.length) return void notice('No courses were found in this file.', 'Import failed');
+    if (!parsed) return void notice('This file doesn’t look like a MySemester export.', 'Import failed', 'alert-circle-outline');
+    if (!parsed.courses.length) return void notice('No courses were found in this file.', 'Import failed', 'alert-circle-outline');
     const ok = await confirm({
-      title: 'Import courses',
-      message: `Import ${parsed.courses.length} courses? This will replace your current list.`,
+      title: `Import ${parsed.courses.length} course${parsed.courses.length === 1 ? '' : 's'}?`,
+      message: state.courses.length
+        ? `They replace the ${state.courses.length} course${state.courses.length === 1 ? '' : 's'} on your dashboard now.`
+        : 'They’ll be added to your dashboard.',
       confirmText: 'Import',
-      confirmTone: 'danger',
+      confirmTone: state.courses.length ? 'danger' : 'primary',
+      icon: 'download-outline',
     });
     if (!ok) return;
     const { courses, folders } = parsed;
@@ -421,9 +432,10 @@ export function Dashboard() {
   async function resetAll() {
     const ok = await confirm({
       title: 'Reset all data?',
-      message: 'Are you sure you want to reset ALL data for this account? This cannot be undone.',
+      message: 'Every course, folder and grade on this account will be deleted. This can’t be undone.',
       confirmText: 'Reset all data',
       confirmTone: 'danger',
+      icon: 'warning-outline',
     });
     if (!ok) return;
     update(resetState);
@@ -486,13 +498,6 @@ export function Dashboard() {
     writeString(KEYS.dashboardView, next);
   }
 
-  /** Sidebar button: open the Deadlines view (it offers Connect when needed). */
-  function openQuercus() {
-    closeSidebar();
-    changeView('deadlines');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
   function dismissQuercusPrompt() {
     setQuercusPromptOpen(false);
     writeString(KEYS.quercusPromptDismissed, '1');
@@ -532,6 +537,7 @@ export function Dashboard() {
         onOpenProfile={() => profile && setProfileOpen(true)}
         onSignOut={handleSignOut}
         onToggleMenu={toggleMenu}
+        menuOpen={sidebarOpen}
       />
       <div
         className={sidebarOpen ? 'overlay show' : 'overlay'}
@@ -545,8 +551,6 @@ export function Dashboard() {
         open={sidebarOpen}
         onboarding={onboarding}
         onNewFolder={handleNewFolder}
-        quercusConnected={!!quercus}
-        onQuercus={openQuercus}
         onOpenSettings={() => {
           closeSidebar();
           setSettingsOpen(true);
@@ -669,9 +673,10 @@ export function Dashboard() {
             confirmDisconnect={() =>
               confirm({
                 title: 'Disconnect Quercus?',
-                message: 'Your Quercus deadlines will be removed from this device. Your courses and grades are not affected.',
+                message: 'Your Quercus deadlines will be removed from this device. Your courses and grades stay as they are.',
                 confirmText: 'Disconnect',
                 confirmTone: 'danger',
+                icon: 'unlink-outline',
               })
             }
           />

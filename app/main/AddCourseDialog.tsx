@@ -1,10 +1,10 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Dialog } from '@/components/Dialog';
 import { Icon } from '@/components/Icon';
 import { useClickOutside, useRotating } from '@/lib/hooks';
-import { COURSE_ICONS, ICONS_PER_PAGE, iconLabel } from '@/lib/icons';
+import { autoIcon, COURSE_ICONS, courseIcon, DEFAULT_COURSE_ICON, iconLabel } from '@/lib/icons';
 import type { CourseInput } from '@/lib/semester';
 
 const PLACEHOLDERS = [
@@ -15,7 +15,6 @@ const PLACEHOLDERS = [
   { code: 'BIO100', title: 'Introduction to Biology' },
 ];
 
-const PAGE_COUNT = Math.ceil(COURSE_ICONS.length / ICONS_PER_PAGE);
 
 /** Which control the onboarding tour currently allows; everything else in the form is locked. */
 export type TourField = 'code' | 'title' | 'grade' | 'icon' | 'save';
@@ -35,10 +34,16 @@ interface AddCourseDialogProps {
 
 function IconSelect({ value, onChange, disabled }: { value: string; onChange: (v: string) => void; disabled: boolean }) {
   const [open, setOpen] = useState(false);
-  const pageOf = (v: string) => Math.max(0, Math.floor(COURSE_ICONS.findIndex((i) => i.value === v) / ICONS_PER_PAGE));
-  const [page, setPage] = useState(() => pageOf(value));
   const ref = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   useClickOutside([ref], () => setOpen(false), open);
+
+  // Bring the current icon into view when the menu opens.
+  useEffect(() => {
+    if (!open) return;
+    const selected = menuRef.current?.querySelector<HTMLElement>('.is-selected');
+    if (selected && menuRef.current) menuRef.current.scrollTop = selected.offsetTop - menuRef.current.clientHeight / 2 + selected.offsetHeight / 2;
+  }, [open]);
 
   return (
     <div className={open ? 'profile-select-wrap icon-select-wrap open' : 'profile-select-wrap icon-select-wrap'} ref={ref}>
@@ -49,27 +54,21 @@ function IconSelect({ value, onChange, disabled }: { value: string; onChange: (v
         aria-haspopup="listbox"
         aria-expanded={open}
         disabled={disabled}
-          onClick={() => {
-          if (!open) setPage(pageOf(value));
-          setOpen(!open);
-        }}
+        onClick={() => setOpen(!open)}
       >
         {iconLabel(value)}
       </button>
       <input type="hidden" name="icon" id="iconInput" value={value} />
-      <div className="profile-select-menu icon-select-menu" role="listbox" aria-label="Course icon">
-        <button type="button" className="icon-page-button icon-page-prev" aria-label="Previous icons" disabled={page === 0} onClick={() => setPage((p) => p - 1)}>
-          <Icon name="chevron-back-outline" />
-        </button>
+      <div className="profile-select-menu icon-select-menu" role="listbox" aria-label="Course icon" ref={menuRef}>
         <div className="icon-select-grid">
-          {COURSE_ICONS.map((icon, i) => (
+          {COURSE_ICONS.map((icon) => (
             <button
               key={icon.value}
               type="button"
               role="option"
               aria-selected={icon.value === value}
+              title={icon.label}
               className={icon.value === value ? 'profile-select-option icon-select-option is-selected' : 'profile-select-option icon-select-option'}
-              hidden={Math.floor(i / ICONS_PER_PAGE) !== page}
               onClick={() => {
                 onChange(icon.value);
                 setOpen(false);
@@ -78,20 +77,6 @@ function IconSelect({ value, onChange, disabled }: { value: string; onChange: (v
               <Icon name={icon.value} />
               <span>{icon.label}</span>
             </button>
-          ))}
-        </div>
-        <button
-          type="button"
-          className="icon-page-button icon-page-next"
-          aria-label="Next icons"
-          disabled={page === PAGE_COUNT - 1}
-          onClick={() => setPage((p) => p + 1)}
-        >
-          <Icon name="chevron-forward-outline" />
-        </button>
-        <div className="icon-page-dots" aria-hidden="true">
-          {Array.from({ length: PAGE_COUNT }, (_, i) => (
-            <span key={i} className={i === page ? 'is-active' : undefined} />
           ))}
         </div>
       </div>
@@ -113,7 +98,9 @@ function AddCourseForm({ onClose, editing, onSave, tourField = null, onFieldInpu
   const [code, setCode] = useState(editing?.code ?? '');
   const [title, setTitle] = useState(editing?.title ?? '');
   const [grade, setGrade] = useState(editing?.grade == null ? '' : String(editing.grade));
-  const [icon, setIcon] = useState(editing?.icon ?? 'book-outline');
+  const [icon, setIcon] = useState(editing ? courseIcon(editing) : DEFAULT_COURSE_ICON);
+  // The icon follows the course code's subject until the student picks one.
+  const [iconPicked, setIconPicked] = useState(!!editing && editing.icon !== DEFAULT_COURSE_ICON);
   const [showError, setShowError] = useState(false);
   const placeholder = useRotating(PLACEHOLDERS, 3200);
 
@@ -129,7 +116,7 @@ function AddCourseForm({ onClose, editing, onSave, tourField = null, onFieldInpu
     onSave({
       code: code.trim(),
       title: title.trim(),
-      icon: icon || 'book-outline',
+      icon: icon || DEFAULT_COURSE_ICON,
       grade: parsed == null || Number.isNaN(parsed) ? null : Math.max(0, Math.min(100, parsed)),
     });
   }
@@ -140,28 +127,47 @@ function AddCourseForm({ onClose, editing, onSave, tourField = null, onFieldInpu
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div className="modal-head">
-        <Icon name="add-circle-outline" /> <span>{editing ? 'Edit Course' : 'Add Course'}</span>
+    <form className="cd" onSubmit={handleSubmit}>
+      <div className="cd-head">
+        <span className="cd-preview" aria-hidden="true">
+          <Icon name={icon} />
+        </span>
+        <div>
+          <h2 className="ad-title">{editing ? 'Edit course' : 'Add course'}</h2>
+          <p className="ad-message">{editing ? 'Change its code, name, grade or icon.' : 'Weights and grades go on the course page next.'}</p>
+        </div>
       </div>
-      <div className="modal-body">
-        <div className="modal-grid">
+      <div className="cd-body">
+        <div className="cd-grid">
           <div id="courseCodeField">
-            <label htmlFor="codeInput">Course Code</label>
-            <input id="codeInput" name="code" placeholder={placeholder.code} value={code} disabled={locked('code')} onChange={typed(setCode)} />
+            <label htmlFor="codeInput">Course code</label>
+            <input
+              id="codeInput"
+              name="code"
+              placeholder={placeholder.code}
+              value={code}
+              autoComplete="off"
+              aria-invalid={showError && !code.trim()}
+              disabled={locked('code')}
+              onChange={typed((v) => {
+                setCode(v);
+                if (!iconPicked) setIcon(autoIcon(v));
+              })}
+            />
           </div>
           <div id="courseNameField">
-            <label htmlFor="titleInput">Course Name</label>
-            <input id="titleInput" name="title" placeholder={placeholder.title} value={title} disabled={locked('title')} onChange={typed(setTitle)} />
+            <label htmlFor="titleInput">Course name</label>
+            <input id="titleInput" name="title" placeholder={placeholder.title} value={title} autoComplete="off" disabled={locked('title')} onChange={typed(setTitle)} />
           </div>
-        </div>
-        <div className="modal-grid">
           <div id="initialGradeField">
-            <label htmlFor="gradeInput">Initial Grade (%) — optional</label>
+            <label htmlFor="gradeInput">
+              Starting grade <span className="cd-optional">optional</span>
+            </label>
             <input
               id="gradeInput"
               name="grade"
               type="number"
+              inputMode="decimal"
               step={0.1}
               min={0}
               max={100}
@@ -173,24 +179,24 @@ function AddCourseForm({ onClose, editing, onSave, tourField = null, onFieldInpu
           </div>
           <div id="iconField">
             <label>Icon</label>
-            <IconSelect value={icon} onChange={setIcon} disabled={locked('icon')} />
-            <div className="hint">
-              Preview: <Icon name={icon} />
-            </div>
+            <IconSelect
+              value={icon}
+              onChange={(v) => {
+                setIcon(v);
+                setIconPicked(true);
+              }}
+              disabled={locked('icon')}
+            />
           </div>
         </div>
-        {showError && (
-          <div className="error" style={{ display: 'block' }}>
-            Please enter at least a course code (e.g., CSC108).
-          </div>
-        )}
+        {showError && <p className="ad-error">Enter a course code, like CSC108.</p>}
       </div>
-      <div className="modal-actions">
+      <div className="ad-actions cd-actions">
         <button type="button" className="btn-plain" id="cancelCourse" disabled={tourField != null} onClick={onClose}>
           Cancel
         </button>
         <button type="submit" className="btn-primary" id="saveCourse" disabled={locked('save')}>
-          Save Course
+          {editing ? 'Save changes' : 'Add course'}
         </button>
       </div>
     </form>

@@ -21,7 +21,7 @@ export function PlannerWorkspace() {
       <section className="planner-hero">
         <div>
           <p className="eyebrow">Unofficial UofT Arts &amp; Science planning helper</p>
-          <h1>AI Planner</h1>
+          <h1>Course Planner</h1>
           <p>Plan first-year courses, spot workload risks, and prepare better questions before enrolment.</p>
           <a className="hero-link" href="/ai-planner/courses/">
             <Icon name="list-outline" /> View 800-course catalog

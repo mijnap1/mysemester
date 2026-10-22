@@ -4,7 +4,7 @@ import { PlannerHeader } from '../PlannerHeader';
 import { PlannerWorkspace } from './PlannerWorkspace';
 import '../ai-planner.css';
 
-export const metadata: Metadata = { title: 'AI Planner | MySemester' };
+export const metadata: Metadata = { title: 'Course Planner | MySemester' };
 
 export default function PlannerLayout({ children }: { children: ReactNode }) {
   return (

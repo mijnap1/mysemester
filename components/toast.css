@@ -79,15 +79,14 @@
 }
 
 @media (max-width: 700px) {
-  /* No room beside the logo and buttons: cover the bar for the moment it shows. */
+  /* Centred over the bar and only as wide as its message. */
   .app-toast {
-    left: 8px;
-    right: 8px;
-    max-width: none;
+    width: max-content;
+    max-width: calc(100vw - 32px);
     top: calc(env(safe-area-inset-top) + var(--header-h, 64px) / 2);
-    transform: translateY(calc(-50% - 8px));
+    padding: 9px 14px;
+    font-size: 13.5px;
     text-align: center;
   }
-  .app-toast.show { transform: translateY(-50%); }
-  .app-toast.has-action { justify-content: space-between; text-align: left; }
+  .app-toast.has-action { text-align: left; }
 }

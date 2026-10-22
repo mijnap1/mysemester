@@ -59,8 +59,9 @@ body {
 
 .planner-nav {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
   gap: 8px;
-  overflow-x: auto;
   padding: 3px 0 4px;
 }
 
@@ -1279,25 +1280,22 @@ ul {
   .brand {
     font-size: 18px;
   }
+  /* All four tabs stay visible: a 2 × 2 grid instead of a sideways scroller. */
   .planner-nav {
     width: 100%;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
-    padding: 2px 0 7px;
-    scroll-snap-type: x proximity;
-    -webkit-overflow-scrolling: touch;
-  }
-  .planner-nav::-webkit-scrollbar {
-    height: 0;
+    padding: 2px 0 4px;
   }
   .tab-btn {
-    flex: 0 0 auto;
-    scroll-snap-align: start;
+    min-width: 0;
     min-height: 42px;
     padding: 9px 11px;
     font-size: 14px;
   }
   .tab-premium {
-    min-width: max-content;
+    min-width: 0;
   }
   .planner-wrap,
   .catalog-wrap {

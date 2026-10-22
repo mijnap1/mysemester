@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react';
 import { Icon } from '@/components/Icon';
 import { useClickOutside, useEscape } from '@/lib/hooks';
+import { initials } from '@/lib/profile';
 import { useTheme } from '@/lib/theme';
 
 interface HeaderProps {
@@ -15,9 +16,11 @@ interface HeaderProps {
   onOpenProfile: () => void;
   onSignOut: () => void;
   onToggleMenu: () => void;
+  /** Whether the menu drawer is open; the button then shows a close icon. */
+  menuOpen: boolean;
 }
 
-export function Header({ loggedIn, name, email, picture, menuCallout, onOpenProfile, onSignOut, onToggleMenu }: HeaderProps) {
+export function Header({ loggedIn, name, email, picture, menuCallout, onOpenProfile, onSignOut, onToggleMenu, menuOpen }: HeaderProps) {
   const [accountOpen, setAccountOpen] = useState(false);
   const { isDark, toggle } = useTheme();
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -49,50 +52,50 @@ export function Header({ loggedIn, name, email, picture, menuCallout, onOpenProf
           </button>
           <div className={accountOpen ? 'account-dd show' : 'account-dd'} role="menu" aria-label="Account menu">
             <div
-              className="acc-row"
+              className={loggedIn ? 'acc-head is-link' : 'acc-head'}
               onClick={loggedIn ? openProfile : undefined}
               role={loggedIn ? 'button' : undefined}
               tabIndex={loggedIn ? 0 : undefined}
               onKeyDown={(e) => loggedIn && e.key === 'Enter' && openProfile()}
             >
-              <div className="dd-avatar">
-                {picture ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- user-supplied data URL
-                  <img alt="Profile" src={picture} style={{ display: 'block', objectFit: 'cover', borderRadius: 12, width: 48, height: 48 }} />
-                ) : (
-                  <Icon name="person-circle-outline" style={{ fontSize: 24 }} />
-                )}
-              </div>
+              {picture ? (
+                // eslint-disable-next-line @next/next/no-img-element -- user-supplied data URL
+                <img className="acc-avatar" alt="" src={picture} />
+              ) : loggedIn ? (
+                <span className="acc-avatar is-initials" aria-hidden="true">
+                  {initials(name)}
+                </span>
+              ) : (
+                <span className="acc-avatar is-guest" aria-hidden="true">
+                  <Icon name="person-outline" />
+                </span>
+              )}
               <div className="acc-meta">
                 <span className="acc-name">{loggedIn ? name : 'Guest'}</span>
-                <span className="acc-user">{loggedIn ? email || 'Signed in' : 'Not signed in'}</span>
+                <span className="acc-user">{loggedIn ? email || 'Signed in' : 'Sign in to sync across devices'}</span>
               </div>
             </div>
+            <div className="acc-sep" role="separator" />
             {loggedIn ? (
-              <div className="acc-actions">
-                <button onClick={openProfile}>
+              <>
+                <button type="button" role="menuitem" className="acc-item" onClick={openProfile}>
                   <Icon name="person-outline" /> Profile
                 </button>
-                <button onClick={onSignOut}>
+                <div className="acc-sep" role="separator" />
+                <button type="button" role="menuitem" className="acc-item is-danger" onClick={onSignOut}>
                   <Icon name="log-out-outline" /> Sign out
                 </button>
-              </div>
+              </>
             ) : (
-              <div className="acc-actions">
-                <a href="/login/">
+              <>
+                <a role="menuitem" className="acc-item" href="/login/">
                   <Icon name="log-in-outline" /> Sign in
                 </a>
-                <a href="/signup/">
+                <a role="menuitem" className="acc-item" href="/signup/">
                   <Icon name="person-add-outline" /> Create account
                 </a>
-              </div>
+              </>
             )}
-            <div style={{ marginTop: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 6px' }}>
-              <span className="chip">
-                <Icon name="id-card-outline" /> Private
-              </span>
-              <span className="chip">{loggedIn ? `Welcome, ${name}` : 'Welcome'}</span>
-            </div>
           </div>
         </div>
         <button className="iconbtn" id="themeToggle" aria-label="Toggle theme" onClick={toggle}>
@@ -103,8 +106,14 @@ export function Header({ loggedIn, name, email, picture, menuCallout, onOpenProf
             <span>New</span>
             {menuCallout}
           </div>
-          <button className="iconbtn menu-icon" id="menuToggle" aria-label="Open Menu" onClick={onToggleMenu}>
-            <Icon name="menu-outline" />
+          <button
+            className="iconbtn menu-icon"
+            id="menuToggle"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+            onClick={onToggleMenu}
+          >
+            <Icon name={menuOpen ? 'close-outline' : 'menu-outline'} />
           </button>
         </div>
       </div>

@@ -97,7 +97,7 @@ const STEPS: TourStep[] = [
   },
   {
     title: 'Pick an icon',
-    body: 'Open the icon menu, choose a style, and check its preview.',
+    body: 'We pick one from the course code. Open the menu to choose another; the icon at the top shows it.',
     selector: '#iconField',
     modalField: 'icon',
     modalPos: 'bottom',
@@ -105,7 +105,7 @@ const STEPS: TourStep[] = [
   },
   {
     title: 'Save your course',
-    body: 'Tap Save Course to add it to your dashboard.',
+    body: 'Tap Add course to put it on your dashboard.',
     selector: '#saveCourse',
     modalField: 'save',
     requireClick: true,

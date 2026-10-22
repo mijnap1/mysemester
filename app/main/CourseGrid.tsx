@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react';
 import { Icon } from '@/components/Icon';
+import { courseIcon } from '@/lib/icons';
 import { courseGrade, letterFromPct, type UniversityRules } from '@/lib/grading';
 import type { NextDeadline } from '@/lib/quercus';
 import type { Course, Folder, SemesterState } from '@/lib/types';
@@ -164,7 +165,7 @@ function CourseCard({
       onDragStart={(e) => writeDrag(e, { kind: 'course', id: course.id })}
       {...longPress}
     >
-      <Icon className="course-icon" name={course.icon} />
+      <Icon className="course-icon" name={courseIcon(course)} />
       <div className="info">
         <div className="code-row">
           <div className="code">{course.code}</div>
