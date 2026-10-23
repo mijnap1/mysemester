@@ -1,8 +1,8 @@
 /* Upcoming: Quercus deadlines on the dashboard. */
 
 .upcoming {
-  max-width: 900px;
-  margin: 30px auto 0;
+  /* As wide as the dashboard's content column. */
+  margin: 30px 0 0;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -28,49 +28,58 @@
   gap: 8px;
 }
 .upcoming-head h3 ion-icon { color: var(--blue); font-size: 20px; }
-.upcoming-synced { color: var(--muted); font-size: 13px; }
-.upcoming-icon-btn {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
-  border: 1px solid var(--line);
-  background: var(--card);
-  color: var(--text);
-  display: inline-grid;
-  place-items: center;
-  font-size: 17px;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.upcoming-icon-btn:hover:not(:disabled) { transform: translateY(-1px); border-color: #93c5fd; }
-.upcoming-icon-btn:disabled { opacity: 0.6; cursor: default; }
-.upcoming-icon-btn.is-spinning ion-icon { animation: upcomingSpin 0.9s linear infinite; }
+/* Refresh (with the sync time) and the options menu share one .seg track. */
+.upcoming-actions { flex: none; }
+.seg.upcoming-actions button { flex: none; padding: 0 10px; }
+.seg.upcoming-actions button.is-icon { width: 36px; padding: 0; }
+.seg.upcoming-actions button:disabled { cursor: default; }
+.upcoming-actions ion-icon { font-size: 17px; }
+.upcoming-synced { font-size: 13px; font-weight: 500; }
+.upcoming-actions .is-spinning ion-icon { animation: upcomingSpin 0.9s linear infinite; }
 @keyframes upcomingSpin { to { transform: rotate(360deg); } }
 
 .upcoming-groups {
-  margin-top: 12px;
+  margin-top: 16px;
   display: grid;
-  gap: 14px;
+  gap: 20px;
 }
 .upcoming-group-label {
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 2px 8px;
+  font-size: 13.5px;
+  font-weight: 600;
   color: var(--muted);
-  margin-bottom: 4px;
 }
-.upcoming-group-label.is-danger { color: var(--danger); }
-.upcoming-group ul { list-style: none; margin: 0; padding: 0; }
+.upcoming-group-label.is-danger::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--danger);
+}
+/* Row cards, two across when there's room. */
+.upcoming-group ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 1fr));
+  gap: 8px;
+}
 
 .deadline {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 9px 4px;
-  border-top: 1px solid var(--line);
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  transition: background .2s var(--ease), border-color .2s var(--ease);
 }
-.upcoming-group li:first-child { border-top: 0; }
+.deadline:hover { background: var(--chip-bg); }
 
 .deadline-check {
   flex: none;
@@ -119,18 +128,17 @@ a.deadline-title:hover { color: var(--blue); }
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid var(--line);
-  background: var(--chip-bg);
-  color: var(--chip-text);
+  padding: 1px 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
   cursor: pointer;
   max-width: 220px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.deadline-course:not(.is-static):hover { border-color: #93c5fd; color: var(--blue); }
+.deadline-course:not(.is-static):hover { color: var(--blue); }
 .deadline-course.is-static { cursor: default; }
 .deadline-kind {
   font-size: 11px;
@@ -145,10 +153,13 @@ a.deadline-title:hover { color: var(--blue); }
   flex: none;
   display: grid;
   justify-items: end;
+  gap: 1px;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 500;
+  color: var(--text);
 }
-.deadline-when small { color: var(--muted); font-weight: 500; font-size: 12px; }
+.deadline-when small { color: var(--muted); font-weight: 400; font-size: 12px; }
+.deadline.is-overdue .deadline-when span { color: var(--danger); }
 
 .deadline.is-done .deadline-title { text-decoration: line-through; color: var(--muted); }
 .deadline.is-done .deadline-when { opacity: 0.55; }
@@ -167,41 +178,23 @@ a.deadline-title:hover { color: var(--blue); }
 .upcoming-empty { margin: 14px 0 4px; color: var(--muted); }
 .upcoming-note { margin: 12px 0 0; font-size: 12px; color: var(--muted); }
 
-/* Connect dialog */
-#quercusConnectModal { width: min(520px, 92vw); }
-#quercusConnectModal .modal-head ion-icon { color: var(--blue); }
-.quercus-steps {
-  margin: 0;
-  padding-left: 20px;
-  display: grid;
-  gap: 6px;
-  line-height: 1.5;
-  text-align: left;
-  color: var(--text);
-}
-.quercus-steps a { color: var(--blue); font-weight: 600; }
-.quercus-privacy {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--muted);
-  text-align: left;
-}
-.quercus-privacy ion-icon { vertical-align: -2px; margin-right: 2px; }
+/* Connect dialog: the Add Course card (main.css) with the About dialog's rows. */
 #quercusConnectModal .btn-primary:disabled { opacity: 0.7; cursor: default; transform: none; }
 
 :root[data-theme="dark"] .deadline-kind.is-test { background: rgba(220, 38, 38, 0.18); color: #fca5a5; }
-:root[data-theme="dark"] .upcoming-group-label.is-danger { color: #f87171; }
+:root[data-theme="dark"] .upcoming-group-label.is-danger::before { background: #f87171; }
+:root[data-theme="dark"] .deadline.is-overdue .deadline-when span { color: #f87171; }
 
 body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
 
 @media (max-width: 700px) {
   .upcoming { margin-top: 22px; padding: 14px; }
   .upcoming-synced { display: none; }
-  .deadline { gap: 10px; }
-  .deadline-course { max-width: 140px; }
+  .deadline { gap: 10px; padding: 11px 12px; }
+  .deadline-course { max-width: 160px; }
+  /* Titles wrap instead of cutting off next to the date. */
+  .deadline-title { white-space: normal; overflow-wrap: anywhere; }
 }
-#quercusConnectModal .error { text-align: left; }
 
 /* Slide-in invite to connect Quercus (bottom-right corner). */
 .quercus-prompt {
@@ -365,7 +358,7 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
 
 /* Deadlines view before Quercus is connected. */
 .deadlines-connect {
-  margin-top: 34px;
+  margin: 34px auto 0;
   max-width: 460px;
   padding: 36px 28px 30px;
   display: flex;
@@ -439,7 +432,6 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
 
 /* Show/hide courses menu. */
 .upcoming-filter { position: relative; }
-.upcoming-icon-btn.is-active { border-color: #93c5fd; color: var(--blue); background: #eff6ff; }
 .upcoming-filter-menu {
   position: absolute;
   right: 0;
@@ -477,7 +469,6 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
 .upcoming-filter-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .upcoming-filter-count { flex: none; font-size: 12px; color: var(--muted); }
 .upcoming-filter-empty { padding: 10px; font-size: 13px; color: var(--muted); }
-:root[data-theme="dark"] .upcoming-icon-btn.is-active { background: rgba(37, 99, 235, 0.15); border-color: rgba(96, 165, 250, 0.45); color: #93c5fd; }
 
 /* "Add to grades" on a deadline row: quiet until the row is hovered. */
 .deadline-add,

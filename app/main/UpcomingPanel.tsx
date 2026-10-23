@@ -125,18 +125,31 @@ export function UpcomingPanel({ user, link, onLinkChange: save, courses, onOpenC
         <h3 id="upcoming-title">
           <Icon name="calendar-outline" /> Upcoming
         </h3>
-        <span className="upcoming-synced">{refreshing ? 'Syncing…' : syncedLabel(link.syncedAt, now)}</span>
         <div className="upcoming-filter" ref={filterRef}>
-          <button
-            type="button"
-            className={hiddenCount ? 'upcoming-icon-btn is-active' : 'upcoming-icon-btn'}
-            aria-label="Choose courses"
-            title="Choose courses"
-            aria-expanded={filterOpen}
-            onClick={() => setFilterOpen((o) => !o)}
-          >
-            <Icon name="options-outline" />
-          </button>
+          <div className="seg upcoming-actions">
+            {/* The spin class goes on the button: changing an <ion-icon>'s class wipes its "hydrated" class and hides it. */}
+            <button
+              type="button"
+              className={refreshing ? 'is-spinning' : undefined}
+              aria-label="Refresh from Quercus"
+              title="Refresh from Quercus"
+              disabled={refreshing}
+              onClick={refresh}
+            >
+              <Icon name="refresh-outline" />
+              <span className="upcoming-synced">{refreshing ? 'Syncing…' : syncedLabel(link.syncedAt, now)}</span>
+            </button>
+            <button
+              type="button"
+              className={hiddenCount ? 'is-icon is-on' : 'is-icon'}
+              aria-label="Choose courses"
+              title="Choose courses"
+              aria-expanded={filterOpen}
+              onClick={() => setFilterOpen((o) => !o)}
+            >
+              <Icon name="options-outline" />
+            </button>
+          </div>
           {filterOpen && (
             <div className="upcoming-filter-menu" role="group" aria-label="Courses shown">
               <div className="upcoming-filter-title">Show deadlines from</div>
@@ -148,23 +161,20 @@ export function UpcomingPanel({ user, link, onLinkChange: save, courses, onOpenC
                 </label>
               ))}
               {!courseList.length && <div className="upcoming-filter-empty">No courses in your feed yet.</div>}
+              <div className="acc-sep" />
+              <button
+                type="button"
+                className="acc-item is-danger"
+                onClick={() => {
+                  setFilterOpen(false);
+                  void disconnect();
+                }}
+              >
+                <Icon name="unlink-outline" /> Disconnect Quercus
+              </button>
             </div>
           )}
         </div>
-        {/* The spin class goes on the button: changing an <ion-icon>'s class wipes its "hydrated" class and hides it. */}
-        <button
-          type="button"
-          className={refreshing ? 'upcoming-icon-btn is-spinning' : 'upcoming-icon-btn'}
-          aria-label="Refresh from Quercus"
-          title="Refresh from Quercus"
-          disabled={refreshing}
-          onClick={refresh}
-        >
-          <Icon name="refresh-outline" />
-        </button>
-        <button type="button" className="upcoming-icon-btn" aria-label="Disconnect Quercus" title="Disconnect Quercus" onClick={() => void disconnect()}>
-          <Icon name="unlink-outline" />
-        </button>
       </div>
 
       {heavy && <HeavyWeekBanner week={heavy} />}
@@ -251,8 +261,9 @@ function DeadlineRow({
   const canAdd = !!course && d.kind !== 'event';
   const added = !!course && inGrades(d, course);
   const code = course?.code ?? d.courseCode ?? (d.courseName || 'Quercus');
+  const due = Date.parse(d.dueAt);
   return (
-    <li className={done ? 'deadline is-done' : 'deadline'}>
+    <li className={done ? 'deadline is-done' : due < now ? 'deadline is-overdue' : 'deadline'}>
       {d.kind === 'event' ? (
         <span className="deadline-dot" aria-hidden />
       ) : (
@@ -288,8 +299,8 @@ function DeadlineRow({
         </div>
       </div>
       <div className="deadline-when">
-        <span>{dueLabel(d, now)}</span>
-        <small>{relativeDue(Date.parse(d.dueAt), now)}</small>
+        <span>{relativeDue(due, now)}</span>
+        <small>{dueLabel(d, now)}</small>
       </div>
     </li>
   );
@@ -365,30 +376,47 @@ function ConnectBody({ onClose, onConnected }: { onClose: () => void; onConnecte
 
   return (
     <form
+      className="cd"
       noValidate
       onSubmit={(e) => {
         e.preventDefault();
         void submit();
       }}
     >
-      <div className="modal-head">
-        <Icon name="calendar-outline" />
-        <span>Connect Quercus</span>
+      <div className="cd-head">
+        <span className="cd-preview" aria-hidden="true">
+          <Icon name="calendar-outline" />
+        </span>
+        <h2 className="ad-title">Connect Quercus</h2>
       </div>
-      <div className="modal-body">
-        <ol className="quercus-steps">
-          <li>
-            Open{' '}
-            <a href="https://q.utoronto.ca/calendar" target="_blank" rel="noopener noreferrer">
-              Quercus Calendar
-            </a>
-            .
-          </li>
-          <li>
-            At the bottom of the right sidebar, click <strong>Calendar Feed</strong>.
-          </li>
-          <li>Copy the link and paste it below.</li>
-        </ol>
+      <ol className="about-list">
+        <li>
+          <a className="about-list-row is-link" href="https://q.utoronto.ca/calendar" target="_blank" rel="noopener noreferrer">
+            <Icon name="calendar-number-outline" className="about-list-icon" />
+            <span className="about-list-text">
+              <strong>Open Quercus Calendar.</strong>
+            </span>
+            <Icon name="open-outline" className="about-list-chevron" />
+          </a>
+        </li>
+        <li>
+          <div className="about-list-row">
+            <Icon name="link-outline" className="about-list-icon" />
+            <span className="about-list-text">
+              <strong>At the bottom of the right sidebar, click Calendar Feed.</strong>
+            </span>
+          </div>
+        </li>
+        <li>
+          <div className="about-list-row">
+            <Icon name="clipboard-outline" className="about-list-icon" />
+            <span className="about-list-text">
+              <strong>Copy the link and paste it below.</strong>
+            </span>
+          </div>
+        </li>
+      </ol>
+      <div>
         <input
           autoFocus
           type="url"
@@ -400,17 +428,16 @@ function ConnectBody({ onClose, onConnected }: { onClose: () => void; onConnecte
           value={value}
           onChange={(e) => setValue(e.target.value)}
         />
-        {error && (
-          <div className="error" style={{ display: 'block' }}>
-            {error}
-          </div>
-        )}
-        <p className="quercus-privacy">
-          <Icon name="lock-closed-outline" /> This link only lets MySemester read your due dates. It stays on this device, and you can disconnect at any time. MySemester is not affiliated
-          with the University of Toronto.
-        </p>
+        {error && <p className="ad-error">{error}</p>}
       </div>
-      <div className="modal-actions">
+      <p className="side-tip">
+        <Icon name="lock-closed-outline" />
+        <span>
+          This link only lets MySemester read your due dates. It stays on this device, and you can disconnect at any time. MySemester is not affiliated with the University
+          of Toronto.
+        </span>
+      </p>
+      <div className="ad-actions cd-actions">
         <button type="button" className="btn-plain" onClick={onClose}>
           Cancel
         </button>
