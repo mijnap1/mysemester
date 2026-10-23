@@ -1,0 +1,24 @@
+{
+  "_note": "Seconds in the VO file (vo/voiceover.mp3). Onsets refined from Whisper word times + silencedetect. 60 fps: frame = round(s*60).",
+  "fps": 60,
+  "vo_offset": 0.0,
+  "music": {"bpm": 108, "beat": 0.5556, "grid_origin": 0.022, "drop": 7.80, "breath": 18.50, "hero_hit": 18.91},
+  "words": {
+    "every_course": 0.14, "course": 0.48,
+    "every_mark": 1.54, "mark": 1.80,
+    "one_number": 2.75, "matters": 3.66,
+    "drop_in": 4.77, "syllabus": 5.28, "weights": 6.10, "fill": 6.34, "in_end": 7.34,
+    "add_a_mark": 7.80, "mark2": 8.06, "average": 8.76, "moves": 9.12,
+    "gpa": 9.90, "keeps_up": 10.26, "up_end": 10.94,
+    "on_your": 11.28, "schools": 11.58, "scale": 12.26, "scale_end": 12.70,
+    "semester_after": 13.20, "semester2": 14.00, "it_all": 14.93, "adds_up": 15.32, "adds_up_end": 15.88,
+    "every_grade": 16.29, "grade": 16.58,
+    "one_calm": 17.20, "calm": 17.52, "semester3": 17.90, "semester3_end": 18.50,
+    "mysemester": 18.99, "vo_end": 19.87
+  },
+  "scenes": {
+    "S1_hook": [0.00, 4.60], "S2_syllabus": [4.60, 7.70], "S3_grades": [7.70, 11.15],
+    "S4_scale": [11.15, 13.05], "S5_semesters": [13.05, 16.10], "S6_type": [16.10, 18.50],
+    "S7_hero": [18.50, 21.00], "S8_endcard": [21.00, 23.00]
+  }
+}
