@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react';
 import { Icon } from '@/components/Icon';
 import { courseIcon } from '@/lib/icons';
-import { courseGrade, letterFromPct, type UniversityRules } from '@/lib/grading';
+import { courseGrade, letterForSchool, type UniversityRules } from '@/lib/grading';
 import type { NextDeadline } from '@/lib/quercus';
 import type { Course, Folder, SemesterState } from '@/lib/types';
 
@@ -42,7 +42,7 @@ function useEntrance(index: number) {
 }
 
 /** Alternates between percent and letter every six seconds, with a fade. */
-function GradeMark({ pct, showLetter }: { pct: number | null; showLetter: boolean }) {
+function GradeMark({ pct, showLetter, school }: { pct: number | null; showLetter: boolean; school: string }) {
   const [showingLetter, setShowingLetter] = useState(false);
   const [fading, setFading] = useState(false);
 
@@ -62,7 +62,7 @@ function GradeMark({ pct, showLetter }: { pct: number | null; showLetter: boolea
     };
   }, [pct, showLetter]);
 
-  const text = pct == null ? '—' : showLetter && showingLetter ? letterFromPct(pct) : `${Math.round(pct)}%`;
+  const text = pct == null ? '—' : showLetter && showingLetter ? letterForSchool(pct, school) : `${Math.round(pct)}%`;
   return (
     <div className="mark">
       <span className="swap" style={{ opacity: fading ? 0 : 1 }}>
@@ -194,7 +194,7 @@ function CourseCard({
           </button>
         )}
       </div>
-      <GradeMark pct={pct} showLetter={rules.showLetter} />
+      <GradeMark pct={pct} showLetter={rules.showLetter} school={rules.university} />
     </div>
   );
 }

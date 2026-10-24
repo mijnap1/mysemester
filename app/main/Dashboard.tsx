@@ -73,9 +73,8 @@ const HIGHLIGHT_MS = 600;
 const REMOVE_ANIMATION_MS = 260;
 const UNDO_MS = 4500;
 
-function gpaLabel(scale: number | null): string {
-  if (scale == null) return 'GPA';
-  return `GPA (${Number.isInteger(scale) && scale < 10 ? scale.toFixed(1) : scale})`;
+function gpaLabel(scaleLabel: string): string {
+  return scaleLabel ? `GPA (${scaleLabel})` : 'GPA';
 }
 
 function readJsonArray(key: string): string[] {
@@ -642,7 +641,7 @@ export function Dashboard() {
             <section className="overview">
               {rules.showGpa && (
                 <div className="ov">
-                  <div className="label">{gpaLabel(rules.gpaScale)}</div>
+                  <div className="label">{gpaLabel(rules.scaleLabel)}</div>
                   <div className="value">{overview ? overview.gpa.toFixed(2) : '—'}</div>
                 </div>
               )}
