@@ -65,8 +65,10 @@ async function askModel(text: string): Promise<SyllabusResult | null> {
     'Return strict JSON: { "items": [{ "name": string, "weight": number, "count": integer }], "notes": string[] }.',
     'items: only components that count toward the final grade, in the order listed.',
     '"weight" is the total percent for that component; "count" is how many separately graded pieces it has (1 for a single exam).',
-    'For "5 quizzes worth 2% each" use weight 10 and count 5. Use short names like "Midterm" or "Problem sets".',
-    'notes: up to 5 short rules that change how weights apply (best N of M, dropped lowest, weight shifted to the final, must pass the final). Empty if none.',
+    'For "5 quizzes worth 2% each" use weight 10 and count 5; for "Four tests 55% (13.75% each)" use weight 55 and count 4.',
+    'Use the syllabus names, kept short, without the count ("Tests", not "Four Tests"), and keep ordinals ("1st Written Test").',
+    'Skip "Total" rows, grading scales (A+ 90–100), late penalties and examples from policy text.',
+    'notes: up to 5 short rules from this course that change how weights apply (best N of M, dropped lowest, weight shifted to the final, must pass the final). Not accessibility or exam-scheduling boilerplate. Empty if none.',
     'Never invent components or weights that are not in the text. If there is no grading scheme, return empty items.',
   ].join(' ');
   try {
