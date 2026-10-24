@@ -82,6 +82,98 @@ Final project 35%
     expect(notes).toEqual(['If your final exam mark is higher than your lowest term test, the term test weight is shifted to the final exam.']);
   });
 
+  it('reads "total% (each% each)" rows with the count spelled out', () => {
+    const text = `
+Evaluation:
+There will be four 50-minute tests during the semester that will always be during the one-hour timeslot.
+Four In-Class Tests 55% (13.75% each)
+12 Weekly Online Quizzes 10% (0.83% each)
+Final Exam 35%
+We will automatically accept all quiz questions submitted within 50% of the time limit.
+`;
+    const { items } = parseSyllabusText(text);
+    expect(items.map((i) => [i.name, i.weight, i.count])).toEqual([
+      ['In-Class Tests', 55, 4],
+      ['Weekly Online Quizzes', 10, 12],
+      ['Final Exam', 35, 1],
+    ]);
+  });
+
+  it('keeps ordinals in names and skips the total row', () => {
+    const text = `
+Evaluation components Value Due date
+1st Written Test 10% Wed Oct 21, 2026
+Reading Test 10% Wed Nov 25, 2026
+5
+Dictation Test 15% Wed Jan 27, 2027
+2nd Written Test 15% Wed Mar 24, 2027
+Attendance & Participation 10% Wed Mar 31, 2027
+Final Exam 40% TBA
+TOTAL 100%
+`;
+    const { items } = parseSyllabusText(text);
+    expect(items.map((i) => [i.name, i.weight])).toEqual([
+      ['1st Written Test', 10],
+      ['Reading Test', 10],
+      ['Dictation Test', 15],
+      ['2nd Written Test', 15],
+      ['Attendance & Participation', 10],
+      ['Final Exam', 40],
+    ]);
+  });
+
+  it('reads rules that wrap across lines, and ignores "must obtain consent"', () => {
+    const text = `
+Grading
+Midterm 35%
+Final exam 65%
+If a student misses the mid-term with acceptable documentation, the weight
+of the mid-term is transferred to the final exam.
+Students who wish to record lectures must obtain written consent beforehand.
+`;
+    expect(parseSyllabusText(text).notes).toEqual([
+      'If a student misses the mid-term with acceptable documentation, the weight of the mid-term is transferred to the final exam.',
+    ]);
+  });
+
+  it('skips accommodation boilerplate and policy examples', () => {
+    const text = `
+Grading
+Midterm 40%
+Final exam 60%
+For example, if a student misses a mid-term, the weight of the mid-term is transferred to the final.
+A test scheduled for the morning may need to be moved to the afternoon, or written in an alternate exam location.
+`;
+    expect(parseSyllabusText(text).notes).toEqual([]);
+  });
+
+  it('reads a weight column without % signs', () => {
+    const text = `
+Assessment Weight Due
+Problem sets 20 Weekly
+Assignment 1 10 Oct 3
+Midterm 25 Oct 15
+Final exam 45 TBA
+`;
+    const { items } = parseSyllabusText(text);
+    expect(items.map((i) => [i.name, i.weight])).toEqual([
+      ['Problem sets', 20],
+      ['Assignment 1', 10],
+      ['Midterm', 25],
+      ['Final exam', 45],
+    ]);
+  });
+
+  it('joins a name and its percent split onto separate lines', () => {
+    const text = 'Grading\nAssignments\n30%\nMidterm\n25%\nFinal Exam\n45%\n';
+    const { items } = parseSyllabusText(text);
+    expect(items.map((i) => [i.name, i.weight])).toEqual([
+      ['Assignments', 30],
+      ['Midterm', 25],
+      ['Final Exam', 45],
+    ]);
+  });
+
   it('returns nothing useful rather than guessing when there is no scheme', () => {
     expect(parseSyllabusText('Welcome to the course! Office hours are on Mondays.').items).toEqual([]);
   });
