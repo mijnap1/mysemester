@@ -19,7 +19,7 @@
 
 <img src="docs/readme/hero.svg" width="100%" alt="The MySemester dashboard: course cards show each grade and the next deadline, then the Deadlines tab lists Quercus items, a quiz is ticked off, and a test is added to its course's grade page.">
 
-<sub>[Live site](https://mysemester.org) &nbsp;·&nbsp; [What's new](#whats-new-in-20) &nbsp;·&nbsp; [Quercus deadlines](#quercus-deadlines) &nbsp;·&nbsp; [Where your data lives](#where-your-data-lives) &nbsp;·&nbsp; [Get started](#get-started)</sub>
+<sub>[Live site](https://mysemester.org) &nbsp;·&nbsp; [The promo](#the-promo) &nbsp;·&nbsp; [What's new](#whats-new-in-20) &nbsp;·&nbsp; [Quercus deadlines](#quercus-deadlines) &nbsp;·&nbsp; [Where your data lives](#where-your-data-lives) &nbsp;·&nbsp; [Get started](#get-started)</sub>
 
 </div>
 
@@ -31,6 +31,14 @@ It works without an account. Sign in only if you want your courses on more than 
 
 > [!NOTE]
 > Grade tracking and GPA scales work for every university in the picker. Quercus deadlines, the Course Planner and Professor Picks are for University of Toronto students, and appear once your profile says UofT.
+
+<br>
+
+## The promo
+
+<a href="docs/readme/promo.mp4"><img src="docs/readme/promo-preview.webp" width="100%" alt="A clip from the promo: a mark is typed into Term Test 2, the course average ring counts from 82% to 85%, then the camera flies to the GPA, which rolls up to 3.71."></a>
+
+A 23-second film made entirely in code: one camera flight and one line of light, timed to the voice-over. [Watch it with sound](docs/readme/promo.mp4). The renderer lives in [`promo/film`](promo/film).
 
 <br>
 

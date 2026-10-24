@@ -10,6 +10,8 @@ export interface GpaScale {
   scaleType: string;
   sourceUrl?: string;
   note?: string;
+  /** False when the school reports numbers only (Waterloo); the dashboard then hides letters. */
+  reportsLetters?: boolean;
   mappings: GpaMapping[];
 }
 
@@ -78,6 +80,7 @@ export const GPA_SCALES: GpaScale[] = [
     scaleType: "Percent",
     sourceUrl: "https://uwaterloo.ca/academic-calendar/undergraduate-studies/catalog#/policy/rkrb6r5V6",
     note: "Legacy letter conversion for pre-2001 courses; Waterloo now reports numeric grades.",
+    reportsLetters: false,
     mappings: [
       { letter: "A+", percent: "90-100", points: null },
       { letter: "A", percent: "85-89", points: null },

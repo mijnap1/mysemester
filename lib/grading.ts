@@ -1,3 +1,4 @@
+import { GPA_SCALES, type GpaScale } from './gpa-scales';
 import type { Assessment, Course } from './types';
 
 export const UNIVERSITIES = [
@@ -18,136 +19,114 @@ export interface UniversityRules {
   creditAllowed: boolean;
   /** Pass/fail option name, e.g. "CR/NCR". Empty when not offered. */
   creditLabel: string;
+  /** Top of the GPA scale (4, 9, 10, 12), or null when the school has no GPA points. */
   gpaScale: number | null;
+  /** The scale's name from the reference, e.g. "4.0" or "12-point". */
+  scaleLabel: string;
 }
+
+interface Band {
+  letter: string;
+  /** Lowest percentage that earns this letter. */
+  min: number;
+  points: number | null;
+}
+
+interface SchoolScale {
+  type: string;
+  bands: Band[];
+  letters: boolean;
+}
+
+const minOf = (percent?: string | null): number | null => {
+  const m = percent?.match(/^\s*(\d+(?:\.\d+)?)/);
+  return m ? Number(m[1]) : null;
+};
+
+const pointsOf = (points?: string | null): number | null => (points == null || points === '' ? null : Number(points));
+
+const UOFT_REF = GPA_SCALES.find((s) => s.name === 'University of Toronto')!;
+
+/**
+ * Letter bands for a school, built from the reference table on the GPA scales
+ * page so the calculator and that page can never disagree. Schools that list
+ * points but no percentages (Alberta) borrow UofT's percentage cut-offs, with
+ * letters they do not use folded onto the nearest one they do (D- onto D).
+ */
+function buildScale(ref: GpaScale): SchoolScale {
+  const own = ref.mappings.map((m) => ({ letter: m.letter, min: minOf(m.percent), points: pointsOf(m.points) }));
+  let bands: Band[];
+  if (own.every((b) => b.min != null)) {
+    bands = own.map((b) => ({ ...b, min: b.min as number }));
+  } else {
+    const have = new Map(own.map((b) => [b.letter, b]));
+    const mins = new Map<string, number>();
+    for (const u of UOFT_REF.mappings) {
+      const target = have.has(u.letter) ? u.letter : have.has(u.letter[0]) ? u.letter[0] : 'F';
+      const min = minOf(u.percent) ?? 0;
+      mins.set(target, Math.min(mins.get(target) ?? Infinity, min));
+    }
+    bands = own.filter((b) => mins.has(b.letter)).map((b) => ({ ...b, min: mins.get(b.letter)! }));
+  }
+  bands.sort((a, b) => b.min - a.min);
+  bands[bands.length - 1] = { ...bands[bands.length - 1], min: 0 };
+  return { type: ref.scaleType, bands, letters: ref.reportsLetters !== false };
+}
+
+const SCALES = new Map(GPA_SCALES.map((ref) => [ref.name, buildScale(ref)]));
+const UOFT = SCALES.get('University of Toronto')!;
+
+/** A school's scale, or UofT's for schools the reference does not list. */
+function scaleFor(school: string): SchoolScale {
+  return SCALES.get(school) ?? UOFT;
+}
+
+function bandFor(p: number, scale: SchoolScale): Band {
+  return scale.bands.find((b) => p >= b.min) ?? scale.bands[scale.bands.length - 1];
+}
+
+const CREDIT: Record<string, string> = {
+  'University of Toronto': 'CR/NCR',
+  'University of British Columbia': 'CR/D/F',
+  'McGill University': 'S/U',
+};
 
 export function getUniversityRules(university = ''): UniversityRules {
-  const base: UniversityRules = {
+  const scale = scaleFor(university);
+  const points = scale.bands.map((b) => b.points).filter((x): x is number => x != null);
+  return {
     university,
-    showGpa: true,
-    showLetter: true,
-    creditAllowed: false,
-    creditLabel: '',
-    gpaScale: 4.0,
+    showGpa: points.length > 0,
+    showLetter: scale.letters,
+    creditAllowed: university in CREDIT,
+    creditLabel: CREDIT[university] ?? '',
+    gpaScale: points.length ? Math.max(...points) : null,
+    scaleLabel: scale.type,
   };
-  switch (university) {
-    case 'University of Toronto':
-      return { ...base, creditAllowed: true, creditLabel: 'CR/NCR' };
-    case 'University of British Columbia':
-      return { ...base, creditAllowed: true, creditLabel: 'CR/D/F' };
-    case 'McGill University':
-      return { ...base, creditAllowed: true, creditLabel: 'S/U' };
-    case 'University of Waterloo':
-      return { ...base, showGpa: false, showLetter: false, gpaScale: null };
-    case 'University of Ottawa':
-      return { ...base, gpaScale: 10 };
-    default:
-      return base;
-  }
 }
 
-const UOFT_SCALE: Record<string, number> = {
-  'A+': 4.0, A: 4.0, 'A-': 3.7,
-  'B+': 3.3, B: 3.0, 'B-': 2.7,
-  'C+': 2.3, C: 2.0, 'C-': 1.7,
-  'D+': 1.3, D: 1.0, 'D-': 0.7,
-  F: 0.0,
-};
-
-const GPA_MAPS: Record<string, Record<string, number>> = {
-  'University of Toronto': UOFT_SCALE,
-  'University of British Columbia': {
-    'A+': 4.0, A: 4.0, 'A-': 3.7,
-    'B+': 3.3, B: 3.0, 'B-': 2.7,
-    'C+': 2.3, C: 2.0, 'C-': 1.7,
-    D: 1.0,
-    F: 0.0,
-  },
-  'McGill University': {
-    A: 4.0, 'A-': 3.7,
-    'B+': 3.3, B: 3.0, 'B-': 2.7,
-    'C+': 2.3, C: 2.0,
-    D: 1.0,
-    F: 0.0,
-  },
-  'McMaster University': {
-    'A+': 4.0, A: 3.9, 'A-': 3.7,
-    'B+': 3.3, B: 3.0, 'B-': 2.7,
-    'C+': 2.3, C: 2.0, 'C-': 1.7,
-    'D+': 1.3, D: 1.0,
-    F: 0.0,
-  },
-  'University of Ottawa': {
-    'A+': 10, A: 9, 'A-': 8,
-    'B+': 7, B: 6,
-    'C+': 5, C: 4,
-    'D+': 3, D: 2,
-    E: 1,
-    F: 0,
-  },
-  'University of Alberta': {
-    'A+': 4.0, A: 4.0, 'A-': 3.7,
-    'B+': 3.3, B: 3.0, 'B-': 2.7,
-    'C+': 2.3, C: 2.0, 'C-': 1.7,
-    'D+': 1.3, D: 1.0,
-    F: 0.0,
-  },
-};
-
+/** UofT's letter for a percentage (the scale used when no school is set). */
 export function letterFromPct(p: number): string {
-  if (p >= 90) return 'A+';
-  if (p >= 85) return 'A';
-  if (p >= 80) return 'A-';
-  if (p >= 77) return 'B+';
-  if (p >= 73) return 'B';
-  if (p >= 70) return 'B-';
-  if (p >= 67) return 'C+';
-  if (p >= 63) return 'C';
-  if (p >= 60) return 'C-';
-  if (p >= 57) return 'D+';
-  if (p >= 53) return 'D';
-  if (p >= 50) return 'D-';
-  return 'F';
+  return bandFor(p, UOFT).letter;
 }
 
-/** Collapse letters a school does not use onto the nearest one it does. */
+/** The letter a school gives for a percentage, from its own cut-offs. */
 export function letterForSchool(p: number, school: string): string {
-  const letter = letterFromPct(p);
-  if (school === 'McGill University') {
-    if (letter === 'A+') return 'A';
-    if (letter === 'D+' || letter === 'D-') return 'D';
-    if (letter === 'C-') return 'C';
-  }
-  if (school === 'University of British Columbia') {
-    if (letter === 'D+' || letter === 'D-') return 'D';
-  }
-  if (school === 'McMaster University') {
-    if (letter === 'D-') return 'D';
-  }
-  if (school === 'University of Ottawa') {
-    if (letter === 'B-') return 'B';
-    if (letter === 'C-') return 'C';
-    if (letter === 'D-') return 'D';
-  }
-  return letter;
+  return bandFor(p, scaleFor(school)).letter;
 }
 
 /**
- * GPA points for a percentage. Schools without their own table use the
- * UofT 4.0 table rather than reporting 0.00.
+ * GPA points for a percentage on the school's own scale (12 at McMaster for
+ * an A+, 9 at York). Schools without GPA points use UofT's 4.0 table rather
+ * than reporting 0.00; the dashboard hides GPA for them anyway.
  */
 export function gpaFromPct(p: number, school: string): number {
-  const map = GPA_MAPS[school] ?? UOFT_SCALE;
-  const letter = letterForSchool(p, school);
-  if (letter in map) return map[letter];
-  const base = letter.slice(0, -1);
-  if (base in map) return map[base];
-  return map.F ?? 0;
+  return bandFor(p, scaleFor(school)).points ?? bandFor(p, UOFT).points ?? 0;
 }
 
 /** True for letters the grade page shows in red. */
 export function isLowLetter(letter: string): boolean {
-  return letter.startsWith('C') || letter.startsWith('D') || letter === 'E' || letter === 'F';
+  return /^[CDEF]/.test(letter);
 }
 
 /** Weighted average over graded rows, or null when nothing weighted is graded. */

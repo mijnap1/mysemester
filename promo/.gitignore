@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+out/stills/
+out/*.png
+out/stem_*.wav
+out/*.mp4
+out/*.wav
