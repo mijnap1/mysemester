@@ -787,12 +787,16 @@ body.tour-restrict .tour-allow * {
     :root[data-theme="dark"] .ctx .danger ion-icon { color: #f87171; }
 
     
+    /* Flex, not a 3-column grid: scales that hide GPA or letter (e.g. Waterloo's
+       percent-only scale) leave one or two tiles, which should sit centred. */
     .overview {
+      --ov-gap: 16px;
       margin: 44px auto 0;
+      width: 100%;
       max-width: 900px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      display: flex;
+      justify-content: center;
+      gap: var(--ov-gap);
     }
     
     body[data-layout="compact"] .wrap {
@@ -822,9 +826,10 @@ body.tour-restrict .tour-allow * {
     }
     body[data-layout="spacious"] .overview {
       margin-top: 56px;
-      gap: 22px;
+      --ov-gap: 22px;
     }
     .ov {
+      flex: 0 1 calc((100% - 2 * var(--ov-gap)) / 3);
       background: var(--card);
       border-radius: 16px;
       padding: 16px 12px;
@@ -1100,8 +1105,8 @@ dialog {
       .card { width: min(100%, 560px); padding: 16px; gap: 12px; border-radius: 16px; }
       ion-icon.course-icon { font-size: 32px; }
       .mark { font-size: 18px; min-width: 52px; }
-      .overview { grid-template-columns: 1fr; margin-top: 28px; gap: 10px; }
-      .ov { padding: 13px 12px; }
+      .overview { flex-direction: column; margin-top: 28px; --ov-gap: 10px; }
+      .ov { flex: none; padding: 13px 12px; }
       .sidebar { width: 100%; right: -100%; }
       .grid.grid-empty { min-height: auto; }
       .empty-state-card {
