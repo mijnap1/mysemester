@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState, type DragEvent, type ReactNode } from 'react';
 import { Icon } from '@/components/Icon';
 import { courseIcon } from '@/lib/icons';
-import { courseGrade, letterForSchool, type UniversityRules } from '@/lib/grading';
+import { courseGrade, letterForSchool, semesterOverview, type Overview, type UniversityRules } from '@/lib/grading';
+import { coursesInFolder } from '@/lib/semester';
 import type { NextDeadline } from '@/lib/quercus';
 import type { Course, Folder, SemesterState } from '@/lib/types';
 
@@ -204,6 +205,8 @@ function FolderCard({
   index,
   courseCount,
   folderCount,
+  overview,
+  rules,
   highlighted,
   isValidDrop,
   handlers,
@@ -212,6 +215,9 @@ function FolderCard({
   index: number;
   courseCount: number;
   folderCount: number;
+  /** Summary over every course inside, nested folders included. */
+  overview: Overview | null;
+  rules: UniversityRules;
   highlighted: boolean;
   isValidDrop: (payload: DragPayload) => boolean;
   handlers: CardHandlers;
@@ -238,6 +244,8 @@ function FolderCard({
 
   const courseText = `${courseCount} course${courseCount === 1 ? '' : 's'}`;
   const detail = folderCount > 0 ? `${courseText} · ${folderCount} folder${folderCount === 1 ? '' : 's'}` : courseText;
+  const average = overview ? `${Math.round(overview.average)}%` : '';
+  const summary = !overview ? null : rules.showGpa ? `GPA ${overview.gpa.toFixed(2)} · ${average}` : `${average} average`;
 
   return (
     <div
@@ -303,6 +311,7 @@ function FolderCard({
       <div className="info">
         <div className="code">{folder.name}</div>
         <div className="muted-sm">{detail}</div>
+        {summary && <div className="folder-gpa">{summary}</div>}
         <div className="folder-hint">Click to open · Drag courses/folders here</div>
       </div>
       <span className="folder-badge">{courseCount + folderCount}</span>
@@ -388,6 +397,8 @@ export function CourseGrid({ state, rules, highlightCourseId, highlightFolderId,
             index={index++}
             courseCount={state.courses.filter((c) => c.folderId === folder.id).length}
             folderCount={state.folders.filter((f) => f.parentFolderId === folder.id).length}
+            overview={semesterOverview(coursesInFolder(state, folder.id), rules)}
+            rules={rules}
             highlighted={folder.id === highlightFolderId}
             isValidDrop={isValidDropInto(folder.id)}
             handlers={handlers}

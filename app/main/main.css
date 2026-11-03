@@ -403,6 +403,13 @@ body.tour-restrict .tour-allow * {
       padding: 4px 8px;
       border-radius: 999px;
     }
+    .folder-gpa {
+      margin-top: 4px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+    }
     .folder-hint {
       margin-top: 6px;
       font-size: 12px;
