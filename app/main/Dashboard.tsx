@@ -21,6 +21,7 @@ import {
 import {
   addCourse,
   addFolder,
+  coursesInFolder,
   deleteFolder,
   duplicateCourse,
   folderNameTaken,
@@ -219,7 +220,7 @@ export function Dashboard() {
   const name = displayName(auth, profile);
   const picture = safePictureUrl(profile?.picture);
   const currentFolder = state.folders.find((f) => f.id === state.currentFolderId) ?? null;
-  const scoped = currentFolder ? state.courses.filter((c) => c.folderId === currentFolder.id) : state.courses;
+  const scoped = currentFolder ? coursesInFolder(state, currentFolder.id) : state.courses;
   const overview = semesterOverview(scoped, rules);
   const editingCourse = courseDialog.editingId ? state.courses.find((c) => c.id === courseDialog.editingId) ?? null : null;
   const editingInput = useMemo<CourseInput | null>(

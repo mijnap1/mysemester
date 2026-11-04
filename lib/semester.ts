@@ -347,6 +347,11 @@ export function isFolderInSubtree(folders: Folder[], folderId: string, rootId: s
   return false;
 }
 
+/** Courses in a folder and every folder nested inside it. */
+export function coursesInFolder(state: SemesterState, folderId: string): Course[] {
+  return state.courses.filter((c) => c.folderId != null && isFolderInSubtree(state.folders, c.folderId, folderId));
+}
+
 /** Move a folder under another (or to the top level). Refuses moves that would create a cycle. */
 export function moveFolder(state: SemesterState, folderId: string, parentId: string | null): SemesterState {
   if (folderId === parentId) return state;

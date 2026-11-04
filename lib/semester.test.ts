@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   addCourse,
   addFolder,
+  coursesInFolder,
   deleteFolder,
   emptyState,
   moveFolder,
@@ -110,6 +111,16 @@ describe('mutations', () => {
     const a = addFolder(emptyState(), 'A', null);
     const b = addFolder(a.state, 'B', a.id);
     expect(moveFolder(b.state, a.id, b.id)).toBe(b.state);
+  });
+
+  it('collects courses from nested folders', () => {
+    const year = addFolder(emptyState(), 'Year 2', null);
+    const fall = addFolder(year.state, 'Fall', year.id);
+    let s = addCourse(fall.state, { code: 'A', title: '', icon: 'book-outline', grade: 80 }, fall.id).state;
+    s = addCourse(s, { code: 'B', title: '', icon: 'book-outline', grade: 70 }, year.id).state;
+    s = addCourse(s, { code: 'C', title: '', icon: 'book-outline', grade: 60 }).state;
+    expect(coursesInFolder(s, year.id).map((c) => c.code).sort()).toEqual(['A', 'B']);
+    expect(coursesInFolder(s, fall.id).map((c) => c.code)).toEqual(['A']);
   });
 
   it('import queues deletes for courses it replaces', () => {
