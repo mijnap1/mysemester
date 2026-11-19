@@ -34,14 +34,6 @@ It works without an account. Sign in only if you want your courses on more than 
 
 <br>
 
-## The promo
-
-<a href="docs/readme/promo.mp4"><img src="docs/readme/promo-preview.webp" width="100%" alt="A clip from the promo: a mark is typed into Term Test 2, the course average ring counts from 82% to 85%, then the camera flies to the GPA, which rolls up to 3.71."></a>
-
-A 23-second film made entirely in code: one camera flight and one line of light, timed to the voice-over. [Watch it with sound](docs/readme/promo.mp4). The renderer lives in [`promo/film`](promo/film).
-
-<br>
-
 ## What's new in 2.0
 
 | | Change | Details |
