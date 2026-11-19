@@ -13,7 +13,7 @@
   overflow-y: auto;
   font-family: 'Outfit', sans-serif;
 }
-:root[data-theme='dark'] .syllabus-dialog { --syl-line: #334155; --syl-soft: #0f172a; }
+:root[data-theme='dark'] .syllabus-dialog { --syl-line: #45464c; --syl-soft: #27282c; }
 .syllabus-dialog::backdrop { background: rgba(15, 23, 42, 0.38); backdrop-filter: blur(4px); }
 .syllabus-dialog:focus-visible { outline: none; }
 body.dialog-lock { overflow: hidden; }
@@ -54,7 +54,7 @@ body.dialog-lock { overflow: hidden; }
 }
 .syl-drop:hover,
 .syl-drop.is-dragging,
-.syl-drop:focus-within { border-color: var(--blue); background: rgba(37, 99, 235, 0.05); }
+.syl-drop:focus-within { border-color: var(--blue); background: rgba(var(--accent-rgb, 37, 99, 235), 0.05); }
 .syl-drop.has-file { border-style: solid; border-color: var(--blue); }
 .syl-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 .syl-drop ion-icon { font-size: 30px; color: var(--blue); margin-bottom: 4px; }
@@ -110,7 +110,7 @@ body.dialog-lock { overflow: hidden; }
   font-size: 14px;
   outline: 0;
 }
-.syl-row input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+.syl-row input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 37, 99, 235), 0.12); }
 .syl-weight { display: flex; align-items: center; gap: 4px; color: var(--muted); font-weight: 600; }
 .syl-remove {
   display: grid;
@@ -170,8 +170,8 @@ body.dialog-lock { overflow: hidden; }
 }
 .syl-btn:disabled { opacity: 0.5; cursor: default; }
 .syl-btn-primary { border: 2px solid var(--blue); background: var(--blue); color: #fff; }
-.syl-btn-primary:not(:disabled):hover { background: #1d4ed8; }
-:root[data-theme='dark'] .syl-btn-primary { background: #2563eb; border-color: #2563eb; }
+.syl-btn-primary:not(:disabled):hover { background: var(--accent-strong, #1d4ed8); }
+:root[data-theme='dark'] .syl-btn-primary { background: var(--accent, #2563eb); border-color: var(--accent, #2563eb); }
 .syl-btn-quiet { border: 2px solid var(--syl-line); background: transparent; color: var(--muted); }
 .syl-btn-quiet:hover { color: var(--text); }
 
@@ -181,7 +181,7 @@ body.dialog-lock { overflow: hidden; }
   color: var(--blue);
   border: 2px solid var(--blue) !important;
 }
-.import-syllabus:hover { background: rgba(37, 99, 235, 0.07); }
+.import-syllabus:hover { background: rgba(var(--accent-rgb, 37, 99, 235), 0.07); }
 .empty-import {
   margin-top: 2px;
   padding: 4px;

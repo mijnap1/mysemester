@@ -4,7 +4,7 @@
       --card: #ffffff;
       --text: #0f172a;
       --muted: #6b7280;
-      --blue: #2563eb;
+      --blue: var(--accent, #2563eb);
       --line: #e5e7eb;
       --green: #22c55e;
       --red: #dc2626;
@@ -30,11 +30,11 @@
     .title {
       font-weight: 800;
       font-size: 52px;
-      background: linear-gradient(90deg, #2563eb, #60a5fa);
+      background: linear-gradient(90deg, var(--accent, #2563eb), var(--accent-text, #60a5fa));
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       letter-spacing: -0.5px;
-      text-shadow: 0 3px 12px rgba(37,99,235,0.15);
+      text-shadow: 0 3px 12px rgba(var(--accent-rgb, 37, 99, 235), 0.15);
       margin-bottom: 40px;
       animation: fadeUp 0.5s var(--ease) forwards;
     }
@@ -206,13 +206,13 @@
 
     
     :root[data-theme="dark"] body {
-      --bg: #0f172a;
-      --card: #1e293b;
+      --bg: #1c1d21;
+      --card: #27282c;
       --text: #f9fafb;
-      --muted: #94a3b8;
-      --line: #475569;
-      --input-bg: #334155;
-      --input-border: #64748b;
+      --muted: #a3a4ab;
+      --line: #55565d;
+      --input-bg: #313237;
+      --input-border: #55565d;
     }
 
     
@@ -261,7 +261,7 @@
     }
     .theme-toggle:hover {
       color: var(--blue);
-      background: rgba(37, 99, 235, 0.1);
+      background: rgba(var(--accent-rgb, 37, 99, 235), 0.1);
     }
     :root[data-theme="dark"] body .theme-toggle {
       color: var(--muted);

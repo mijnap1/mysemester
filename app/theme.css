@@ -1,0 +1,13 @@
+/* Dark-mode blues, toned down to sit on the charcoal greys.
+   Page stylesheets reference these as var(--accent*, <light value>),
+   so light mode keeps its original blues. */
+:root[data-theme="dark"] {
+  --accent: #4171d6;          /* buttons, fills (was #2563eb) */
+  --accent-strong: #3563c2;   /* hover / pressed (was #1d4ed8) */
+  --accent-text: #7da7ee;     /* links, icons, active text (was #60a5fa) */
+  --accent-soft: #a8c4f2;     /* light text on tinted chips (was #93c5fd) */
+  --accent-pale: #c6d8f6;     /* palest tint text (was #bfdbfe) */
+  --accent-rgb: 65, 113, 214;
+  --accent-text-rgb: 125, 167, 238;
+  --accent-soft-rgb: 168, 196, 242;
+}
