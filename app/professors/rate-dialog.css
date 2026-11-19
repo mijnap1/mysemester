@@ -57,7 +57,7 @@ body.dialog-lock { overflow: hidden; }
   cursor: pointer;
   transition: transform 0.15s var(--ease), color 0.15s var(--ease);
 }
-:root[data-theme="dark"] .rate-stars button { color: #475569; }
+:root[data-theme="dark"] .rate-stars button { color: #55565d; }
 .rate-stars button.on { color: var(--amber, #f59e0b); }
 .rate-stars button:hover { transform: scale(1.08); }
 .rate-segments { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; }
@@ -81,12 +81,12 @@ body.dialog-lock { overflow: hidden; }
 .rate-segments button.on,
 .rate-tags button.on {
   border-color: var(--blue);
-  background: rgba(37, 99, 235, 0.08);
+  background: rgba(var(--accent-rgb, 37, 99, 235), 0.08);
   color: var(--blue);
 }
 .rate-segments button.on span { color: inherit; }
 :root[data-theme="dark"] .rate-segments button.on,
-:root[data-theme="dark"] .rate-tags button.on { background: rgba(37, 99, 235, 0.18); }
+:root[data-theme="dark"] .rate-tags button.on { background: rgba(var(--accent-rgb, 37, 99, 235), 0.18); }
 .rate-error { margin: 0; color: #dc2626; font-size: 13px; font-weight: 600; }
 .rate-actions { display: flex; justify-content: flex-end; gap: 10px; padding-top: 4px; }
 .rate-btn {
@@ -100,7 +100,7 @@ body.dialog-lock { overflow: hidden; }
 }
 .rate-btn:disabled { opacity: 0.5; cursor: default; }
 .rate-btn-primary { border: 0; background: var(--blue); color: #fff; }
-:root[data-theme="dark"] .rate-btn-primary { background: #2563eb; }
+:root[data-theme="dark"] .rate-btn-primary { background: var(--accent, #2563eb); }
 .rate-btn-quiet { margin-right: auto; border: 1px solid var(--line); background: transparent; color: var(--muted); }
 @media (max-width: 420px) {
   .rate-segments span { display: none; }
@@ -119,4 +119,4 @@ body.dialog-lock { overflow: hidden; }
   font-size: 15px;
   outline: 0;
 }
-.rate-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12); }
+.rate-input:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(var(--accent-rgb, 37, 99, 235), 0.12); }

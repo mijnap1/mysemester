@@ -3,7 +3,7 @@
   --card: #ffffff;
   --text: #0f172a;
   --muted: #64748b;
-  --blue: #2563eb;
+  --blue: var(--accent, #2563eb);
   --line: #e2e8f0;
   --radius: 12px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -61,7 +61,7 @@ body {
 .kicker {
   display: inline-flex;
   padding: 4px 8px;
-  border: 1px solid #bfdbfe;
+  border: 1px solid var(--accent-pale, #bfdbfe);
   border-radius: 6px;
   background: #f8fbff;
   color: var(--blue);
@@ -164,7 +164,7 @@ body {
   display: inline-block;
   background: #94a3b8;
 }
-.dot-4 { background: #2563eb; }
+.dot-4 { background: var(--accent, #2563eb); }
 .dot-43 { background: #7c3aed; }
 .dot-10 { background: #0ea5e9; }
 .dot-12 { background: #22c55e; }
@@ -215,7 +215,7 @@ body {
 .scale-tag.fourthree { color: #5b21b6; background: #ede9fe; }
 .scale-tag.ten { color: #0c4a6e; background: #e0f2fe; }
 .scale-tag.twelve { color: #166534; background: #dcfce7; }
-.scale-tag.four { color: #1d4ed8; background: #dbeafe; }
+.scale-tag.four { color: var(--accent-strong, #1d4ed8); background: #dbeafe; }
 
 .scale-table {
   display: grid;

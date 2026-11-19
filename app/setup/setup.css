@@ -4,7 +4,7 @@
   --text: #0f172a;
   --muted: #6b7280;
   --line: #e5e7eb;
-  --blue: #2563eb;
+  --blue: var(--accent, #2563eb);
   --blue-soft: #e0e7ff;
   --radius: 16px;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
@@ -47,7 +47,7 @@ body {
   height: 48px;
   border-radius: 50%;
   background: var(--blue);
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.18);
+  box-shadow: 0 6px 16px rgba(var(--accent-rgb, 37, 99, 235), 0.18);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -124,7 +124,7 @@ body {
 }
 
 .step-dot.done {
-  background: #1d4ed8;
+  background: var(--accent-strong, #1d4ed8);
 }
 
 .step-rail {
@@ -136,7 +136,7 @@ body {
 }
 
 .step-rail.done {
-  background: #93c5fd;
+  background: var(--accent-soft, #93c5fd);
 }
 
 .options {
@@ -177,25 +177,25 @@ body {
 }
 
 .option:hover {
-  border-color: #bfdbfe;
+  border-color: var(--accent-pale, #bfdbfe);
   background: linear-gradient(180deg, #ffffff 0%, #eff6ff 100%);
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.10);
+  box-shadow: 0 8px 20px rgba(var(--accent-rgb, 37, 99, 235), 0.10);
   transform: translateY(-1px);
 }
 
 .option.active {
-  border-color: #1d4ed8;
+  border-color: var(--accent-strong, #1d4ed8);
   border-width: 2px;
-  background: linear-gradient(180deg, #dbeafe 0%, #bfdbfe 100%);
+  background: linear-gradient(180deg, #dbeafe 0%, var(--accent-pale, #bfdbfe) 100%);
   color: #0b3a9d;
   transform: translateY(-1px);
-  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.16);
+  box-shadow: 0 10px 24px rgba(var(--accent-rgb, 37, 99, 235), 0.16);
 }
 
 .option:focus-visible {
   outline: none;
-  border-color: #1d4ed8;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.20);
+  border-color: var(--accent-strong, #1d4ed8);
+  box-shadow: 0 0 0 4px rgba(var(--accent-rgb, 37, 99, 235), 0.20);
 }
 
 @keyframes optionIn {
@@ -241,7 +241,7 @@ body {
   transform: translateY(-1px);
   background: #f1f5fd;
   border-color: var(--blue);
-  color: #1e40af;
+  color: var(--accent-strong, #1e40af);
 }
 
 .next {
@@ -267,8 +267,8 @@ body {
 
 .next:enabled:hover {
   transform: translateY(-1px);
-  background: #1d4ed8;
-  box-shadow: 0 12px 22px rgba(37, 99, 235, 0.22);
+  background: var(--accent-strong, #1d4ed8);
+  box-shadow: 0 12px 22px rgba(var(--accent-rgb, 37, 99, 235), 0.22);
 }
 
 .pager {

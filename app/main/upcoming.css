@@ -277,7 +277,7 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
   background: var(--blue);
   color: #fff;
 }
-.quercus-prompt-primary:hover { background: #1d4ed8; transform: translateY(-1px); }
+.quercus-prompt-primary:hover { background: var(--accent-strong, #1d4ed8); transform: translateY(-1px); }
 .quercus-prompt-secondary {
   border: 1px solid var(--line);
   background: var(--card);
@@ -286,13 +286,13 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
 .quercus-prompt-secondary:hover { border-color: #cbd5e1; transform: translateY(-1px); }
 .quercus-prompt button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
-:root[data-theme="dark"] .quercus-prompt { border-color: #1f2937; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55); }
+:root[data-theme="dark"] .quercus-prompt { border-color: #3a3b40; box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55); }
 :root[data-theme="dark"] .quercus-prompt-icon {
-  background: linear-gradient(180deg, rgba(59,130,246,0.16) 0%, rgba(59,130,246,0.08) 100%);
-  border-color: rgba(96,165,250,0.25);
-  color: #93c5fd;
+  background: linear-gradient(180deg, rgba(var(--accent-rgb, 59, 130, 246), 0.16) 0%, rgba(var(--accent-rgb, 59, 130, 246), 0.08) 100%);
+  border-color: rgba(var(--accent-text-rgb, 96, 165, 250), 0.25);
+  color: var(--accent-soft, #93c5fd);
 }
-:root[data-theme="dark"] .quercus-prompt-secondary:hover { border-color: #334155; }
+:root[data-theme="dark"] .quercus-prompt-secondary:hover { border-color: #45464c; }
 
 @media (max-width: 700px) {
   .quercus-prompt {
@@ -353,8 +353,8 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
   font-size: 11.5px;
   font-weight: 700;
 }
-:root[data-theme="dark"] .view-switch button[aria-selected="true"] { background: #1e293b; box-shadow: none; }
-:root[data-theme="dark"] .view-switch button[aria-selected="true"] ion-icon { color: #93c5fd; }
+:root[data-theme="dark"] .view-switch button[aria-selected="true"] { background: #313237; box-shadow: none; }
+:root[data-theme="dark"] .view-switch button[aria-selected="true"] ion-icon { color: var(--accent-soft, #93c5fd); }
 
 /* Deadlines view before Quercus is connected. */
 .deadlines-connect {
@@ -374,7 +374,7 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
   border-radius: 16px;
   background: linear-gradient(180deg, #f5f8ff 0%, #e8efff 100%);
   border: 1px solid #dbe5ff;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.10);
+  box-shadow: 0 6px 16px rgba(var(--accent-rgb, 37, 99, 235), 0.10);
   color: var(--blue);
   font-size: 26px;
   margin-bottom: 14px;
@@ -383,10 +383,10 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
 .deadlines-connect p { margin: 0 0 20px; max-width: 340px; font-size: 14px; line-height: 1.5; color: var(--muted); }
 .deadlines-connect .btn-primary { padding: 11px 22px; }
 :root[data-theme="dark"] .deadlines-connect-icon {
-  background: linear-gradient(180deg, rgba(59,130,246,0.16) 0%, rgba(59,130,246,0.08) 100%);
-  border-color: rgba(96,165,250,0.25);
+  background: linear-gradient(180deg, rgba(var(--accent-rgb, 59, 130, 246), 0.16) 0%, rgba(var(--accent-rgb, 59, 130, 246), 0.08) 100%);
+  border-color: rgba(var(--accent-text-rgb, 96, 165, 250), 0.25);
   box-shadow: none;
-  color: #93c5fd;
+  color: var(--accent-soft, #93c5fd);
 }
 @media (max-width: 700px) {
   .view-switch { margin-top: 16px; }
@@ -409,7 +409,7 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
 .card-next-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .card-next-when { flex: none; font-weight: 500; color: var(--muted); }
 .card-next.is-overdue { color: var(--danger); }
-:root[data-theme="dark"] .card-next { color: #93c5fd; }
+:root[data-theme="dark"] .card-next { color: var(--accent-soft, #93c5fd); }
 :root[data-theme="dark"] .card-next.is-overdue { color: #f87171; }
 
 /* "Heavy week ahead" banner at the top of the deadline list. */
@@ -483,7 +483,7 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
   border-radius: 999px;
 }
 .deadline-add {
-  border: 1px dashed #bfdbfe;
+  border: 1px dashed var(--accent-pale, #bfdbfe);
   background: none;
   color: var(--blue);
   cursor: pointer;
@@ -498,8 +498,8 @@ body[data-layout="spacious"] .upcoming { padding: 22px 26px; }
 .deadline-added ion-icon { font-size: 13px; }
 .deadline-added { color: #16a34a; }
 @media (hover: none) { .deadline-add { opacity: 1; } }
-:root[data-theme="dark"] .deadline-add { border-color: rgba(96, 165, 250, 0.45); color: #93c5fd; }
-:root[data-theme="dark"] .deadline-add:hover { background: rgba(37, 99, 235, 0.15); }
+:root[data-theme="dark"] .deadline-add { border-color: rgba(var(--accent-text-rgb, 96, 165, 250), 0.45); color: var(--accent-soft, #93c5fd); }
+:root[data-theme="dark"] .deadline-add:hover { background: rgba(var(--accent-rgb, 37, 99, 235), 0.15); }
 :root[data-theme="dark"] .deadline-added { color: #4ade80; }
 
 /* "Rate your professor" on a finished course: same line as the next deadline, as a button. */

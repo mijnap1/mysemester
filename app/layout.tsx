@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { THEME_INIT_SCRIPT } from '@/lib/theme';
+import './theme.css';
 
 const DESCRIPTION =
   'Smartly track your university grades, plan courses, and stay on top of your semester. MySemester helps you visualize progress, organize assessments, and keep everything academic in one simple dashboard.';
